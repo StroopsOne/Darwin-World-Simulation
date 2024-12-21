@@ -33,9 +33,9 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     }
 
     @Override
-    public void move(Animal animal, MoveDirection direction) {
+    public void move(Animal animal, int rotation) {
         Vector2d oldPosition = animal.getPosition();
-        animal.move(direction, this);
+        animal.move(rotation/*, this*/);
         Vector2d newPosition = animal.getPosition();
 
         if (!oldPosition.equals(newPosition)) {
