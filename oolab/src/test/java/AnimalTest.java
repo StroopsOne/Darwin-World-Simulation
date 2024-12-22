@@ -1,99 +1,114 @@
 
-import agh.ics.oop.model.Animal;
-import agh.ics.oop.model.MapDirection;
-import agh.ics.oop.model.MoveDirection;
-import agh.ics.oop.model.Vector2d;
+import agh.ics.oop.model.*;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/*public class AnimalTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AnimalTest {
 
     @Test
-    public void moveRightAndForwardTest(){
-        Animal animal1 = new Animal();
+    void testConstructor() {
+        Vector2d position = new Vector2d(5, 5);
+        int energy = 50;
+        Animal animal = new Animal(position, energy);
 
-        assertEquals(MapDirection.NORTH , animal1.getOrientation());
-        assertEquals(new Vector2d(2,2), animal1.getPosition());
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(2,3), animal1.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        assertEquals(MapDirection.EAST , animal1.getOrientation());
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(3,3), animal1.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        assertEquals(MapDirection.SOUTH , animal1.getOrientation());
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(3,2), animal1.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        assertEquals(MapDirection.WEST , animal1.getOrientation());
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(2,2), animal1.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        assertEquals(MapDirection.NORTH , animal1.getOrientation());
+        assertEquals(position, animal.getPosition());
+        assertEquals(MapDirection.NORTH, animal.getOrientation());
+        assertEquals(energy, animal.getEnergy());
+        assertTrue(animal.isAlive());
     }
+
     @Test
-    public void moveLeftAndBackwardTest(){
-        Animal animal2 = new Animal(new Vector2d(2, 3));
+    void testMove() {
+        Vector2d initialPosition = new Vector2d(2, 2);
+        int energy = 50;
+        Animal animal = new Animal(initialPosition, energy);
 
-        assertEquals(MapDirection.NORTH , animal2.getOrientation());
-        assertEquals(new Vector2d(2,3), animal2.getPosition());
-        animal2.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(2,2), animal2.getPosition());
-        animal2.move(MoveDirection.LEFT);
-        assertEquals(MapDirection.WEST , animal2.getOrientation());
-        animal2.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(3,2), animal2.getPosition());
-        animal2.move(MoveDirection.LEFT);
-        assertEquals(MapDirection.SOUTH , animal2.getOrientation());
-        animal2.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(3,3), animal2.getPosition());
-        animal2.move(MoveDirection.LEFT);
-        assertEquals(MapDirection.EAST , animal2.getOrientation());
-        animal2.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(2,3), animal2.getPosition());
-        animal2.move(MoveDirection.LEFT);
-        assertEquals(MapDirection.NORTH , animal2.getOrientation());
+        MoveValidator alwaysValid = pos -> true;
+
+        animal.move(MoveDirection.FORWARD, alwaysValid);
+        assertEquals(new Vector2d(2, 3), animal.getPosition());
+        assertEquals(MapDirection.NORTH, animal.getOrientation());
+
+        animal.move(MoveDirection.RIGHT, alwaysValid);
+        assertEquals(MapDirection.EAST, animal.getOrientation());
+
+        animal.move(MoveDirection.BACKWARD, alwaysValid);
+        assertEquals(new Vector2d(1, 3), animal.getPosition());
     }
+
     @Test
-    void leavesMapTest(){
-        Animal animal1 = new Animal(new Vector2d(2, 4));
-        Animal animal2 = new Animal(new Vector2d(4, 3));
-        Animal animal3 = new Animal(new Vector2d(0, 2));
-        Animal animal4 = new Animal(new Vector2d(3, 0));
+    void testMoveValidation() {
+        Vector2d initialPosition = new Vector2d(2, 2);
+        int energy = 50;
+        Animal animal = new Animal(initialPosition, energy);
 
-        //wychodzenie na północy
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(2, 4), animal1.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(2, 4), animal1.getPosition());
+        MoveValidator blockAllMoves = pos -> false;
 
-        //wychodzenie na wschodzie
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(4, 3), animal2.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(4, 3), animal2.getPosition());
-
-        //wychodzenie na południu
-        animal1.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(0, 2), animal3.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(0, 2), animal3.getPosition());
-
-        //wychodzenie na zachodzie
-        animal1.move(MoveDirection.LEFT);
-        animal1.move(MoveDirection.FORWARD);
-        assertEquals(new Vector2d(3, 0), animal4.getPosition());
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.RIGHT);
-        animal1.move(MoveDirection.BACKWARD);
-        assertEquals(new Vector2d(3, 0), animal4.getPosition());
+        animal.move(MoveDirection.FORWARD, blockAllMoves);
+        assertEquals(initialPosition, animal.getPosition());
     }
+
+    @Test
+    void testEnergyManagement() {
+        Vector2d position = new Vector2d(5, 5);
+        int initialEnergy = 10;
+        Animal animal = new Animal(position, initialEnergy);
+
+        // Test utraty energii
+        animal.dayPasses();
+        assertEquals(9, animal.getEnergy());
+
+        // Test zjedzenia rośliny
+        animal.plantEatten(20);
+        assertEquals(29, animal.getEnergy());
+
+        // Test śmierci
+        for (int i = 0; i < 29; i++) {
+            animal.dayPasses();
+        }
+        assertFalse(animal.isAlive());
+    }
+
+    @Test
+    void testReadyForKids() {
+        Vector2d position = new Vector2d(5, 5);
+        Animal animal = new Animal(position, 101);
+
+        assertTrue(animal.ReadyForKids());
+
+        animal.dayPasses();
+        assertFalse(animal.ReadyForKids());
+    }
+
+    @Test
+    void testOrientation() {
+        Vector2d position = new Vector2d(2, 2);
+        Animal animal = new Animal(position, 50);
+
+        animal.move(MoveDirection.RIGHT, pos -> true);
+        assertEquals(MapDirection.EAST, animal.getOrientation());
+
+        animal.move(MoveDirection.LEFT, pos -> true);
+        assertEquals(MapDirection.NORTH, animal.getOrientation());
+    }
+
+    @Test
+    void testKilledBySowoniedzwiedz() {
+        Vector2d position = new Vector2d(5, 5);
+        Animal animal = new Animal(position, 50);
+
+        animal.killedBySowoniedzwiedz();
+        assertFalse(animal.isAlive());
+    }
+
+    @Test
+    void testToString() {
+        Animal animal = new Animal(new Vector2d(0, 0), 50);
+        assertEquals("N", animal.toString());
+
+        animal.move(MoveDirection.RIGHT, pos -> true);
+        assertEquals("E", animal.toString());
+    }
+
 }
-*/
