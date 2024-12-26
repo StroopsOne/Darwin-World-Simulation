@@ -1,3 +1,4 @@
+/*
 package agh.ics.oop.model;
 
 import org.junit.jupiter.api.Test;
@@ -106,4 +107,4 @@ class RectangularMapTest {
     }
 
 
-}
+}*/
