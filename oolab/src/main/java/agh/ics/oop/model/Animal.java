@@ -69,26 +69,18 @@ public class Animal implements WorldElement {
     public boolean isAt(Vector2d position){
         return this.position.equals(position);
     }
-    public void move(MoveDirection direction, MoveValidator isMoveValid) {
-
+    public void move(int gene/* MoveValidator isMoveValid*/) {
         Vector2d newPosition;
-        switch(direction) {
-            case RIGHT -> orientation = orientation.next();
-            case LEFT -> orientation = orientation.previous();
 
-            case FORWARD -> {
-                newPosition = position.add(orientation.toUnitVector());
-                if (isMoveValid.canMoveTo(newPosition)) {
-                    position = newPosition;
-                }
-            }
-            case BACKWARD -> {
-                newPosition = position.subtract(orientation.toUnitVector());
-                if (isMoveValid.canMoveTo(newPosition)) {
-                    position = newPosition;
-                }
-            }
+        for (int i=0; i < gene; i++){
+            orientation = orientation.next();
         }
-
+        position = position.add(orientation.toUnitVector());
+        /*
+        newPosition = position.add(orientation.toUnitVector());
+        if (isMoveValid.canMoveTo(newPosition)) {
+            position = newPosition;
+        }
+        */
     }
 }

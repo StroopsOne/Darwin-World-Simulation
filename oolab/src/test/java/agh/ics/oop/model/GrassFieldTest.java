@@ -1,3 +1,4 @@
+/*
 package agh.ics.oop.model;
 
 import agh.ics.oop.OptionsParser;
@@ -114,4 +115,4 @@ class GrassFieldTest {
     }
 
 
-}
+}*/

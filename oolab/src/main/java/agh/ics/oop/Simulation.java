@@ -39,7 +39,7 @@ public class Simulation implements Runnable {
         while (moveNum < len) {
             int petIdx = 1;
             for (Animal pet : animalList) {
-                mapAnimals.move(pet, moveList.get(moveNum));
+                //mapAnimals.move(pet, moveList.get(moveNum));
 
                 moveNum++;
                 if (moveNum == len) {
