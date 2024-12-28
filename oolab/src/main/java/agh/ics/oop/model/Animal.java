@@ -9,18 +9,46 @@ public class Animal implements WorldElement {
     public MapDirection getOrientation() {
         return orientation;
     }
+    private int energy;
+    private final int ReadyForKidsEnergy=100;       //ilość energii ustalona do rozmnażania
+    private boolean alive=true;
+
     public Vector2d getPosition() {
 
         return position;
     }
-
-    public Animal(){
-        this(defaultVector);
-    }
-    public Animal(Vector2d vector){
+    public Animal(Vector2d vector, int energy){         //usunąłem deafult vector bo w projekcie nie ma już sensu, miejsce zwierzęcia i tak losowane
         this.orientation = MapDirection.NORTH;
         this.position = vector;
+        this.energy=energy;
     }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    public boolean isAlive(){
+        return alive;
+    }
+
+    public void dayPasses(){
+        energy=energy-1;
+        if (energy==0)  alive=false;
+    }
+
+    public void killedBySowoniedzwiedz(){
+        alive=false;
+    }
+
+    public void plantEatten(int plantValue){
+        energy+=plantValue;
+    }
+
+    public boolean ReadyForKids(){
+        if (energy>ReadyForKidsEnergy)  return true;
+        else return false;
+    }
+
     public String toString(){
         switch(orientation){
             case NORTH -> {
