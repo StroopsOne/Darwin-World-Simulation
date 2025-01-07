@@ -144,18 +144,19 @@ public class Animal implements WorldElement {
     public boolean isAt(Vector2d position){
         return this.position.equals(position);
     }
-    public void move(int gene/* MoveValidator isMoveValid*/) {
+    public void move(int gene, MoveValidator isMoveValid, int width) {
         Vector2d newPosition;
 
-        for (int i=0; i < gene; i++){
+        for (int i = 0; i < gene; i++) {
             orientation = orientation.next();
         }
-        position = position.add(orientation.toUnitVector());
-        /*
+
         newPosition = position.add(orientation.toUnitVector());
         if (isMoveValid.canMoveTo(newPosition)) {
             position = newPosition;
+        } else if (newPosition.getX() == -1) {
+            position = new Vector2d(width - 1, newPosition.getY());
+        } else if (newPosition.getX() == width) {
+            position = new Vector2d(0, newPosition.getY());
         }
-        */
     }
-}

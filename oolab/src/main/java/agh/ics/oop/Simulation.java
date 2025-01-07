@@ -19,7 +19,7 @@ public class Simulation implements Runnable {
             Animal animal = new Animal(pos);
             try{
 
-                mapAnimals.place(animal);
+                mapAnimals.placeAnimal(animal);
                 animalList.add(animal);
 
             }catch (IncorrectPositionException e){

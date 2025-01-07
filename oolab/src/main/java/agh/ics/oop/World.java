@@ -30,7 +30,7 @@ public class World {
                     int numVectors = random.nextInt(10) + 1;
                     int numMoves = random.nextInt(20) + 1;
                     int grassPoints = random.nextInt(10) + 1;
-                    GrassField animalsMap = new GrassField(grassPoints);
+                    TheEarth animalsMap = new TheEarth(grassPoints);
                     animalsMap.addObserver(observer);
                     for (int j = 0; j < numVectors; j++) {
                         int x = random.nextInt(grassPoints * 2) + 1;

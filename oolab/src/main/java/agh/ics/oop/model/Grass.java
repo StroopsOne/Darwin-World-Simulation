@@ -2,7 +2,7 @@ package agh.ics.oop.model;
 
 public class Grass implements WorldElement {
     private final Vector2d grassPosition;
-    private boolean notEatten= true;
+    private boolean grassEaten= true;
     private final int plantValue;     //wielkość rośliny
 
     public Grass(Vector2d grassPosition, int plantValue){
@@ -14,13 +14,12 @@ public class Grass implements WorldElement {
         return plantValue;
     }
 
-    public boolean isAlive(){
-        if (notEatten)  return true;
-        else return false;
+    public boolean isEaten(){ //zmieniłem nazwe na isEaten i troche logike bo chyba bardziej pasuje
+        return grassEaten;
     }
 
     public void plantEatten(){
-        notEatten=false;
+        grassEaten=true;
     }
 
     public Vector2d getPosition(){
