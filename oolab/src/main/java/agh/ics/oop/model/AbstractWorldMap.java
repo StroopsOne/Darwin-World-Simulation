@@ -11,9 +11,13 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final MapVisualizer visualizer = new MapVisualizer(this);
     private final List<MapChangeListener> observers = new ArrayList<>();
     private final UUID id;
+    private final int height;
+    private final int width;
 
-    protected AbstractWorldMap() {
+    protected AbstractWorldMap(int height, int width) {
         this.id = UUID.randomUUID();
+        this.height = height;
+        this.width = width;
     }
 
     @Override
@@ -22,7 +26,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     }
 
     @Override
-    public boolean place(Animal animal) throws IncorrectPositionException {
+    public boolean placeAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d position = animal.getPosition();
         if (canMoveTo(position)) {
             animals.put(position, animal);
@@ -33,9 +37,9 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     }
 
     @Override
-    public void move(Animal animal, int rotation) {
+    public void move(Animal animal, int gene) {
         Vector2d oldPosition = animal.getPosition();
-        animal.move(rotation/*, this*/);
+        animal.move(gene, this, width);
         Vector2d newPosition = animal.getPosition();
 
         if (!oldPosition.equals(newPosition)) {
@@ -45,9 +49,11 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
+
+
     @Override
-    public boolean isOccupied(Vector2d position) {
-        return animals.containsKey(position);
+    public boolean isAnimalOnPosition(Vector2d position) {
+        return animals.containsKey(position) && animals.get(position).isAlive();
     }
 
     @Override

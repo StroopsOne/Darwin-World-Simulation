@@ -115,7 +115,7 @@ public class SimulationPresenter implements MapChangeListener {
         String[] moves = input.split(" ");
         try {
             List<MoveDirection> directions = OptionsParser.parse(moves);
-            WorldMap worldMap = new GrassField(10);
+            WorldMap worldMap = new TheEarth(10);
             List<Vector2d> initialPositions = List.of(new Vector2d(2, 2), new Vector2d(4, 4));
 
             try {
