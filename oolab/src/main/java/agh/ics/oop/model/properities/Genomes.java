@@ -4,6 +4,8 @@ import agh.ics.oop.model.Animal;
 
 import java.util.*;
 
+import static java.lang.reflect.Array.get;
+
 public class Genomes {
     private final List<Integer>genes;
 
@@ -14,9 +16,10 @@ public class Genomes {
             this.genes.add(random.nextInt(8));
         }
     }
-    public Genomes(List<Integer>genes, int minGeneMutation, int maxGeneMutation){
+    public Genomes(List<Integer>genes, int minGeneMutation, int maxGeneMutation, boolean slightCorrection){
         this.genes=genes;
-        Mutate(genes, minGeneMutation, maxGeneMutation);
+        if (slightCorrection)   SlightCorrection(genes,minGeneMutation,maxGeneMutation);
+        else RandomMutation(genes, minGeneMutation, maxGeneMutation);
     }
 
     public List<Integer>getGenes(){
@@ -45,7 +48,7 @@ public class Genomes {
 
     }
 
-    public void Mutate(List<Integer>genes,int mingeneMutation, int maxgeneMutation){
+    public void RandomMutation(List<Integer>genes,int mingeneMutation, int maxgeneMutation){
         List<Integer>mutatedGenes= new ArrayList<>();
         int numberOfMutations;
         Random random= new Random();
@@ -66,6 +69,31 @@ public class Genomes {
             genes.set(randomIndex, random.nextInt(8));
         }
 
+    }
+
+    public void SlightCorrection(List<Integer>genes,int mingeneMutation, int maxgeneMutation){
+        List<Integer>mutatedGenes= new ArrayList<>();
+        Random random=new Random();
+        int numberOfMutations;
+        if (mingeneMutation==maxgeneMutation)   numberOfMutations=mingeneMutation;
+        else    numberOfMutations=random.nextInt(maxgeneMutation - mingeneMutation) + mingeneMutation;
+
+        Set<Integer> mutatedIndices = new HashSet<>();
+
+        for (int i = 0; i < numberOfMutations; i++) {
+            int randomIndex;
+
+            // Znajdywanie losowego, jeszcze nie zmutowanego genu
+            do {
+                randomIndex = random.nextInt(genes.size());
+            } while (mutatedIndices.contains(randomIndex));
+
+            mutatedIndices.add(randomIndex);
+
+            boolean mutateUpper= random.nextBoolean();
+            if (mutateUpper)    genes.set(randomIndex,genes.get(randomIndex)+1);
+            else genes.set(randomIndex,genes.get(randomIndex)-1);
+        }
     }
 
 }

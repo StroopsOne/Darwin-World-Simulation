@@ -1,6 +1,8 @@
 package agh.ics.oop.model;
 
 
+import java.util.Random;
+
 public enum MapDirection {
     NORTH,
     NORTHEAST,
@@ -52,6 +54,12 @@ public enum MapDirection {
     final Vector2d vectorSouthWest = new Vector2d(-1, -1);
     final Vector2d vectorNorthEast = new Vector2d(1, 1);
     final Vector2d vectorSouthEast = new Vector2d(1, -1);
+
+    public MapDirection randomDirection(){
+        MapDirection directions[]=values();
+        int randomIndex=new Random().nextInt(directions.length);
+        return directions[randomIndex];
+    }
 
 
 
