@@ -1,7 +1,6 @@
 package agh.ics.oop.model.util;
 
-import agh.ics.oop.model.WorldElement;
-import agh.ics.oop.model.WorldMap;
+import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.Vector2d;
 
 /**

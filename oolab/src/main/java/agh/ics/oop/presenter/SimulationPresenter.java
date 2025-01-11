@@ -1,9 +1,10 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.OptionsParser;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.maps.TheEarth;
+import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.util.MapChangeListener;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
