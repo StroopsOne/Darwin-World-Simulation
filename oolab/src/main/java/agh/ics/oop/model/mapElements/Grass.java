@@ -1,8 +1,10 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.mapElements;
+
+import agh.ics.oop.model.Vector2d;
 
 public class Grass implements WorldElement {
     private final Vector2d grassPosition;
-    private boolean grassEaten= true;
+    private boolean grassEaten= false;
     private final int plantValue;     //wielkość rośliny
 
     public Grass(Vector2d grassPosition, int plantValue){

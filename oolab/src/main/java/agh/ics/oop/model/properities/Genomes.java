@@ -1,6 +1,5 @@
 package agh.ics.oop.model.properities;
-import agh.ics.oop.model.AbstractWorldMap;
-import agh.ics.oop.model.Animal;
+import agh.ics.oop.model.mapElements.Animal;
 
 import java.util.*;
 

@@ -2,17 +2,17 @@ package agh.ics.oop;
 
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.IncorrectPositionException;
-import agh.ics.oop.model.WorldMap;
+import agh.ics.oop.model.mapElements.Animal;
+import agh.ics.oop.model.maps.WorldMap;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable {
     private final List<Animal> animalList;
-    private final List<MoveDirection> moveList;
     private final WorldMap mapAnimals;
 
 
-    public Simulation(List<Vector2d> startPositions, List<MoveDirection> moveList, WorldMap mapAnimals) throws IncorrectPositionException {
+    public Simulation(List<Vector2d> startPositions, WorldMap mapAnimals) throws IncorrectPositionException {
         animalList = new ArrayList<>();
         int counter = 0;
         for (Vector2d pos : startPositions) {
@@ -26,7 +26,6 @@ public class Simulation implements Runnable {
                 System.out.println(e.getMessage());
             }
         }
-        this.moveList = moveList;
         this.mapAnimals = mapAnimals;
     }
 
