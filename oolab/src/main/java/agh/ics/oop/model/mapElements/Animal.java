@@ -6,6 +6,7 @@ import agh.ics.oop.model.maps.MoveValidator;
 import agh.ics.oop.model.properities.Genomes;
 
 import java.util.List;
+import java.util.Random;
 
 public class Animal implements WorldElement {
 
@@ -16,6 +17,7 @@ public class Animal implements WorldElement {
     private int energy;
     private final int ReproductionEnergy;       //ilość energii ustalona do rozmnażania
     private final Genomes genes;
+    private final int geneUsedNumber; //sledzi ktory gen jest teraz uzywany, mozliwe ze logika i nazwa do zmiany
     private int ageDays;
     private int deathDay;
     private final int mingeneMutation;
@@ -24,12 +26,14 @@ public class Animal implements WorldElement {
     private Animal parent2;
     private int childrenCount;
     private final int parentingEnergy;  //energia zużywana przez posiadanie dzieci
+    Random random = new Random();
 
     public Animal(Vector2d vector, int startEnergy, int geneSize, int reproductionEnergy, int mingeneMutation, int maxgeneMutation, int parentingEnergy) {
         this.orientation = MapDirection.NORTH;
         this.position = vector;
         this.energy = startEnergy;
         this.genes = new Genomes(geneSize);
+        this.geneUsedNumber = random.nextInt(geneSize);
         this.ageDays = 0;
         this.deathDay = -1;       //czyli zwierzak żyje
         this.ReproductionEnergy = reproductionEnergy;
@@ -52,6 +56,7 @@ public class Animal implements WorldElement {
         this.orientation = MapDirection.NORTH;
         this.position = position;
         this.energy = inheritedEnergy;
+        this.geneUsedNumber = random.nextInt(geneSize); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
         this.genes = genomes;
         this.ageDays = 0;
         this.deathDay = -1;       //czyli zwierzak żyje

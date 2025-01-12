@@ -20,24 +20,70 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final int width;
     private final Vector2d maxVector;
     private final Vector2d minVector;
+    private final Set<Vector2d> preferredPositions = new HashSet<>();
+    private final Set<Vector2d> notPreferredPositions = new HashSet<>();
+    private final int preferredPositionsCount;
+    private final int notPreferredPositionsCount;
+    Random random = new Random();
 
-    protected AbstractWorldMap(int height, int width) {
+    protected AbstractWorldMap(int height, int width){
         this.id = UUID.randomUUID();
         this.height = height;
         this.width = width;
         maxVector = new Vector2d(width-1, height-1);
         minVector = new Vector2d(0,0);
+        int upperEquatorBound = (int) (0.4*(height-1));
+        int lowerEquatorBound = (int) (0.6*(height-1));
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Vector2d position = new Vector2d(i, j);
+                if (j >= upperEquatorBound && j < lowerEquatorBound) {
+                    preferredPositions.add(position);
+                } else {
+                    notPreferredPositions.add(position);
+                }
+            }
+        }
+        this.preferredPositionsCount = preferredPositions.size();
+        this.notPreferredPositionsCount = notPreferredPositions.size();
+
     }
 
-    public void placeStartObjects(int animalsCount, int grassesCount){
-        //ustawi obiekty czyli takie jak animal, grass czy sowoniedzwiedz na mapie
+    public void placeStartObjects(int animalsCount, int grassesCount, int grassValue){
+        for (int i = 0; i < animalsCount; i++){
+            Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
+            animals.put(position, new Animal(/*tu trzeba przekazac*/));
+        }
+        plantNewGrasses(grassesCount, grassValue);
     }
 
 
     public void plantGrass(Vector2d position, Grass grass){ grassPoints.put(position, grass); }  //trawa wyrasta na pozycji
     public void removeEeatenGrass(Grass grass){grassPoints.remove(grass.getPosition());} //usuwa zjedzona trawe
-    public void plantNewGrasses(int NumOfGrasses){
-        //bedzie stawiałą nowe trawy na mapie, mozna uzyc na poczatku
+    public void plantNewGrasses(int grassesCount, int grassValue) {
+
+
+        for (int i = 0; i < grassesCount; i++) {
+            Set<Vector2d> targetSet;
+            int x = random.nextInt(5); // 20% szans na niepreferowane pola, 80% na preferowane
+
+            if (x == 0) {
+                targetSet = notPreferredPositions;
+            } else {
+                targetSet = preferredPositions;
+            }
+            // Losowanie pola z wybranego zbioru
+            if (!targetSet.isEmpty()) {
+                int randomIndex = random.nextInt(targetSet.size());
+                Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
+
+                // Dodaj trawę i usuń zajętą pozycję z dostępnych pól
+                if (position != null) {
+                    grassPoints.put(position, new Grass(position, grassValue));
+                    targetSet.remove(position);
+                }
+            }
+        }
     }
 
     public boolean isGrassOnPosition(Vector2d position){
@@ -88,11 +134,13 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
     public void moveAllAnimals(){
         for (Animal animal : animals.values()){
-            move(animal, animal.getGenes()); //potrzenba jakas implementacja aby było wiedziec ktory gen uzywa obecnie
+            move(animal, animal.getGenes());
+            //potrzenba jakas implementacja aby było wiedziec ktory gen uzywa obecnie
         }
     }
 
     @Override
+
     public boolean canMoveTo(Vector2d position) {
         return position.follows(minVector) && position.precedes(maxVector);
     }

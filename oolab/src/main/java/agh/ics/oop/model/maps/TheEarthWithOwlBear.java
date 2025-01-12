@@ -10,16 +10,17 @@ import java.util.Random;
 public class TheEarthWithOwlBear extends AbstractWorldMap {
     OwlBear owlBear;
     int owlBearTerritorySide;
-    Vector2d lowerTerritoryCoordinates;
-    Vector2d upperTerritoryCoordinates;
+    private final Vector2d lowerTerritoryCoordinates;
+    private final Vector2d upperTerritoryCoordinates;
+    private final OwlBear owlBear;
 
-    public TheEarthWithOwlBear(int height, int width, OwlBear owlBear) {
+    public TheEarthWithOwlBear(int height, int width) {
         super(height, width);
-        this.owlBear = owlBear;
         owlBearTerritorySide = (int) Math.sqrt(0.2 * height * width);
 
         lowerTerritoryCoordinates = generateOwlBearTerritory(height, width);
         upperTerritoryCoordinates = lowerTerritoryCoordinates.add(new Vector2d(owlBearTerritorySide, owlBearTerritorySide));
+        this.owlBear = new OwlBear(random.nextInt()) //tu trzeba dokonczyc
     }
 
     public Vector2d generateOwlBearTerritory(int height, int width){ //wybiera losowe pole, które jest lewym dolnym rogiem terytorium SowoNiedźwiedzia
