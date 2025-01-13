@@ -55,7 +55,7 @@ public enum MapDirection {
     final Vector2d vectorNorthEast = new Vector2d(1, 1);
     final Vector2d vectorSouthEast = new Vector2d(1, -1);
 
-    public MapDirection randomDirection(){
+    public static MapDirection randomDirection(){
         MapDirection directions[]=values();
         int randomIndex=new Random().nextInt(directions.length);
         return directions[randomIndex];

@@ -21,9 +21,15 @@ public class Genomes {
         else RandomMutation(genes, minGeneMutation, maxGeneMutation);
     }
 
-    public List<Integer>getGenes(){
-        return genes;
+    public int getGene(int index){
+        return genes.get(index);
     }
+
+    public int getGenomeSize(){
+        return genes.size();
+    }
+
+    public List<Integer>getGenes(){return genes;}
 
     public List<Integer>ChildGenes(Animal mom, Animal dad){     //mom, dad umowne, którsze nazwy od firstParent
         Animal strongerParent = mom.getEnergy() > dad.getEnergy() ? mom : dad;
