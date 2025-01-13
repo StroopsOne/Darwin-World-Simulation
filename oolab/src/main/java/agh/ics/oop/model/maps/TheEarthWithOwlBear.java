@@ -3,12 +3,11 @@ package agh.ics.oop.model.maps;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.mapElements.OwlBear;
 import agh.ics.oop.model.mapElements.WorldElement;
-
+import agh.ics.oop.model.MapDirection;
 import java.util.Collection;
 import java.util.Random;
 
 public class TheEarthWithOwlBear extends AbstractWorldMap {
-    OwlBear owlBear;
     int owlBearTerritorySide;
     private final Vector2d lowerTerritoryCoordinates;
     private final Vector2d upperTerritoryCoordinates;
@@ -20,7 +19,13 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
 
         lowerTerritoryCoordinates = generateOwlBearTerritory(height, width);
         upperTerritoryCoordinates = lowerTerritoryCoordinates.add(new Vector2d(owlBearTerritorySide, owlBearTerritorySide));
-        this.owlBear = new OwlBear(random.nextInt()) //tu trzeba dokonczyc
+        int lowerX = lowerTerritoryCoordinates.getX();
+        int upperX = upperTerritoryCoordinates.getX();
+        int lowerY = lowerTerritoryCoordinates.getY();
+        int upperY = upperTerritoryCoordinates.getY();
+        Vector2d position = new Vector2d(random.nextInt(upperX - lowerX) + lowerX, random.nextInt(upperY - lowerY) + lowerY);
+        MapDirection orientation = MapDirection.randomDirection();
+        this.owlBear = new OwlBear(position, orientation);
     }
 
     public Vector2d generateOwlBearTerritory(int height, int width){ //wybiera losowe pole, które jest lewym dolnym rogiem terytorium SowoNiedźwiedzia
@@ -29,6 +34,13 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
         int lowerY = random.nextInt(height - owlBearTerritorySide -1) + owlBearTerritorySide;
         return new Vector2d(lowerX, lowerY);
     }
+
+    @Override
+    public void moveAllAnimals(){
+        super.moveAllAnimals();
+        moveOwlBear(owlBear);
+    }
+
     public void moveOwlBear(OwlBear owlBear) {
         Random random = new Random();
         int gene = random.nextInt(8);

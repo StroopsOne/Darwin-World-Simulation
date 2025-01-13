@@ -120,7 +120,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     }
 
     @Override
-    public void move(Animal animal, int gene) {
+    public void moveAnimal(Animal animal, int gene) {
         Vector2d oldPosition = animal.getPosition();
         animal.move(gene, this, width);
         Vector2d newPosition = animal.getPosition();
@@ -134,7 +134,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
     public void moveAllAnimals(){
         for (Animal animal : animals.values()){
-            move(animal, animal.getGenes());
+            moveAnimal(animal, animal.getGenes());
             //potrzenba jakas implementacja aby było wiedziec ktory gen uzywa obecnie
         }
     }
