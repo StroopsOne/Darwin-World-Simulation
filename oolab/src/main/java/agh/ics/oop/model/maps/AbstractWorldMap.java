@@ -9,10 +9,13 @@ import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Map<Vector2d, Grass> grassPoints = new HashMap<>();
-    private final Map<Vector2d, Animal> animals = new HashMap<>();
+    private final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
+    private final List<Animal> deadAnimals = new ArrayList<>();
     private final MapVisualizer visualizer = new MapVisualizer(this);
     private final List<MapChangeListener> observers = new ArrayList<>();
     private final UUID id;
@@ -52,16 +55,40 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     public void placeStartObjects(int animalsCount, int grassesCount, int grassValue){
         for (int i = 0; i < animalsCount; i++){
             Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
-            animals.put(position, new Animal(/*tu trzeba przekazac*/));
+            placeAnimal(new Animal(position, /* trzeba dodac reszte zalezy gdzie metoda bedzie */);
         }
         plantNewGrasses(grassesCount, grassValue);
     }
 
-
     public void plantGrass(Vector2d position, Grass grass){ grassPoints.put(position, grass); }  //trawa wyrasta na pozycji
-    public void removeEeatenGrass(Grass grass){grassPoints.remove(grass.getPosition());} //usuwa zjedzona trawe
-    public void plantNewGrasses(int grassesCount, int grassValue) {
 
+    public void animalsEatGrasses(){
+        for (List<Animal> animalsOnPosition : animals.values()){
+            Vector2d position = animalsOnPosition.getFirst().getPosition();
+            if (isGrassOnPosition(position)){
+                List<Animal> sortedAnimals = animalsOnPosition.stream()
+                        .sorted(Comparator.comparingInt(Animal::getEnergy).reversed()
+                                .thenComparingInt(Animal::getAgeDays).reversed()
+                                .thenComparingInt(Animal::getChildrenCount).reversed())
+                        .toList();
+
+                // Pobierz zwierzęta o takich samych atrybutach jak najlepszy
+                Animal strongestAnimal = sortedAnimals.getFirst();
+                List<Animal> tiedAnimals = sortedAnimals.stream()
+                        .filter(animal -> animal.getEnergy() == strongestAnimal.getEnergy()
+                                && animal.getAgeDays() == strongestAnimal.getAgeDays()
+                                && animal.getChildrenCount() == strongestAnimal.getChildrenCount())
+                        .toList();
+
+                // Wybierz losowe zwierzę spośród remisujących
+                Animal selectedAnimal = tiedAnimals.get(new Random().nextInt(tiedAnimals.size()));
+                selectedAnimal.eatPlant(grassPoints.get(position).getPlantValue());
+                grassPoints.remove(position);
+            }
+        }
+    } //Zwierzę zjada trawe
+
+    public void plantNewGrasses(int grassesCount, int grassValue) {
 
         for (int i = 0; i < grassesCount; i++) {
             Set<Vector2d> targetSet;
@@ -77,7 +104,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                 int randomIndex = random.nextInt(targetSet.size());
                 Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
 
-                // Dodaj trawę i usuń zajętą pozycję z dostępnych pól
+                // Dodanie trawy i usunięcie pozycji z dostępnych pól
                 if (position != null) {
                     grassPoints.put(position, new Grass(position, grassValue));
                     targetSet.remove(position);
@@ -94,16 +121,26 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     public boolean placeAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d position = animal.getPosition();
         if (canMoveTo(position)) {
-            animals.put(position, animal);
+            animals.computeIfAbsent(position, key -> new ArrayList<>()).add(animal);
             notifyAllObservers("animal placed on " + position);
             return true;
         }
         else throw new IncorrectPositionException(position);
     }
 
-    public void removeDeadAnimal(Animal animal){
-        animals.remove(animal.getPosition(), animal);
-        notifyAllObservers("animal removed from position: " + animal.getPosition());
+
+    public void removeDeadAnimals(int simulationDay){
+        for (List<Animal> animalsAtPosition : animals.values()){
+
+            animalsAtPosition.removeIf(animal -> {
+                animal.dayPasses(simulationDay);
+                if (animal.getDeathDay() != null) {
+                    deadAnimals.add(animal);  // Dodaj martwe zwierzę do deadAnimals
+                    return true;  // Usuwamy martwe zwierzę
+                }
+                return false;  // Nie usuwamy żywego zwierzęcia
+            });
+        }
     }
 
     @Override
@@ -119,23 +156,35 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return animals.containsKey(position) && animals.get(position).isAlive();
     }
 
-    @Override
-    public void moveAnimal(Animal animal, int gene) {
+    public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d oldPosition = animal.getPosition();
-        animal.move(gene, this, width);
+        animal.move(animal.useGene(), this, width);
         Vector2d newPosition = animal.getPosition();
-
-        if (!oldPosition.equals(newPosition)) {
-            animals.remove(oldPosition);
-            animals.put(newPosition, animal);
-            notifyAllObservers("animal moved to " + newPosition);
+        if (newPosition.equals(oldPosition)) {
+            animals.computeIfAbsent(newPosition, key -> new ArrayList<>()).add(animal);
+            notifyAllObservers("animal move to " + newPosition);
+            return true;
         }
+        else throw new IncorrectPositionException(newPosition);
     }
 
-    public void moveAllAnimals(){
-        for (Animal animal : animals.values()){
-            moveAnimal(animal, animal.getGenes());
-            //potrzenba jakas implementacja aby było wiedziec ktory gen uzywa obecnie
+
+    public void moveAllAnimals() throws IncorrectPositionException {
+        for (List<Animal> animalsOnPosition : animals.values()){
+            List<Animal> animalsToRemove = new ArrayList<>(); // Lista zwierząt do usunięcia
+            for (Animal animal : animalsOnPosition) {
+                if (moveAnimal(animal)) {
+                    animalsToRemove.add(animal);
+                }
+            }
+
+            // Usuwanie zwierząt, które wykonały ruch
+            animalsOnPosition.removeAll(animalsToRemove);
+
+            // Usuwanie pustych list zwierząt
+            if (animalsOnPosition.isEmpty()) {
+                animals.values().remove(animalsOnPosition);
+            }
         }
     }
 
