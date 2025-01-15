@@ -13,11 +13,11 @@ public class Animal implements WorldElement {
 
     private MapDirection orientation;
     private Vector2d position;
-    public final static Vector2d defaultVector = new Vector2d(2, 2);
     private int energy;
-    private final int ReproductionEnergy;       //ilość energii ustalona do rozmnażania
+    private int plantEatenCount;
+    private final int reproductionEnergy;       //ilość energii ustalona do rozmnażania
     private final Genomes genes;
-    private final int geneUsedNumber; //sledzi ktory gen jest teraz uzywany, mozliwe ze logika i nazwa do zmiany
+    private int geneUsedNumber; //sledzi ktory gen jest teraz uzywany, mozliwe ze logika i nazwa do zmiany
     private int ageDays;
     private Integer deathDay;
     private final int mingeneMutation;
@@ -31,14 +31,15 @@ public class Animal implements WorldElement {
     private int descendatns=0;
 
     public Animal(Vector2d vector, int startEnergy, int geneSize, int reproductionEnergy, int mingeneMutation, int maxgeneMutation, int parentingEnergy, boolean slightCorrection) {
-        this.orientation=MapDirection.randomDirection();
+        this.orientation = MapDirection.randomDirection();
         this.position = vector;
         this.energy = startEnergy;
+        this.plantEatenCount = 0;
         this.genes = new Genomes(geneSize);
         this.geneUsedNumber = random.nextInt(geneSize);
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
-        this.ReproductionEnergy = reproductionEnergy;
+        this.reproductionEnergy = reproductionEnergy;
         this.mingeneMutation = mingeneMutation;
         this.maxgeneMutation = maxgeneMutation;
         this.parent1 = null;
@@ -55,15 +56,16 @@ public class Animal implements WorldElement {
     public Vector2d getPosition() { return position; }
 
     //konstruktor dla tworzenia dzieci
-    public Animal(Vector2d position, MapDirection direction, int inheritedEnergy, Genomes genomes, int reproductionEnergy, int mingeneMutation, int maxgeneMutation, Animal parent1, Animal parent2, int parentingEnergy, boolean slightCorrection) {
-        this.orientation = direction;
+    public Animal(Vector2d position, int inheritedEnergy, Genomes genomes, int reproductionEnergy, int mingeneMutation, int maxgeneMutation, Animal parent1, Animal parent2, int parentingEnergy, boolean slightCorrection) {
+        this.orientation = MapDirection.randomDirection();;
         this.position = position;
         this.energy = inheritedEnergy;
+        this.plantEatenCount = 0;
         this.geneUsedNumber = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
         this.genes = genomes;
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
-        this.ReproductionEnergy = reproductionEnergy;
+        this.reproductionEnergy = reproductionEnergy;
         this.mingeneMutation = mingeneMutation;
         this.maxgeneMutation = maxgeneMutation;
         this.parent1 = parent1;
@@ -77,14 +79,23 @@ public class Animal implements WorldElement {
         return energy;
     }
 
-    public boolean isAlive() {
-        return deathDay == -1;
+    public int getAgeDays(){
+        return ageDays;
     }
 
-    public void dayPasses() {
+    public int getChildrenCount(){
+        return childrenCount;
+    }
+
+    public boolean isAlive() {
+        return deathDay == null;
+    }
+
+
+    public void dayPasses(int simulationDay) {
         energy = energy - 1;
         if (energy == 0) {
-            //przypisanie dnia śmierci, trzeba mieć czas zaimplementowany
+            deathDay = simulationDay;//przypisanie dnia śmierci, trzeba mieć czas zaimplementowany
             //czas chyba do simulation
         } else ageDays += 1;
     }
@@ -93,12 +104,22 @@ public class Animal implements WorldElement {
         return ageDays;
     }
 
-    public int getDeathDay() {
+    public Integer getDeathDay() {
         return deathDay;
     }
 
     public Genomes getGenes() {
         return genes;
+    }
+
+    public int useGene(){ //zuzywa aktualnie aktywowany gen i aktywuje kolejny, który bedzie uzyty kolenego dnia
+        int temp = geneUsedNumber;
+        if (geneUsedNumber < genes.getGenomeSize() - 1){
+            geneUsedNumber++;
+        } else{
+            geneUsedNumber = 0;
+        }
+        return genes.getGene(temp);
     }
 
     public int GetNumberOfChildren() {
@@ -109,28 +130,30 @@ public class Animal implements WorldElement {
         //przypisanie deathDay to samo co w dayPasses
     }
 
-    public void plantEatten(int plantValue) {
+    public void eatPlant(int plantValue) {
         energy += plantValue;
+        plantEatenCount++;
     }
 
     public boolean ReadyForKids() {
-        if (energy > ReproductionEnergy) return true;
+        if (energy > reproductionEnergy) return true;
         else return false;
     }
 
     // reprodukcja zwraca animal- dziecko
     public Animal reproduce(Animal partner) {
         List<Integer> childGenes = this.genes.ChildGenes(this, partner);
-        Genomes childGenome=new Genomes(childGenes,this.mingeneMutation,this.maxgeneMutation,this.SlightCorrection);
+        Genomes childGenome=new Genomes(childGenes,this.mingeneMutation,this.maxgeneMutation,this.slightCorrection);
         this.ParentingSubstraction(parentingEnergy);
         partner.ParentingSubstraction(parentingEnergy);
         this.childrenCount += 1;      //dodanie dziecka do atrybutów rodziców
         partner.childrenCount += 1;
         //DODAJ WHILE Z POTOMKAMI
-        Animal dziecko=new Animal(this.position, 2*parentingEnergy,childGenome,this.ReproductionEnergy,this.mingeneMutation,this.maxgeneMutation,this,partner,this.parentingEnergy,this.SlightCorrection);
+        Animal child=new Animal(this.position, 2*parentingEnergy,childGenome,this.reproductionEnergy,this.mingeneMutation,this.maxgeneMutation,this, partner,this.parentingEnergy,this.slightCorrection);
         this.descendatns+=1;
-        return dziecko;
+        return child;
     }
+
 
     //dla bezpieczenj zmiany energi, bez wartości ujemnych
     public void ParentingSubstraction(int parentingEnergy){
@@ -189,4 +212,3 @@ public class Animal implements WorldElement {
         }
     }
 }
-//AGAGGSDSAD
