@@ -88,6 +88,22 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     } //Zwierzę zjada trawe
 
+    public void animalsReproduce(){
+        for (List<Animal> animalsOnPosition : animals.values()){
+            Vector2d position = animalsOnPosition.getFirst().getPosition();
+            List<Animal> sortedAnimals = animalsOnPosition.stream()
+                    .sorted(Comparator.comparingInt(Animal::getEnergy).reversed()
+                            .thenComparingInt(Animal::getAgeDays).reversed()
+                            .thenComparingInt(Animal::getChildrenCount).reversed())
+                    .toList();
+            if (sortedAnimals.size()>1){
+                for (int i=1;i<sortedAnimals.size();i+=2){
+                    animalsOnPosition.get(i).reproduce(animalsOnPosition.get(i-1));
+                }
+            }
+        }
+    }
+
     public void plantNewGrasses(int grassesCount, int grassValue) {
 
         for (int i = 0; i < grassesCount; i++) {
