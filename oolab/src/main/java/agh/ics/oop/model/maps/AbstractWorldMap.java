@@ -7,6 +7,7 @@ import agh.ics.oop.model.mapElements.Grass;
 import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.MapVisualizer;
+import agh.ics.oop.model.AnimalFabric;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,8 +29,10 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final int preferredPositionsCount;
     private final int notPreferredPositionsCount;
     Random random = new Random();
+    private final AnimalFabric fabric;
 
-    protected AbstractWorldMap(int height, int width){
+
+    protected AbstractWorldMap(int height, int width, AnimalFabric fabric){
         this.id = UUID.randomUUID();
         this.height = height;
         this.width = width;
@@ -49,13 +52,19 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
         this.preferredPositionsCount = preferredPositions.size();
         this.notPreferredPositionsCount = notPreferredPositions.size();
+        this.fabric=fabric;
 
     }
 
-    public void placeStartObjects(int animalsCount, int grassesCount, int grassValue){
-        for (int i = 0; i < animalsCount; i++){
-            Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
-            placeAnimal(new Animal(position, /* trzeba dodac reszte zalezy gdzie metoda bedzie */);
+    public void placeStartObjects(int animalsCount, int grassesCount, int grassValue, int startEnergy, int geneSize){
+        try {
+            for (int i = 0; i < animalsCount; i++) {
+                Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
+                placeAnimal(new Animal(position, startEnergy, geneSize));
+            }
+        }catch(IncorrectPositionException e){
+            System.out.println("Nie udalo sie wrzucic poczatkowych zwierzat na mape, system zakonczy dzialanie");
+            System.exit(0);
         }
         plantNewGrasses(grassesCount, grassValue);
     }
@@ -89,18 +98,25 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     } //Zwierzę zjada trawe
 
     public void animalsReproduce(){
-        for (List<Animal> animalsOnPosition : animals.values()){
-            Vector2d position = animalsOnPosition.getFirst().getPosition();
-            List<Animal> sortedAnimals = animalsOnPosition.stream()
-                    .sorted(Comparator.comparingInt(Animal::getEnergy).reversed()
-                            .thenComparingInt(Animal::getAgeDays).reversed()
-                            .thenComparingInt(Animal::getChildrenCount).reversed())
-                    .toList();
-            if (sortedAnimals.size()>1){
-                for (int i=1;i<sortedAnimals.size();i+=2){
-                    animalsOnPosition.get(i).reproduce(animalsOnPosition.get(i-1));
+        try {
+            for (List<Animal> animalsOnPosition : animals.values()) {
+                Vector2d position = animalsOnPosition.getFirst().getPosition();
+                List<Animal> sortedAnimals = animalsOnPosition.stream()
+                        .sorted(Comparator.comparingInt(Animal::getEnergy).reversed()
+                                .thenComparingInt(Animal::getAgeDays).reversed()
+                                .thenComparingInt(Animal::getChildrenCount).reversed())
+                        .toList();
+                if (sortedAnimals.size() > 1) {
+                    for (int i = 1; i < sortedAnimals.size(); i += 2) {
+                        if (sortedAnimals.get(i).getEnergy() > fabric.getReproductionEnergy()) {
+                            Animal child = fabric.reproduce(sortedAnimals.get(i - 1), sortedAnimals.get(i));
+                            placeAnimal(child);
+                        }
+                    }
                 }
             }
+        }catch(IncorrectPositionException e){
+            System.out.println("Blad przy wrzucaniu dziecka na mape");
         }
     }
 
@@ -134,12 +150,11 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     }
 
     @Override
-    public boolean placeAnimal(Animal animal) throws IncorrectPositionException {
+    public void placeAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d position = animal.getPosition();
         if (canMoveTo(position)) {
             animals.computeIfAbsent(position, key -> new ArrayList<>()).add(animal);
             notifyAllObservers("animal placed on " + position);
-            return true;
         }
         else throw new IncorrectPositionException(position);
     }
