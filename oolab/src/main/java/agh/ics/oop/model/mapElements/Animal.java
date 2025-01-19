@@ -5,7 +5,6 @@ import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.maps.MoveValidator;
 import agh.ics.oop.model.properities.Genomes;
 
-import java.util.List;
 import java.util.Random;
 
 public class Animal implements WorldElement {
@@ -15,7 +14,7 @@ public class Animal implements WorldElement {
     private int energy;
     private int plantEatenCount;
     private final Genomes genes;
-    private int geneUsedNumber; //sledzi ktory gen jest teraz uzywany, mozliwe ze logika i nazwa do zmiany
+    private int genePartUsed; //sledzi ktory gen jest teraz uzywany, mozliwe ze logika i nazwa do zmiany
     private int ageDays;
     private Integer deathDay;
     private Animal parent1;
@@ -29,7 +28,7 @@ public class Animal implements WorldElement {
         this.energy = startEnergy;
         this.plantEatenCount = 0;
         this.genes = new Genomes(geneSize);
-        this.geneUsedNumber = random.nextInt(geneSize);
+        this.genePartUsed = random.nextInt(geneSize);
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
         this.parent1 = null;
@@ -51,8 +50,7 @@ public class Animal implements WorldElement {
     public void dayPasses(int simulationDay) {
         energy = energy - 1;
         if (energy == 0) {
-            deathDay = simulationDay;//przypisanie dnia śmierci, trzeba mieć czas zaimplementowany
-            //czas chyba do simulation
+            deathDay = simulationDay; //przypisanie dnia śmierci
         } else ageDays += 1;
     }
 
@@ -74,7 +72,7 @@ public class Animal implements WorldElement {
         this.position = position;
         this.energy = inheritedEnergy;
         this.plantEatenCount = 0;
-        this.geneUsedNumber = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
+        this.genePartUsed = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
         this.genes = genomes;
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
@@ -99,9 +97,6 @@ public class Animal implements WorldElement {
         return deathDay == null;
     }
 
-    public int getAge() {
-        return ageDays;
-    }
 
     public Integer getDeathDay() {
         return deathDay;
@@ -111,18 +106,18 @@ public class Animal implements WorldElement {
         return genes;
     }
 
-    public int useGene(){ //zuzywa aktualnie aktywowany gen i aktywuje kolejny, który bedzie uzyty kolenego dnia
-        int temp = geneUsedNumber;
-        if (geneUsedNumber < genes.getGenomeSize() - 1){
-            geneUsedNumber++;
-        } else{
-            geneUsedNumber = 0;
-        }
-        return genes.getGene(temp);
+    public int getGenePartUsed(){
+        return genePartUsed;
     }
 
-    public int GetNumberOfChildren() {
-        return childrenCount;
+    public int useGene(){ //zuzywa aktualnie aktywowany gen i aktywuje kolejny, który bedzie uzyty kolenego dnia
+        int temp = genePartUsed;
+        if (genePartUsed < genes.getGenomeSize() - 1){
+            genePartUsed++;
+        } else{
+            genePartUsed = 0;
+        }
+        return genes.getGene(temp);
     }
 
     public void eatPlant(int plantValue) {
