@@ -3,6 +3,8 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
+import agh.ics.oop.model.maps.AbstractWorldMap;
 import agh.ics.oop.model.maps.TheEarth;
 import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.util.MapChangeListener;
@@ -38,6 +40,14 @@ public class SimulationPresenter implements MapChangeListener {
 
     @FXML
     private GridPane mapGrid;
+    private boolean generateCsv;
+    AbstractWorldMap worldMap;
+    private int grassCount;
+    private int dailyGrass;
+    private int grassValue;
+    private int genomeLength;
+    private int startEnergy;
+    private int animalsCount;
 
 
     @FXML
@@ -107,32 +117,41 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     public void onSimulationStartClicked(ActionEvent actionEvent){
-        String input = textField.getText();
-        if (input == null || input.isEmpty()) {
-            movesDescriptionLabel.setText("Enter list of moves like: 'f f b f r'");
-            return;
-        }
 
-        String[] moves = input.split(" ");
-        try {
-            List<MoveDirection> directions = OptionsParser.parse(moves);
-            WorldMap worldMap = new TheEarth(10);
-            List<Vector2d> initialPositions = List.of(new Vector2d(2, 2), new Vector2d(4, 4));
+    }
 
-            try {
-                Simulation simulation = new Simulation(initialPositions, directions, worldMap);
-                worldMap.addObserver(this);
+    public void setGenerateCsv(boolean generateCsv) {
+        this.generateCsv = generateCsv;
+    }
 
-                SimulationEngine engine = new SimulationEngine(List.of(simulation));
-                engine.runAsyncinThreadPool();
-                infoLabel.setText(worldMap.toString());
-                movesDescriptionLabel.setText("Simulation finished!");
-            } catch (IncorrectPositionException e) {
-                movesDescriptionLabel.setText(e.getMessage());
-            }
+    public void setAnimalsCount(int animalsCount) {
+        this.animalsCount = animalsCount;
+    }
 
-        } catch(IllegalArgumentException e) {
-            movesDescriptionLabel.setText(e.getMessage() + ". Enter a valid move like: 'f b r l'");
-        }
+    public void setStartEnergy(int startEnergy) {
+        this.startEnergy = startEnergy;
+    }
+
+    public void setGenomeLength(int genomeLength) {
+        this.genomeLength = genomeLength;
+    }
+
+    public void setGrassValue(int grassValue) {
+        this.grassValue = grassValue;
+    }
+
+    public void setDailyGrass(int dailyGrass) {
+        this.dailyGrass = dailyGrass;
+    }
+
+    public void setGrassCount(int grassCount) {
+        this.grassCount = grassCount;
+    }
+
+    public void setWorldMap(AbstractWorldMap worldMap) {
+        this.worldMap = worldMap;
+    }
+
+    public void onStartStopButtonClicked() {
     }
 }

@@ -1,14 +1,5 @@
 package agh.ics.oop;
 
-import agh.ics.oop.model.*;
-import agh.ics.oop.model.maps.TheEarth;
-import agh.ics.oop.model.util.ConsoleMapDisplay;
-import agh.ics.oop.model.IncorrectPositionException;
-import agh.ics.oop.model.util.MapChangeListener;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 /*
 public class World {
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.MainPresenter" prefHeight="600.0" prefWidth="800.0">
+    <top>
+        <Label text="Simulation Configuration" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+    </top>
+    <center>
+        <VBox alignment="CENTER" spacing="10.0" layoutX="20.0" layoutY="20.0" prefWidth="760.0">
+            <GridPane hgap="10" vgap="10">
+                <!-- Row 1 -->
+                <Label text="Map Width:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <TextField fx:id="widthField" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                <Label text="Map Height:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
+                <TextField fx:id="heightField" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+
+                <!-- Row 2 -->
+                <Label text="Start Energy:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextField fx:id="startEnergyField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                <Label text="Grass Energy:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
+                <TextField fx:id="grassValueField" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+
+                <!-- Row 3 -->
+                <Label text="Number of Animals:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="animalCountField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+
+                <Label text="Number of Grass:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
+                <TextField fx:id="grassCountField" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+
+                <!-- Row 4 -->
+                <Label text="Daily Grass Growth:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <TextField fx:id="dailyGrassField" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+
+                <Label text="Genome Length:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
+                <TextField fx:id="genomeLengthField" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+
+                <!-- Row 5 -->
+                <Label text="Parenting Energy:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <TextField fx:id="parentingEnergyField" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+
+                <Label text="Reproduction Energy:" GridPane.rowIndex="4" GridPane.columnIndex="2" />
+                <TextField fx:id="reproductionEnergyField" GridPane.rowIndex="4" GridPane.columnIndex="3" />
+
+                <!-- Row 6 -->
+                <Label text="Min Gene Mutation:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <TextField fx:id="minGeneMutationField" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+
+                <Label text="Max Gene Mutation:" GridPane.rowIndex="5" GridPane.columnIndex="2" />
+                <TextField fx:id="maxGeneMutationField" GridPane.rowIndex="5" GridPane.columnIndex="3" />
+
+                <!-- Row 7 -->
+                <Label text="Map Variant:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                <ChoiceBox fx:id="mapVariant" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+
+                <Label text="Mutation Variant:" GridPane.rowIndex="6" GridPane.columnIndex="2" />
+                <CheckBox fx:id="mutationVariant" GridPane.rowIndex="6" GridPane.columnIndex="3" />
+
+                <!-- Row 8 -->
+                <Label text="Generate CSV:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <CheckBox fx:id="generateCsvCheckBox" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+
+                <Label text="Load Config ID:" GridPane.rowIndex="7" GridPane.columnIndex="2" />
+                <TextField fx:id="loadConfigIdField" GridPane.rowIndex="7" GridPane.columnIndex="3" />
+
+                <!-- Row 9 -->
+                <Label text="Save Config Name:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                <TextField fx:id="saveConfigNameField" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+            </GridPane>
+
+            <!-- Buttons -->
+            <HBox spacing="10.0" alignment="CENTER">
+                <Button text="Load Config" fx:id="loadConfigButton" onAction="#loadConfig" />
+                <Button text="Save Config" fx:id="saveConfigButton" onAction="#saveConfig" />
+                <Button text="Start Simulation" fx:id="startButton" onAction="#startSimulation" disable="true" />
+            </HBox>
+
+            <!-- Info Label -->
+            <Label fx:id="infoLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" />
+        </VBox>
+    </center>
+</BorderPane>

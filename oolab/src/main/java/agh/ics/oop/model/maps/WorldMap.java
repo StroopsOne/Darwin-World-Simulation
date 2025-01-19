@@ -1,11 +1,10 @@
 package agh.ics.oop.model.maps;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.Animal;
-import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.util.MapChangeListener;
 
-import java.util.Collection;
 import java.util.UUID;
 
 /**

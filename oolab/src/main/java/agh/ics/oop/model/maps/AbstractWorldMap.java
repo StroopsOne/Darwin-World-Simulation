@@ -2,6 +2,7 @@ package agh.ics.oop.model.maps;
 
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.Grass;
 import agh.ics.oop.model.mapElements.WorldElement;
@@ -29,17 +30,17 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Set<Vector2d> notPreferredPositions = new HashSet<>();
     private final int preferredPositionsCount;
     private final int notPreferredPositionsCount;
-    private final int mingeneMutation;
-    private final int maxgeneMutation;
+    private final int minGeneMutation;
+    private final int maxGeneMutation;
     private final int reproductionEnergy;
     private final int parentingEnergy;
     private final boolean slightCorrection;
     Random random = new Random();
 
 
-    protected AbstractWorldMap(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection){
-        this.mingeneMutation = mingeneMutation;
-        this.maxgeneMutation = maxgeneMutation;
+    protected AbstractWorldMap(int height, int width, int minGeneMutation, int maxGeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection){
+        this.minGeneMutation = minGeneMutation;
+        this.maxGeneMutation = maxGeneMutation;
         this.reproductionEnergy = reproductionEnergy;
         this.parentingEnergy = parentingEnergy;
         this.slightCorrection = slightCorrection;
@@ -64,7 +65,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         this.notPreferredPositionsCount = notPreferredPositions.size();
     }
 
-    public void placeStartObjects(int animalsCount, int grassesCount, int grassValue, int startEnergy, int geneSize){
+    public void placeStartObjects(int animalsCount, int grassCount, int grassValue, int startEnergy, int geneSize){
         try {
             for (int i = 0; i < animalsCount; i++) {
                 Vector2d position = new Vector2d(random.nextInt(width), random.nextInt(height));
@@ -74,7 +75,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             System.out.println("Nie udalo sie wrzucic poczatkowych zwierzat na mape, system zakonczy dzialanie");
             System.exit(0);
         }
-        plantNewGrasses(grassesCount, grassValue);
+        plantNewGrasses(grassCount, grassValue);
     }
 
     public boolean isOccupied(Vector2d position){
@@ -340,7 +341,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
     public Animal groupAnimalsToReproduce(Animal mom, Animal dad) {
         List<Integer> childGenes = ChildGenes(mom, dad);
-        Genomes childGenome=new Genomes(childGenes,mingeneMutation,maxgeneMutation,slightCorrection);
+        Genomes childGenome=new Genomes(childGenes, minGeneMutation, maxGeneMutation,slightCorrection);
         mom.changeEnergy(-parentingEnergy);
         dad.changeEnergy(-parentingEnergy);
         mom.addChild();
