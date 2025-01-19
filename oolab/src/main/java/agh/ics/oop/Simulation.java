@@ -11,34 +11,18 @@ import java.util.List;
 public class Simulation implements Runnable {
     private final List<Animal> animalList;
     private final AbstractWorldMap map;
-    private final int initialAnimals;
-    private final int startEnergy;
-    private final int genomeSize;
-    private final int reproductionEnergy;
-    private final int parentingEnergy;
-    private final int mingeneMutation;
-    private final int maxgeneMutation;
     private final int grassValue;
-    private final int initialGrass;
     private final Object lock = new Object();       //kontrola zatrzymywania watkow
     private volatile boolean running = true;
+    private final int dailyGrass;
     private int day=0;
-    private AnimalFabric fabric;
 
-    public Simulation(List<Vector2d> startPositions, WorldMap mapAnimals, AbstractWorldMap map, int numberOfAnimals, int startEnergy, int genomeSize, int reproductionEnergy, int parentingEnergy, int mingeneMutation, int maxgeneMutation, int grassValue, int initialGrass, boolean slightCorrection) throws IncorrectPositionException {
+    public Simulation(AbstractWorldMap map, int numberOfAnimals, int startEnergy, int genomeSize, int grassValue, int initialGrass, int dailyGrass) throws IncorrectPositionException {
         this.map = map;
-        this.initialAnimals = numberOfAnimals;
-        this.startEnergy = startEnergy;
-        this.genomeSize = genomeSize;
-        this.reproductionEnergy = reproductionEnergy;
-        this.parentingEnergy = parentingEnergy;
-        this.mingeneMutation = mingeneMutation;
-        this.maxgeneMutation = maxgeneMutation;
         this.grassValue = grassValue;
-        this.initialGrass = initialGrass;
         animalList = new ArrayList<>();
-        this.fabric=new AnimalFabric(mingeneMutation,maxgeneMutation,parentingEnergy,genomeSize,slightCorrection,grassValue,map);
-        map.placeStartObjects(initialAnimals,initialGrass,grassValue,startEnergy,genomeSize);
+        map.placeStartObjects(numberOfAnimals,initialGrass,grassValue,startEnergy,genomeSize);
+        this.dailyGrass=dailyGrass;
     }
 
     public void pauseSimulation() {
@@ -69,8 +53,7 @@ public class Simulation implements Runnable {
                     map.moveAllAnimals();
                     map.animalsEatGrasses();
                     map.animalsReproduce();
-                    //Co tu, ile dziennie ma być trawy?
-                    //map.plantNewGrasses();
+                    map.plantNewGrasses(dailyGrass,grassValue);
                     day++;
                 } catch (IncorrectPositionException e) {
                     System.out.println("Blad w poruszaniu zwierzat");

@@ -5,13 +5,15 @@ import agh.ics.oop.model.*;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.Grass;
 import agh.ics.oop.model.mapElements.WorldElement;
+import agh.ics.oop.model.properities.Genomes;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.util.MapVisualizer;
-import agh.ics.oop.model.AnimalFabric;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
 public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Map<Vector2d, Grass> grassPoints = new HashMap<>();
@@ -28,11 +30,20 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Set<Vector2d> notPreferredPositions = new HashSet<>();
     private final int preferredPositionsCount;
     private final int notPreferredPositionsCount;
+    private final int mingeneMutation;
+    private final int maxgeneMutation;
+    private final int reproductionEnergy;
+    private final int parentingEnergy;
+    private final boolean slightCorrection;
     Random random = new Random();
-    private final AnimalFabric fabric;
 
 
-    protected AbstractWorldMap(int height, int width, AnimalFabric fabric){
+    protected AbstractWorldMap(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection){
+        this.mingeneMutation = mingeneMutation;
+        this.maxgeneMutation = maxgeneMutation;
+        this.reproductionEnergy = reproductionEnergy;
+        this.parentingEnergy = parentingEnergy;
+        this.slightCorrection = slightCorrection;
         this.id = UUID.randomUUID();
         this.height = height;
         this.width = width;
@@ -52,8 +63,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
         this.preferredPositionsCount = preferredPositions.size();
         this.notPreferredPositionsCount = notPreferredPositions.size();
-        this.fabric=fabric;
-
     }
 
     public void placeStartObjects(int animalsCount, int grassesCount, int grassValue, int startEnergy, int geneSize){
@@ -108,8 +117,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                         .toList();
                 if (sortedAnimals.size() > 1) {
                     for (int i = 1; i < sortedAnimals.size(); i += 2) {
-                        if (sortedAnimals.get(i).getEnergy() > fabric.getReproductionEnergy()) {
-                            Animal child = fabric.reproduce(sortedAnimals.get(i - 1), sortedAnimals.get(i));
+                        if (sortedAnimals.get(i).getEnergy() > reproductionEnergy) {
+                            Animal child = groupAnimalsToReproduce(sortedAnimals.get(i - 1), sortedAnimals.get(i));
                             placeAnimal(child);
                         }
                     }
@@ -173,7 +182,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             });
         }
     }
-
+    /*
     @Override
     public Collection<WorldElement> getElements() {
         Collection<WorldElement> elements = new ArrayList<>();
@@ -181,12 +190,11 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         elements.addAll(grassPoints.values());
         return elements;
     }
-
     @Override
     public boolean isAnimalOnPosition(Vector2d position) {
         return animals.containsKey(position) && animals.get(position).isAlive();
     }
-
+    */
     public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d oldPosition = animal.getPosition();
         animal.move(animal.useGene(), this, width);
@@ -224,7 +232,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     public boolean canMoveTo(Vector2d position) {
         return position.follows(minVector) && position.precedes(maxVector);
     }
-
+    /*
     @Override
     public WorldElement objectAt(Vector2d position) {
         if (animals.containsKey(position)) {
@@ -232,7 +240,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
         return grassPoints.getOrDefault(position, null);
     }
-
+    */
     public Boundary getCurrentBounds(){
         return new Boundary(minVector, maxVector);
     }
@@ -259,5 +267,16 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     @Override
     public UUID getId() {
         return id;
+    }
+
+    public Animal groupAnimalsToReproduce(Animal mom, Animal dad) {
+        List<Integer> childGenes = ChildGenes(mom, dad);
+        Genomes childGenome=new Genomes(childGenes,mingeneMutation,maxgeneMutation,slightCorrection);
+        mom.changeEnergy(-parentingEnergy);
+        dad.changeEnergy(-parentingEnergy);
+        mom.addChild();
+        dad.addChild();
+        Animal child=new Animal(mom.getPosition(),parentingEnergy,childGenome,mom,dad);
+        return child;
     }
 }
