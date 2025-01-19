@@ -9,7 +9,7 @@ import agh.ics.oop.model.util.MapChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+/*
 public class World {
 
     public static void main(String[] args) throws InterruptedException {
@@ -83,3 +83,4 @@ public class World {
         System.out.println("System zakonczyl dzialanie");
     }
 }
+*/

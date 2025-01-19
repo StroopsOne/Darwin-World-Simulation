@@ -11,7 +11,6 @@ import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
@@ -78,7 +77,31 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         plantNewGrasses(grassesCount, grassValue);
     }
 
-    public void plantGrass(Vector2d position, Grass grass){ grassPoints.put(position, grass); }  //trawa wyrasta na pozycji
+    public boolean isOccupied(Vector2d position){
+        if (animals.containsKey(position)){
+            return true;
+        }
+        if(grassPoints.containsKey(position)){
+            return true;
+        }
+        return false;
+    }
+
+
+    public WorldElement objectAt(Vector2d position) {
+        if (animals.containsKey(position)){
+            return animals.get(position).getFirst();
+        }
+        return grassPoints.get(position);
+    }
+
+    protected int getFreePositionsCount() {
+        Set<Vector2d> takenPositionsCount = new HashSet<>();
+        takenPositionsCount.addAll(animals.keySet());
+        takenPositionsCount.addAll(grassPoints.keySet());
+
+        return width * height - takenPositionsCount.size();
+    }
 
     public void animalsEatGrasses(){
         for (List<Animal> animalsOnPosition : animals.values()){
@@ -129,6 +152,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
+
     public void plantNewGrasses(int grassesCount, int grassValue) {
 
         for (int i = 0; i < grassesCount; i++) {
@@ -158,6 +182,71 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return (grassPoints.containsKey(position) && !grassPoints.get(position).isEaten());
     }
 
+    public int getGrassCount(){
+        return grassPoints.size();
+    }
+
+    public List<Animal> getAllLivingAnimals(){
+        List<Animal> allAnimals = new ArrayList<>();
+        for (List<Animal> animalsOnPosition : animals.values()){
+            allAnimals.addAll(animalsOnPosition);
+        }
+        return allAnimals;
+    }
+
+    public float getAvgLivingAnimalsEnergy() {
+        List<Animal> livingAnimals = getAllLivingAnimals();
+        if (livingAnimals.isEmpty()) {
+            return 0f; // Brak zwierząt, średnia energia to 0
+        }
+
+        int sumEnergy = 0;
+        for (Animal animal : livingAnimals) {
+            sumEnergy += animal.getEnergy();
+        }
+
+        return (float) sumEnergy / livingAnimals.size();
+    }
+
+    public float getAvgDeadAnimalsLifespan() {
+        if (deadAnimals.isEmpty()) {
+            return 0f; // Brak zwierząt, średnia energia to 0
+        }
+
+        int sumLifespan = 0;
+        for (Animal animal : deadAnimals) {
+            sumLifespan += animal.getDeathDay();
+        }
+
+        return (float) sumLifespan / deadAnimals.size();
+    }
+
+    public float getAvgChildrenCount(){
+        List<Animal> livingAnimals = getAllLivingAnimals();
+        if (livingAnimals.isEmpty()) {
+            return 0f; // Brak żyjących zwierząt, średnia liczba dzieci to 0
+        }
+
+        int childCount = 0;
+        for (Animal animal : livingAnimals) {
+            childCount += animal.getChildrenCount();
+        }
+
+        return (float) childCount / livingAnimals.size();
+    }
+
+    public int getLivingAnimalsCount(){
+        return getAllLivingAnimals().size();
+    }
+
+    public int getDeadAnimalsCount(){
+        return deadAnimals.size();
+    }
+
+    public int getTotalAnimalsCount(){
+        return getDeadAnimalsCount() + getLivingAnimalsCount();
+    }
+
     @Override
     public void placeAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d position = animal.getPosition();
@@ -173,7 +262,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         for (List<Animal> animalsAtPosition : animals.values()){
 
             animalsAtPosition.removeIf(animal -> {
-                animal.dayPasses(simulationDay);
+                animal.killAnimal(simulationDay);
                 if (animal.getDeathDay() != null) {
                     deadAnimals.add(animal);  // Dodaj martwe zwierzę do deadAnimals
                     return true;  // Usuwamy martwe zwierzę
@@ -182,19 +271,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             });
         }
     }
-    /*
-    @Override
-    public Collection<WorldElement> getElements() {
-        Collection<WorldElement> elements = new ArrayList<>();
-        elements.addAll(animals.values());
-        elements.addAll(grassPoints.values());
-        return elements;
-    }
-    @Override
-    public boolean isAnimalOnPosition(Vector2d position) {
-        return animals.containsKey(position) && animals.get(position).isAlive();
-    }
-    */
+
     public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
         Vector2d oldPosition = animal.getPosition();
         animal.move(animal.useGene(), this, width);
@@ -232,15 +309,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     public boolean canMoveTo(Vector2d position) {
         return position.follows(minVector) && position.precedes(maxVector);
     }
-    /*
-    @Override
-    public WorldElement objectAt(Vector2d position) {
-        if (animals.containsKey(position)) {
-            return animals.get(position);
-        }
-        return grassPoints.getOrDefault(position, null);
-    }
-    */
+
     public Boundary getCurrentBounds(){
         return new Boundary(minVector, maxVector);
     }

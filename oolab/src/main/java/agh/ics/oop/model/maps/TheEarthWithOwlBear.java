@@ -2,9 +2,9 @@ package agh.ics.oop.model.maps;
 
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.mapElements.OwlBear;
-import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.MapDirection;
-import java.util.Collection;
+import agh.ics.oop.model.mapElements.WorldElement;
+
 import java.util.Random;
 
 public class TheEarthWithOwlBear extends AbstractWorldMap {
@@ -36,7 +36,23 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
     }
 
     @Override
-    public void moveAllAnimals(){
+    public boolean isOccupied(Vector2d position){
+        if (owlBear.isAtPosition(position)){
+            return true;
+        }
+        return super.isOccupied(position);
+
+    }
+    @Override
+    public WorldElement objectAt(Vector2d position) {
+        if (owlBear.isAtPosition(position)) {
+            return owlBear;
+        }
+        return super.objectAt(position);
+    }
+
+    @Override
+    public void moveAllAnimals() throws IncorrectPositionException {
         super.moveAllAnimals();
         moveOwlBear(owlBear);
     }
@@ -57,19 +73,4 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
         return position.follows(lowerTerritoryCoordinates) && position.precedes(upperTerritoryCoordinates);
     }
 
-    @Override
-    public Collection<WorldElement> getElements(){
-        Collection<WorldElement> elements = super.getElements();
-        elements.add(owlBear);
-        return elements;
-    }
-
-    @Override
-    public WorldElement objectAt(Vector2d position) {
-        if (owlBear.isAtPosition(position)){
-            return owlBear;
-        } else{
-            return super.objectAt(position);
-        }
-    }
 }
