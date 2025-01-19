@@ -1,15 +1,13 @@
 package agh.ics.oop;
 
-import agh.ics.oop.model.*;
-import agh.ics.oop.model.IncorrectPositionException;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.maps.AbstractWorldMap;
-import agh.ics.oop.model.maps.WorldMap;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable {
-    private final List<Animal> animalList;
     private final AbstractWorldMap map;
     private final int grassValue;
     private final Object lock = new Object();       //kontrola zatrzymywania watkow
@@ -20,7 +18,6 @@ public class Simulation implements Runnable {
     public Simulation(AbstractWorldMap map, int numberOfAnimals, int startEnergy, int genomeSize, int grassValue, int initialGrass, int dailyGrass) throws IncorrectPositionException {
         this.map = map;
         this.grassValue = grassValue;
-        animalList = new ArrayList<>();
         map.placeStartObjects(numberOfAnimals,initialGrass,grassValue,startEnergy,genomeSize);
         this.dailyGrass=dailyGrass;
     }
@@ -36,9 +33,6 @@ public class Simulation implements Runnable {
         }
     }
 
-    public List<Animal> getAnimalListCopy() {
-        return new ArrayList<>(animalList);
-    }
     public void run() {
         try {
             while (!Thread.currentThread().isInterrupted()) {

@@ -1,8 +1,9 @@
 package agh.ics.oop.model.maps;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.OwlBear;
-import agh.ics.oop.model.MapDirection;
+import agh.ics.oop.model.Enums.MapDirection;
 import agh.ics.oop.model.mapElements.WorldElement;
 
 import java.util.Random;

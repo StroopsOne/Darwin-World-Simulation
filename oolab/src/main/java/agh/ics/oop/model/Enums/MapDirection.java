@@ -1,5 +1,7 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.Enums;
 
+
+import agh.ics.oop.model.Vector2d;
 
 import java.util.Random;
 
@@ -38,14 +40,7 @@ public enum MapDirection {
 
         };
     }
-    /*public MapDirection previous(){
-        return switch(this){
-            case EAST -> MapDirection.NORTH;
-            case NORTH -> MapDirection.WEST;
-            case WEST -> MapDirection.SOUTH;
-            case SOUTH -> MapDirection.EAST;
-        };
-    }*/
+
     final Vector2d vectorNorth = new Vector2d(0, 1);
     final Vector2d vectorEast = new Vector2d(1, 0);
     final Vector2d vectorSouth = new Vector2d(0, -1);

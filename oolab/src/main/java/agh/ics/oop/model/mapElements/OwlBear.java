@@ -1,6 +1,6 @@
 package agh.ics.oop.model.mapElements;
 
-import agh.ics.oop.model.MapDirection;
+import agh.ics.oop.model.Enums.MapDirection;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.maps.MoveValidator;
 

@@ -1,4 +1,6 @@
-package agh.ics.oop.model;
+package agh.ics.oop.model.Exceptions;
+
+import agh.ics.oop.model.Vector2d;
 
 public class IncorrectPositionException extends Exception {
 
