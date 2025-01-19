@@ -12,9 +12,9 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
     private final Vector2d lowerTerritoryCoordinates;
     private final Vector2d upperTerritoryCoordinates;
     private final OwlBear owlBear;
-
-    public TheEarthWithOwlBear(int height, int width) {
-        super(height, width);
+    //blad sie tu wyswietla bo zakomentowałem niedziałające metody w AbstractWorldMap
+    public TheEarthWithOwlBear(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection) {
+        super(height, width,mingeneMutation,maxgeneMutation,reproductionEnergy,parentingEnergy,slightCorrection);
         owlBearTerritorySide = (int) Math.sqrt(0.2 * height * width);
 
         lowerTerritoryCoordinates = generateOwlBearTerritory(height, width);

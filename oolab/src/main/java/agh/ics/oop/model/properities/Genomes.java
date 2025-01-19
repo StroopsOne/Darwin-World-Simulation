@@ -31,7 +31,7 @@ public class Genomes {
 
     public List<Integer>getGenes(){return genes;}
 
-    public List<Integer>ChildGenes(Animal mom, Animal dad){     //mom, dad umowne, którsze nazwy od firstParent
+    public static List<Integer>ChildGenes(Animal mom, Animal dad){     //mom, dad umowne, którsze nazwy od firstParent
         Animal strongerParent = mom.getEnergy() > dad.getEnergy() ? mom : dad;
         Animal weakerParent = mom.getEnergy() > dad.getEnergy() ? dad : mom;
 

@@ -3,57 +3,64 @@ package agh.ics.oop;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.Animal;
+import agh.ics.oop.model.maps.AbstractWorldMap;
 import agh.ics.oop.model.maps.WorldMap;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation implements Runnable {
     private final List<Animal> animalList;
-    private final WorldMap mapAnimals;
+    private final AbstractWorldMap map;
+    private final int grassValue;
+    private final Object lock = new Object();       //kontrola zatrzymywania watkow
+    private volatile boolean running = true;
+    private final int dailyGrass;
+    private int day=0;
 
-
-    public Simulation(List<Vector2d> startPositions, WorldMap mapAnimals) throws IncorrectPositionException {
+    public Simulation(AbstractWorldMap map, int numberOfAnimals, int startEnergy, int genomeSize, int grassValue, int initialGrass, int dailyGrass) throws IncorrectPositionException {
+        this.map = map;
+        this.grassValue = grassValue;
         animalList = new ArrayList<>();
-        int counter = 0;
-        for (Vector2d pos : startPositions) {
-            Animal animal = new Animal(pos);
-            try{
+        map.placeStartObjects(numberOfAnimals,initialGrass,grassValue,startEnergy,genomeSize);
+        this.dailyGrass=dailyGrass;
+    }
 
-                mapAnimals.placeAnimal(animal);
-                animalList.add(animal);
+    public void pauseSimulation() {
+        running = false;
+    }
 
-            }catch (IncorrectPositionException e){
-                System.out.println(e.getMessage());
-            }
+    public void resumeSimulation() {
+        running = true;
+        synchronized (lock) {
+            lock.notify();
         }
-        this.mapAnimals = mapAnimals;
     }
 
     public List<Animal> getAnimalListCopy() {
         return new ArrayList<>(animalList);
     }
     public void run() {
-        int moveNum = 0;
-        int len = moveList.size();
-        while (moveNum < len) {
-            int petIdx = 1;
-            for (Animal pet : animalList) {
-                //mapAnimals.move(pet, moveList.get(moveNum));
-
-                moveNum++;
-                if (moveNum == len) {
-                    break;
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                synchronized (lock) {
+                    while (!running) {
+                        lock.wait();
+                    }
                 }
                 try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    System.out.println("Simulation interrupted.");
-                    return;
+                    Thread.sleep(1000);     //przerwa między dniami
+                    map.removeDeadAnimals(day);
+                    map.moveAllAnimals();
+                    map.animalsEatGrasses();
+                    map.animalsReproduce();
+                    map.plantNewGrasses(dailyGrass,grassValue);
+                    day++;
+                } catch (IncorrectPositionException e) {
+                    System.out.println("Blad w poruszaniu zwierzat");
                 }
             }
+        }catch(InterruptedException e){
+            Thread.currentThread().interrupt();
         }
     }
 }
-//Uważam, że użycie tu ArrayList jest odpowiednie, ponieważ pozwala dodawać elementy na końcu w czasie O(1),
-//z czego korzystamy w zadaniu. Również dostęp do dowolnych elementów listy jest w czasie O(1) z którego to dostępu
-//korszytsany w metodzie run, dlatego uważam, że użyta przeze mnie Lista jest najlepsza z dostępnych.
