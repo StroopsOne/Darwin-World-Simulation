@@ -11,7 +11,6 @@ import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
@@ -76,6 +75,24 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             System.exit(0);
         }
         plantNewGrasses(grassesCount, grassValue);
+    }
+
+    public boolean isOccupied(Vector2d position){
+        if (animals.containsKey(position)){
+            return true;
+        }
+        if(grassPoints.containsKey(position)){
+            return true;
+        }
+        return false;
+    }
+
+
+    public WorldElement objectAt(Vector2d position) {
+        if (animals.containsKey(position)){
+            return animals.get(position).getFirst();
+        }
+        return grassPoints.get(position);
     }
 
     protected int getFreePositionsCount() {
@@ -292,15 +309,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     public boolean canMoveTo(Vector2d position) {
         return position.follows(minVector) && position.precedes(maxVector);
     }
-    /*
-    @Override
-    public WorldElement objectAt(Vector2d position) {
-        if (animals.containsKey(position)) {
-            return animals.get(position);
-        }
-        return grassPoints.getOrDefault(position, null);
-    }
-    */
+
     public Boundary getCurrentBounds(){
         return new Boundary(minVector, maxVector);
     }
