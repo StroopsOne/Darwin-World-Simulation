@@ -262,20 +262,37 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         else throw new IncorrectPositionException(position);
     }
 
-    //W TESTACH WYSZŁO ŻE TA METODA NEI DZIAŁA- USUWA WSZYSTKIE ZWIERZĘTA!!!
-    public void removeDeadAnimals(int simulationDay){
-        for (List<Animal> animalsAtPosition : animals.values()){
+    public void removeDeadAnimals(int simulationDay) {
+        List<Vector2d> emptyPositions = new ArrayList<>();
 
-            animalsAtPosition.removeIf(animal -> {
-                animal.killAnimal(simulationDay);
-                if (animal.getDeathDay() != null) {
-                    deadAnimals.add(animal);  // Dodaj martwe zwierzę do deadAnimals
-                    return true;  // Usuwamy martwe zwierzę
+        // Iterujemy przez każdą pozycję na mapie
+        for (Map.Entry<Vector2d, List<Animal>> entry : animals.entrySet()) {
+            Vector2d position = entry.getKey();
+            List<Animal> animalsAtPosition = entry.getValue();
+
+            // Usuń martwe zwierzęta i dodaj je do listy martwych
+            Iterator<Animal> iterator = animalsAtPosition.iterator();
+            while (iterator.hasNext()) {
+                Animal animal = iterator.next();
+                if (animal.getEnergy() <= 0) { // Zwierzę jest martwe, jeśli energia <= 0
+                    animal.killAnimal(simulationDay);
+                    deadAnimals.add(animal); // Dodaj martwe zwierzę do listy martwych
+                    iterator.remove(); // Usuń martwe zwierzę z pozycji
                 }
-                return false;  // Nie usuwamy żywego zwierzęcia
-            });
+            }
+
+            // Jeśli pozycja jest pusta, oznacz ją do usunięcia
+            if (animalsAtPosition.isEmpty()) {
+                emptyPositions.add(position);
+            }
+        }
+
+        // Usuń puste pozycje z mapy
+        for (Vector2d position : emptyPositions) {
+            animals.remove(position);
         }
     }
+
 
     //możesz przejrzeć czy ta metoda na pewno działa, wydaje mi się że powinna, z poprzednią było coś nie tak
     public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
@@ -323,6 +340,27 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             }
         }
     }
+    /*
+    public void moveAllAnimals() throws IncorrectPositionException {
+        Map<Vector2d, List<Animal>> newAnimals = new HashMap<>();
+
+        for (Map.Entry<Vector2d, List<Animal>> entry : animals.entrySet()) {
+            for (Animal animal : entry.getValue()) {
+                Vector2d oldPosition = animal.getPosition();
+                animal.move(animal.useGene(), this, width);
+
+                Vector2d newPosition = animal.getPosition();
+                newAnimals.computeIfAbsent(newPosition, k -> new ArrayList<>()).add(animal);
+
+                if (!newPosition.equals(oldPosition)) {
+                    animals.get(oldPosition).remove(animal);
+                }
+            }
+        }
+
+        animals.putAll(newAnimals);
+    }
+     */
 
     @Override
 
