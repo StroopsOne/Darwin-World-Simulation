@@ -274,6 +274,7 @@ public class SimulationPresenter implements MapChangeListener {
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
             deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()))   ;
+
         } else {
             updateStatistics(worldMap);
         }

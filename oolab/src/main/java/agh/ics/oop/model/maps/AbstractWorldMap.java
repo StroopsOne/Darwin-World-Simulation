@@ -302,7 +302,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
-    public void moveAllAnimals() throws IncorrectPositionException {
+    public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
         Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();
 
         for (Vector2d position : new HashSet<>(animals.keySet())) { // Kopiujemy klucze, aby uniknąć modyfikacji w trakcie iteracji
