@@ -250,7 +250,7 @@ public class SimulationPresenter implements MapChangeListener {
 
         if(generateCsv) {
             csvWriter.printf("%d,%d,%d,%d,\"%s\",%.2f,%.2f,%.2f%n",
-                    day,
+                    simulation.getDay(),
                     stats.getTotalAnimals(),
                     stats.getTotalPlants(),
                     stats.getFreeFields(),
@@ -267,14 +267,14 @@ public class SimulationPresenter implements MapChangeListener {
         if (!isAnimalStatisticsDisplayed) {
             animalStatistics = new AnimalStatistics(animal, simulation);
 
-            genomeField.setText(animalStatistics.getGenome());
+            genomeField.setText(animalStatistics.getGenome().toString());
             activePartField.setText(String.valueOf(animalStatistics.getActivePart()));
             energyField.setText(String.valueOf(animalStatistics.getEnergy()));
             eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
-            offspringCountField.setText(String.valueOf(animalStatistics.getOffspringCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
-            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
+            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()))   ;
+
         } else {
             updateStatistics(worldMap);
         }
@@ -284,12 +284,12 @@ public class SimulationPresenter implements MapChangeListener {
 
     private void updateAnimalStatistics() {
         if (animalStatistics != null) {
-            genomeField.setText(animalStatistics.getGenome());
+            genomeField.setText(animalStatistics.getGenome().toString());
             activePartField.setText(String.valueOf(animalStatistics.getActivePart()));
             energyField.setText(String.valueOf(animalStatistics.getEnergy()));
             eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
-            offspringCountField.setText(String.valueOf(animalStatistics.getOffspringCount()));
+            //offspringCountField.setText(String.valueOf(animalStatistics.getOffspringCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
             deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
         }
