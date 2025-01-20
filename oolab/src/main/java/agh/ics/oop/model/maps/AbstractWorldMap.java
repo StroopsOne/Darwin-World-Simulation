@@ -257,8 +257,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return deadAnimals.size();
     }
 
-    public int getTotalAnimalsCount(){
-        return getDeadAnimalsCount() + getLivingAnimalsCount();
+    public List<Animal> getDeadAnimals(){
+        return deadAnimals;
     }
 
     @Override
@@ -357,6 +357,10 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         for(MapChangeListener observer : observers){
             observer.mapChanged(this);
         }
+    }
+
+    public int getFreeFields(){
+        return width*height-getAllLivingAnimals().size()-getGrassCount();
     }
 
     public String toString() {

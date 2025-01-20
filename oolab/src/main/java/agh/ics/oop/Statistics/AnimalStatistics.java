@@ -1,7 +1,8 @@
 package agh.ics.oop.Statistics;
-/*
 import agh.ics.oop.Simulation;
 import agh.ics.oop.model.mapElements.Animal;
+
+import java.util.List;
 
 public class AnimalStatistics {
     private final Animal animal;
@@ -12,12 +13,12 @@ public class AnimalStatistics {
         this.simulation = simulation;
     }
 
-    public String getGenome() {
-        return animal.getGenes().toString();            //DODAĆ TOSTRING DO GENOME
+    public List<Integer> getGenome() {
+        return animal.getGenes().getGenes();
     }
 
     public int getActivePart() {
-        return animal.getActiveGenome();
+        return animal.getGenePartUsed();        //UWAGA ZWRCA INDEKS A NIE ZAWARTOŚĆ GENU
     }
 
     public int getEnergy() {
@@ -25,23 +26,19 @@ public class AnimalStatistics {
     }
 
     public int getEatenPlants() {
-        return animal.getEatenPlants();
+        return animal.getPlantEatenCount();
     }
 
     public int getChildrenCount() {
         return animal.getChildrenCount();
     }
-
-    public int getOffspringCount() {
-        return animal.getoffspringCount();
-    }
+    //offspring
 
     public int getAge() {
-        return animal.getAge();
+        return animal.getAgeDays();
     }
 
-    public String getDeathDay() {
-        return animal.isDead() ? String.valueOf(animal.getDeathDay()) : "Alive";
+    public int getDeathDay() {
+        return animal.getDeathDay();
     }
 }
- */
