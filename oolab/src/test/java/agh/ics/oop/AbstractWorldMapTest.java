@@ -101,18 +101,30 @@ class AbstractWorldMapTest {
 
     @Test
     void testRemoveDeadAnimals() {
-        Animal animal = new Animal(new Vector2d(2, 2), 1, 8);
-        Animal animal2 = new Animal(new Vector2d(3, 2), 2, 8);
+        Animal animal = new Animal(new Vector2d(2, 2), 0, 8); // Martwe zwierzę
+        Animal animal2 = new Animal(new Vector2d(3, 2), 0, 8); // Martwe zwierzę
+        Animal animal3 = new Animal(new Vector2d(4, 4), 5, 8); // Żywe zwierzę
+
         try {
             map.placeAnimal(animal);
             map.placeAnimal(animal2);
-        }catch(IncorrectPositionException e){
-            System.exit(1);
+            map.placeAnimal(animal3);
+        } catch (IncorrectPositionException e) {
+            fail("Failed to place animals on the map.");
         }
 
         map.removeDeadAnimals(1);
 
+        // Martwe zwierzęta są usuwane
         assertEquals(2, map.getDeadAnimalsCount(), "Dead animals count should increase after removing dead animals.");
-        assertEquals(1, map.getLivingAnimalsCount(), "Living animals count should decrease after removing dead animals.");
+
+        // Żywe zwierzęta pozostają na mapie
+        assertEquals(1, map.getLivingAnimalsCount(), "Living animals count should remain unchanged for animals with energy > 0.");
+
+        // Pozycje martwych zwierząt są usuwane z mapy
+        assertFalse(map.isOccupied(new Vector2d(2, 2)), "Position (2,2) should not be occupied after removing dead animals.");
+        assertFalse(map.isOccupied(new Vector2d(3, 2)), "Position (3,2) should not be occupied after removing dead animals.");
+        assertTrue(map.isOccupied(new Vector2d(4, 4)), "Position (4,4) should still be occupied by a living animal.");
     }
+
 }
