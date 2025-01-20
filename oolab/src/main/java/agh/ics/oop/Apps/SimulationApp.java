@@ -12,7 +12,10 @@ public class SimulationApp extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getClassLoader().getResource("simulation.fxml"));
+        loader.setLocation(SimulationApp.class.getResource("/simulation.fxml"));
+        if (loader.getLocation() == null) {
+            throw new IllegalStateException("FXML file not found: simulation.fxml");
+        }
         BorderPane viewRoot = loader.load();
         configureStage(primaryStage, viewRoot);
         primaryStage.show();

@@ -236,8 +236,15 @@ public class MainPresenter {
 
     @FXML
     public void onStartClicked() {
+        System.out.println("Symulacje kliknieto");
         try {
-            // Get values from text fields (now with 'Field' suffix)
+            // Walidacja pól tekstowych
+            if (mapVariant.getValue() == null) {
+                infoLabel.setText("Error: Map variant must be selected.");
+                return;
+            }
+
+            // Pobieranie wartości z pól
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
             String mapVariantValue = mapVariant.getValue();
             boolean mutationVariantValue = mutationVariant.isSelected();
@@ -254,12 +261,12 @@ public class MainPresenter {
             int minGeneMutation = parseTextFieldToInt(minGeneMutationField);
             int maxGeneMutation = parseTextFieldToInt(maxGeneMutationField);
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/simulation.fxml"));
+            // Ładowanie pliku FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("simulation.fxml"));
             Parent root = loader.load();
 
+            // Pobranie kontrolera i ustawienie wartości
             SimulationPresenter simulationPresenter = loader.getController();
-
-            // Set values in simulation presenter (without 'Field' suffix)
             simulationPresenter.setGenerateCsv(generateCsvValue);
             simulationPresenter.setAnimalsCount(animalCount);
             simulationPresenter.setStartEnergy(startEnergy);
@@ -268,8 +275,7 @@ public class MainPresenter {
             simulationPresenter.setDailyGrass(dailyGrass);
             simulationPresenter.setGrassCount(grassCount);
 
-
-            // Setup map variant
+            // Tworzenie mapy
             if (mapVariantValue.equals("Earth")) {
                 TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, mutationVariantValue);
                 simulationPresenter.setWorldMap(worldMap);
@@ -280,13 +286,19 @@ public class MainPresenter {
                 worldMap.addObserver(simulationPresenter);
             }
 
+            // Rozpoczęcie symulacji
             simulationPresenter.onStartStopButtonClicked();
 
+            // Ustawienie nowego okna
             Stage simulationStage = new Stage();
             simulationStage.setScene(new Scene(root));
             simulationStage.show();
-        } catch (IOException e) {
+        } catch (NumberFormatException e) {
+            infoLabel.setText("Error: All fields must contain valid numbers.");
+        } catch (Exception e) {
             e.printStackTrace();
+            infoLabel.setText("An unexpected error occurred.");
         }
     }
+
 }
