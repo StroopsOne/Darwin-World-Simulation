@@ -155,29 +155,33 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
 
     public void plantNewGrasses(int grassesCount, int grassValue) {
-
         for (int i = 0; i < grassesCount; i++) {
             Set<Vector2d> targetSet;
             int x = random.nextInt(5); // 20% szans na niepreferowane pola, 80% na preferowane
 
-            if (x == 0) {
+            if (x == 0 && !notPreferredPositions.isEmpty()) {
                 targetSet = notPreferredPositions;
-            } else {
+            } else if (!preferredPositions.isEmpty()) {
                 targetSet = preferredPositions;
+            } else if (!notPreferredPositions.isEmpty()) {
+                targetSet = notPreferredPositions; // Fallback to notPreferredPositions
+            } else {
+                continue; // Brak dostępnych pól
             }
-            // Losowanie pola z wybranego zbioru
-            if (!targetSet.isEmpty()) {
-                int randomIndex = random.nextInt(targetSet.size());
-                Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
 
-                // Dodanie trawy i usunięcie pozycji z dostępnych pól
-                if (position != null) {
-                    grassPoints.put(position, new Grass(position, grassValue));
-                    targetSet.remove(position);
-                }
+            // Losowanie pola z wybranego zbioru
+            int randomIndex = random.nextInt(targetSet.size());
+            Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
+
+            // Dodanie trawy i usunięcie pozycji z dostępnych pól
+            if (position != null) {
+                grassPoints.put(position, new Grass(position, grassValue));
+                targetSet.remove(position);
             }
         }
     }
+
+
 
     public boolean isGrassOnPosition(Vector2d position){
         return (grassPoints.containsKey(position) && !grassPoints.get(position).isEaten());
@@ -258,7 +262,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         else throw new IncorrectPositionException(position);
     }
 
-
+    //W TESTACH WYSZŁO ŻE TA METODA NEI DZIAŁA- USUWA WSZYSTKIE ZWIERZĘTA!!!
     public void removeDeadAnimals(int simulationDay){
         for (List<Animal> animalsAtPosition : animals.values()){
 
@@ -273,18 +277,33 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
+    //możesz przejrzeć czy ta metoda na pewno działa, wydaje mi się że powinna, z poprzednią było coś nie tak
     public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
-        Vector2d oldPosition = animal.getPosition();
-        animal.move(animal.useGene(), this, width);
-        Vector2d newPosition = animal.getPosition();
-        if (newPosition.equals(oldPosition)) {
+        Vector2d oldPosition = animal.getPosition(); // Pobierz starą pozycję zwierzęcia
+        Vector2d newPosition;
+
+        // Oblicz nową pozycję na podstawie ruchu zwierzęcia
+        animal.move(animal.useGene(), this, width); // Metoda move w Animal obsługuje wrap-around
+        newPosition = animal.getPosition(); // Nowa pozycja po ruchu
+
+        // Aktualizacja położenia na mapie
+        if (!oldPosition.equals(newPosition)) {
+            // Usuń zwierzę ze starej pozycji
+            animals.get(oldPosition).remove(animal);
+            if (animals.get(oldPosition).isEmpty()) {
+                animals.remove(oldPosition); // Usuń puste wpisy
+            }
+
+            // Dodaj zwierzę do nowej pozycji
             animals.computeIfAbsent(newPosition, key -> new ArrayList<>()).add(animal);
-            notifyAllObservers("animal move to " + newPosition);
+
+            // Powiadom obserwatorów o ruchu
+            notifyAllObservers("Animal moved from " + oldPosition + " to " + newPosition);
             return true;
         }
-        else throw new IncorrectPositionException(newPosition);
-    }
 
+        return false; // Zwierzę pozostało na tej samej pozycji
+    }
 
     public void moveAllAnimals() throws IncorrectPositionException {
         for (List<Animal> animalsOnPosition : animals.values()){

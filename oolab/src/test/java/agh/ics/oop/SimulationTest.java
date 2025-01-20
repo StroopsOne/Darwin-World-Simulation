@@ -1,71 +1,103 @@
-/*package agh.ics.oop;
+package agh.ics.oop;
 
-import agh.ics.oop.model.*;
-import org.junit.jupiter.api.Assertions;
+import agh.ics.oop.Simulation;
+import agh.ics.oop.model.Exceptions.IncorrectPositionException;
+import agh.ics.oop.model.maps.AbstractWorldMap;
+import agh.ics.oop.model.maps.TheEarth;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SimulationTest {
 
     @Test
-    void simulationRunTest() {
-        String[] moves = {"f", "c", "r", "f", "g", "l", "b", "r", "f", "f", "l", "f"};
-        List<MoveDirection> directions = OptionsParser.parse(moves);
-        List<Vector2d> positions = List.of(new Vector2d(2, 2));
-        GrassField animalsMap = new GrassField(10);
-        Simulation simulation1 = new Simulation(positions, directions, animalsMap);
-        List<Animal> animalListTest = simulation1.getAnimalListCopy();
+    void testInitialization() throws IncorrectPositionException {
+        AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
+        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 5);
 
-        assertEquals(new Vector2d(2, 2), animalListTest.get(0).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(0).getOrientation());
-        simulation1.run();
-        assertEquals(new Vector2d(5, 3), animalListTest.get(0).getPosition());
+        // Sprawdzamy, czy symulacja poprawnie inicjalizuje mapę
+        assertEquals(5, map.getLivingAnimalsCount(), "Initial number of animals should be 5.");
+        assertEquals(10, map.getGrassCount(), "Initial number of grasses should be 10.");
     }
 
     @Test
-    void simulationRunTest2() {
-        String[] moves = {"r", "f", "l", "r", "f", "b", "f", "r", "f", "f", "f"};
-        List<MoveDirection> directions = OptionsParser.parse(moves);
-        List<Vector2d> positions = List.of(new Vector2d(2, 2), new Vector2d(3, 4), new Vector2d(1, 3));
-        GrassField animalsMap = new GrassField(10);
-        Simulation simulation2 = new Simulation(positions, directions, animalsMap);
-        List<Animal> animalListTest = simulation2.getAnimalListCopy();
-        assertEquals(new Vector2d(2, 2), animalListTest.get(0).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(0).getOrientation());
-        assertEquals(new Vector2d(3, 4), animalListTest.get(1).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(1).getOrientation());
-        assertEquals(new Vector2d(1, 3), animalListTest.get(2).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(2).getOrientation());
-        System.out.println(animalsMap);
-        simulation2.run();
-        assertEquals(new Vector2d(2, 0), animalListTest.get(0).getPosition());
-        assertEquals(MapDirection.SOUTH, animalListTest.get(0).getOrientation());
-        assertEquals(new Vector2d(4, 6), animalListTest.get(1).getPosition());
-        assertEquals(MapDirection.EAST, animalListTest.get(1).getOrientation());
-        assertEquals(new Vector2d(1, 3), animalListTest.get(2).getPosition());
-        assertEquals(MapDirection.WEST, animalListTest.get(2).getOrientation());
-    }
-    @Test
-    void simulationRunTest3() {
-        String[] moves = {"r", "b", "f", "b", "r", "b", "f", "b", "f", "b", "f", "b", "r", "l","f","f", "r", "l", "f", "r","b","f","f"};
-        List<MoveDirection> directions = OptionsParser.parse(moves);
-        List<Vector2d> positions = List.of(new Vector2d(2, 2), new Vector2d(3, 4), new Vector2d(3, 4), new Vector2d(2,2));
-        GrassField animalsMap = new GrassField(10);
-        Simulation simulation3 = new Simulation(positions, directions, animalsMap);
-        List<Animal> animalListTest = simulation3.getAnimalListCopy();
+    void testDailyCycle() throws IncorrectPositionException, InterruptedException {
+        AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
+        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 5);
 
-        assertEquals(new Vector2d(2, 2), animalListTest.get(0).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(0).getOrientation());
-        assertEquals(new Vector2d(3, 4), animalListTest.get(1).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(1).getOrientation());
-        System.out.println(animalsMap);
-        simulation3.run();
-        assertEquals(new Vector2d(2, 1), animalListTest.get(0).getPosition());
-        assertEquals(MapDirection.NORTH, animalListTest.get(0).getOrientation());
-        assertEquals(new Vector2d(1, 1), animalListTest.get(1).getPosition());
-        assertEquals(MapDirection.WEST, animalListTest.get(1).getOrientation());
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.start();
+
+        // Poczekaj na zakończenie jednego cyklu
+        Thread.sleep(1200);
+
+        // Zatrzymaj symulację
+        simulation.pauseSimulation();
+        simulationThread.interrupt();
+
+        // Sprawdzamy stan po jednym dniu
+        assertTrue(map.getLivingAnimalsCount() > 0, "Animals should still be alive after one day.");
+        assertEquals(15, map.getGrassCount(), "Grass count should increase by daily grass.");
     }
-}*/
+
+    @Test
+    void testPauseAndResume() throws IncorrectPositionException, InterruptedException {
+        AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
+        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 5);
+
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.start();
+
+        // Pauzuj symulację
+        simulation.pauseSimulation();
+        Thread.sleep(500);
+        int animalsBeforePause = map.getLivingAnimalsCount();
+
+        // Wznów symulację
+        simulation.resumeSimulation();
+        Thread.sleep(1500);
+        simulationThread.interrupt();
+
+        int animalsAfterResume = map.getLivingAnimalsCount();
+
+        assertTrue(animalsAfterResume >= animalsBeforePause, "Number of animals should not decrease while paused.");
+    }
+
+    @Test
+    void testMultipleDays() throws IncorrectPositionException, InterruptedException {
+        AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
+        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 5);
+
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.start();
+
+        // Poczekaj na zakończenie 5 dni
+        Thread.sleep(5200);
+
+        // Zatrzymaj symulację
+        simulation.pauseSimulation();
+        simulationThread.interrupt();
+
+        assertTrue(map.getLivingAnimalsCount() > 0, "Animals should still be alive after multiple days.");
+        assertTrue(map.getGrassCount() > 10, "Grass count should increase over multiple days.");
+    }
+
+    @Test
+    void testDeadAnimals() throws IncorrectPositionException, InterruptedException {
+        AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
+        Simulation simulation = new Simulation(map, 5, 1, 8, 50, 10, 5); // Zwierzęta z małą energią
+
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.start();
+
+        // Poczekaj na zakończenie jednego dnia
+        Thread.sleep(1200);
+
+        // Zatrzymaj symulację
+        simulation.pauseSimulation();
+        simulationThread.interrupt();
+
+        assertEquals(0, map.getLivingAnimalsCount(), "All animals should be dead after one day with low energy.");
+        assertEquals(5, map.getDeadAnimalsCount(), "Dead animals count should match initial animal count.");
+    }
+}

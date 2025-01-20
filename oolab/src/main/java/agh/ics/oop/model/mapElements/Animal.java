@@ -72,8 +72,8 @@ public class Animal implements WorldElement {
         this.position = position;
         this.energy = inheritedEnergy;
         this.plantEatenCount = 0;
-        this.genePartUsed = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
         this.genes = genomes;
+        this.genePartUsed = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
         this.parent1 = parent1;
