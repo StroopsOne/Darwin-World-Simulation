@@ -83,8 +83,7 @@ class AbstractWorldMapTest {
         map = new TheEarth(10, 10, 1, 3, 50, 20, true);
         Animal animal = new Animal(new Vector2d(2, 2), 100, 8);
         map.placeAnimal(animal);
-
-        map.moveAnimal(animal);
+        map.moveAllAnimals();
 
         assertNotEquals(new Vector2d(2, 2), animal.getPosition());
         System.out.println("Animal new position: " + animal.getPosition());
