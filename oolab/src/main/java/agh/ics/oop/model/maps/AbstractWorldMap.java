@@ -104,6 +104,15 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return width * height - takenPositionsCount.size();
     }
 
+    public void decreaseEnergyForAllAnimals(int simulationDay) {
+        for (List<Animal> animalsAtPosition : animals.values()) {
+            for (Animal animal : animalsAtPosition) {
+                animal.dayPasses(simulationDay);
+            }
+        }
+    }
+
+
     public void animalsEatGrasses(){
         for (List<Animal> animalsOnPosition : animals.values()){
             Vector2d position = animalsOnPosition.getFirst().getPosition();
@@ -153,31 +162,60 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
-
+    /*
     public void plantNewGrasses(int grassesCount, int grassValue) {
-
         for (int i = 0; i < grassesCount; i++) {
             Set<Vector2d> targetSet;
             int x = random.nextInt(5); // 20% szans na niepreferowane pola, 80% na preferowane
 
-            if (x == 0) {
+            if (x == 0 && !notPreferredPositions.isEmpty()) {
                 targetSet = notPreferredPositions;
-            } else {
+            } else if (!preferredPositions.isEmpty()) {
                 targetSet = preferredPositions;
+            } else if (!notPreferredPositions.isEmpty()) {
+                targetSet = notPreferredPositions; // Fallback to notPreferredPositions
+            } else {
+                continue; // Brak dostępnych pól
             }
-            // Losowanie pola z wybranego zbioru
-            if (!targetSet.isEmpty()) {
-                int randomIndex = random.nextInt(targetSet.size());
-                Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
 
-                // Dodanie trawy i usunięcie pozycji z dostępnych pól
-                if (position != null) {
-                    grassPoints.put(position, new Grass(position, grassValue));
-                    targetSet.remove(position);
-                }
+            // Losowanie pola z wybranego zbioru
+            int randomIndex = random.nextInt(targetSet.size());
+            Vector2d position = targetSet.stream().skip(randomIndex).findFirst().orElse(null);
+
+            // Dodanie trawy i usunięcie pozycji z dostępnych pól
+            if (position != null) {
+                grassPoints.put(position, new Grass(position, grassValue));
+                targetSet.remove(position);
             }
         }
     }
+     */
+    public void plantNewGrasses(int grassesCount, int grassValue) {
+        int grassesPlanted = 0;
+
+        for (int i = 0; i < grassesCount; i++) {
+            Set<Vector2d> targetSet = random.nextInt(5) == 0 ? notPreferredPositions : preferredPositions;
+
+            if (targetSet.isEmpty()) {
+                targetSet = preferredPositions.isEmpty() ? notPreferredPositions : preferredPositions;
+            }
+
+            if (!targetSet.isEmpty()) {
+                Vector2d position = targetSet.stream().skip(random.nextInt(targetSet.size())).findFirst().orElse(null);
+
+                if (position != null && !isOccupied(position)) {
+                    grassPoints.put(position, new Grass(position, grassValue));
+                    targetSet.remove(position);
+                    grassesPlanted++;
+                    //System.out.println("Grass planted at: " + position);
+                }
+            }
+        }
+
+        //System.out.println("Grasses planted this cycle: " + grassesPlanted);
+    }
+
+
 
     public boolean isGrassOnPosition(Vector2d position){
         return (grassPoints.containsKey(position) && !grassPoints.get(position).isEaten());
@@ -258,34 +296,66 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         else throw new IncorrectPositionException(position);
     }
 
+    public void removeDeadAnimals(int simulationDay) {
+        List<Vector2d> emptyPositions = new ArrayList<>();
 
-    public void removeDeadAnimals(int simulationDay){
-        for (List<Animal> animalsAtPosition : animals.values()){
+        // Iterujemy przez każdą pozycję na mapie
+        for (Map.Entry<Vector2d, List<Animal>> entry : animals.entrySet()) {
+            Vector2d position = entry.getKey();
+            List<Animal> animalsAtPosition = entry.getValue();
 
-            animalsAtPosition.removeIf(animal -> {
-                animal.killAnimal(simulationDay);
-                if (animal.getDeathDay() != null) {
-                    deadAnimals.add(animal);  // Dodaj martwe zwierzę do deadAnimals
-                    return true;  // Usuwamy martwe zwierzę
+            // Usuń martwe zwierzęta i dodaj je do listy martwych
+            Iterator<Animal> iterator = animalsAtPosition.iterator();
+            while (iterator.hasNext()) {
+                Animal animal = iterator.next();
+                if (animal.getEnergy() <= 0) { // Zwierzę jest martwe, jeśli energia <= 0
+                    animal.killAnimal(simulationDay);
+                    deadAnimals.add(animal); // Dodaj martwe zwierzę do listy martwych
+                    iterator.remove(); // Usuń martwe zwierzę z pozycji
                 }
-                return false;  // Nie usuwamy żywego zwierzęcia
-            });
+            }
+
+            // Jeśli pozycja jest pusta, oznacz ją do usunięcia
+            if (animalsAtPosition.isEmpty()) {
+                emptyPositions.add(position);
+            }
+        }
+
+        // Usuń puste pozycje z mapy
+        for (Vector2d position : emptyPositions) {
+            animals.remove(position);
         }
     }
 
+
+    //możesz przejrzeć czy ta metoda na pewno działa, wydaje mi się że powinna, z poprzednią było coś nie tak
     public boolean moveAnimal(Animal animal) throws IncorrectPositionException {
-        Vector2d oldPosition = animal.getPosition();
-        animal.move(animal.useGene(), this, width);
-        Vector2d newPosition = animal.getPosition();
-        if (newPosition.equals(oldPosition)) {
+        Vector2d oldPosition = animal.getPosition(); // Pobierz starą pozycję zwierzęcia
+        Vector2d newPosition;
+
+        // Oblicz nową pozycję na podstawie ruchu zwierzęcia
+        animal.move(animal.useGene(), this, width); // Metoda move w Animal obsługuje wrap-around
+        newPosition = animal.getPosition(); // Nowa pozycja po ruchu
+
+        // Aktualizacja położenia na mapie
+        if (!oldPosition.equals(newPosition)) {
+            // Usuń zwierzę ze starej pozycji
+            animals.get(oldPosition).remove(animal);
+            if (animals.get(oldPosition).isEmpty()) {
+                animals.remove(oldPosition); // Usuń puste wpisy
+            }
+
+            // Dodaj zwierzę do nowej pozycji
             animals.computeIfAbsent(newPosition, key -> new ArrayList<>()).add(animal);
-            notifyAllObservers("animal move to " + newPosition);
+
+            // Powiadom obserwatorów o ruchu
+            notifyAllObservers("Animal moved from " + oldPosition + " to " + newPosition);
             return true;
         }
-        else throw new IncorrectPositionException(newPosition);
+
+        return false; // Zwierzę pozostało na tej samej pozycji
     }
-
-
+    /*
     public void moveAllAnimals() throws IncorrectPositionException {
         for (List<Animal> animalsOnPosition : animals.values()){
             List<Animal> animalsToRemove = new ArrayList<>(); // Lista zwierząt do usunięcia
@@ -304,6 +374,40 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             }
         }
     }
+     */
+
+    public void moveAllAnimals() throws IncorrectPositionException {
+        Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();
+
+        for (Vector2d position : new HashSet<>(animals.keySet())) { // Kopiujemy klucze, aby uniknąć modyfikacji w trakcie iteracji
+            List<Animal> animalsAtPosition = animals.get(position);
+
+            if (animalsAtPosition != null) {
+                List<Animal> movingAnimals = new ArrayList<>(animalsAtPosition);
+                for (Animal animal : movingAnimals) {
+                    Vector2d oldPosition = animal.getPosition();
+                    animal.move(animal.useGene(), this, width);
+
+                    Vector2d newPosition = animal.getPosition();
+                    if (!oldPosition.equals(newPosition)) {
+                        updatedAnimals.computeIfAbsent(newPosition, k -> new ArrayList<>()).add(animal);
+                        animalsAtPosition.remove(animal);
+                    }
+                }
+
+                // Usuń pozycję, jeśli jest pusta
+                if (animalsAtPosition.isEmpty()) {
+                    animals.remove(position);
+                }
+            }
+        }
+
+        // Dodaj przeniesione zwierzęta na nowe pozycje
+        for (Map.Entry<Vector2d, List<Animal>> entry : updatedAnimals.entrySet()) {
+            animals.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
+        }
+    }
+
 
     @Override
 
