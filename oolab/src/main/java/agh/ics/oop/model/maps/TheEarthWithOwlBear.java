@@ -55,9 +55,10 @@ import java.util.Random;
     }
 
     @Override
-    public void moveAllAnimals() throws IncorrectPositionException {
-        super.moveAllAnimals();
+    public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
+        super.moveAllAnimals(simulationDay);
         moveOwlBear(owlBear);
+        owlBearKillsAnimals(simulationDay);
     }
 
     public void moveOwlBear(OwlBear owlBear) {
@@ -76,14 +77,18 @@ import java.util.Random;
         return owlBear.isAtPosition(position);
     }
 
-    /*
-    public void owlBearKillsAnimals(){
+
+    public void owlBearKillsAnimals(int simulationDay){
         Vector2d position = owlBear.getPosition();
         List<Animal> animalsAtPosition = animals.get(position);
-        for (Animal animal : animalsAtPosition){
-            animal.killAnimal();
+        if (animalsAtPosition != null) {
+            for (Animal animal : animalsAtPosition) {
+                animal.killAnimal(simulationDay);
+            }
+            animals.remove(position);
         }
-    }*/
+
+    }
 
     public boolean canMoveOwlBearTo(Vector2d position) {
         return position.follows(lowerTerritoryCoordinates) && position.precedes(upperTerritoryCoordinates);

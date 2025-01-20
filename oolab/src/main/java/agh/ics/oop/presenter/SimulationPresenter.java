@@ -1,6 +1,8 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
+import agh.ics.oop.Statistics.AnimalStatistics;
+import agh.ics.oop.Statistics.SimulationStatistics;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.WorldElement;
@@ -272,7 +274,7 @@ public class SimulationPresenter implements MapChangeListener {
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
             offspringCountField.setText(String.valueOf(animalStatistics.getOffspringCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
-            deathDayField.setText(animalStatistics.getDeathDay());
+            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
         } else {
             updateStatistics(worldMap);
         }

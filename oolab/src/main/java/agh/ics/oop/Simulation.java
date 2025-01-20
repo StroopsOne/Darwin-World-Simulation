@@ -48,7 +48,7 @@ public class Simulation implements Runnable {
                 try {
                     Thread.sleep(1000);     //przerwa między dniami
                     map.removeDeadAnimals(day);
-                    map.moveAllAnimals();
+                    map.moveAllAnimals(day);
                     map.animalsEatGrasses();
                     map.decreaseEnergyForAllAnimals(day);
                     map.animalsReproduce();
