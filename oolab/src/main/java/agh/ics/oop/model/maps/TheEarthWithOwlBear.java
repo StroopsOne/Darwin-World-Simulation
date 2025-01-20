@@ -2,13 +2,15 @@ package agh.ics.oop.model.maps;
 
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.Exceptions.IncorrectPositionException;
+import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.OwlBear;
 import agh.ics.oop.model.Enums.MapDirection;
 import agh.ics.oop.model.mapElements.WorldElement;
 
+import java.util.List;
 import java.util.Random;
 
-public class TheEarthWithOwlBear extends AbstractWorldMap {
+ public class TheEarthWithOwlBear extends AbstractWorldMap {
     int owlBearTerritorySide;
     private final Vector2d lowerTerritoryCoordinates;
     private final Vector2d upperTerritoryCoordinates;
@@ -69,6 +71,19 @@ public class TheEarthWithOwlBear extends AbstractWorldMap {
             notifyAllObservers("owlBear moved to " + newPosition);
         }
     }
+
+    public boolean isOwlBearAtPosition(Vector2d position){
+        return owlBear.isAtPosition(position);
+    }
+
+    /*
+    public void owlBearKillsAnimals(){
+        Vector2d position = owlBear.getPosition();
+        List<Animal> animalsAtPosition = animals.get(position);
+        for (Animal animal : animalsAtPosition){
+            animal.killAnimal();
+        }
+    }*/
 
     public boolean canMoveOwlBearTo(Vector2d position) {
         return position.follows(lowerTerritoryCoordinates) && position.precedes(upperTerritoryCoordinates);

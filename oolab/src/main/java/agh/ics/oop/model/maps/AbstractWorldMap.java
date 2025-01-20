@@ -17,7 +17,7 @@ import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
 public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Map<Vector2d, Grass> grassPoints = new HashMap<>();
-    private final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
+    protected final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
     private final List<Animal> deadAnimals = new ArrayList<>();
     private final MapVisualizer visualizer = new MapVisualizer(this);
     private final List<MapChangeListener> observers = new ArrayList<>();
@@ -355,7 +355,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
     protected void notifyAllObservers(String message){
         for(MapChangeListener observer : observers){
-            observer.mapChanged(this, message);
+            observer.mapChanged(this);
         }
     }
 

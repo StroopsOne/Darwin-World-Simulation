@@ -22,6 +22,10 @@ public class Simulation implements Runnable {
         this.dailyGrass=dailyGrass;
     }
 
+    public Boolean isRunning(){
+        return running;
+    }
+
     public void pauseSimulation() {
         running = false;
     }

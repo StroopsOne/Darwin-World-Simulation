@@ -1,86 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="agh.ics.oop.presenter.MainPresenter" prefHeight="600.0" prefWidth="800.0">
-    <top>
-        <Label text="Simulation Configuration" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-    </top>
+<BorderPane minHeight="600.0" minWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="agh.ics.oop.presenter.MainPresenter">
     <center>
-        <VBox alignment="CENTER" spacing="10.0" layoutX="20.0" layoutY="20.0" prefWidth="760.0">
-            <GridPane hgap="10" vgap="10">
-                <!-- Row 1 -->
+        <HBox spacing="10.0">
+            <GridPane hgap="10" vgap="10" alignment="CENTER">
                 <Label text="Map Width:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                <TextField fx:id="widthField" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                <TextField fx:id="widthField" promptText="Enter map width" GridPane.rowIndex="0" GridPane.columnIndex="1" />
 
-                <Label text="Map Height:" GridPane.rowIndex="0" GridPane.columnIndex="2" />
-                <TextField fx:id="heightField" GridPane.rowIndex="0" GridPane.columnIndex="3" />
+                <Label text="Map Height:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                <TextField fx:id="heightField" promptText="Enter map height" GridPane.rowIndex="1" GridPane.columnIndex="1" />
 
-                <!-- Row 2 -->
-                <Label text="Start Energy:" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                <TextField fx:id="startEnergyField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                <Label text="Grass Count:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <TextField fx:id="grassCountField" promptText="Initial grass count" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
-                <Label text="Grass Energy:" GridPane.rowIndex="1" GridPane.columnIndex="2" />
-                <TextField fx:id="grassValueField" GridPane.rowIndex="1" GridPane.columnIndex="3" />
+                <Label text="Animal Count:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <TextField fx:id="animalCountField" promptText="Initial animal count" GridPane.rowIndex="3" GridPane.columnIndex="1" />
 
-                <!-- Row 3 -->
-                <Label text="Number of Animals:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                <TextField fx:id="animalCountField" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                <Label text="Start Energy:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <TextField fx:id="startEnergyField" promptText="Starting energy" GridPane.rowIndex="4" GridPane.columnIndex="1" />
 
-                <Label text="Number of Grass:" GridPane.rowIndex="2" GridPane.columnIndex="2" />
-                <TextField fx:id="grassCountField" GridPane.rowIndex="2" GridPane.columnIndex="3" />
+                <Label text="Grass Energy Value:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <TextField fx:id="grassValueField" promptText="Energy from eating grass" GridPane.rowIndex="5" GridPane.columnIndex="1" />
 
-                <!-- Row 4 -->
-                <Label text="Daily Grass Growth:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                <TextField fx:id="dailyGrassField" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                <Label text="Daily Grass Spawn:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                <TextField fx:id="dailyGrassField" promptText="Daily grass spawn count" GridPane.rowIndex="6" GridPane.columnIndex="1" />
 
-                <Label text="Genome Length:" GridPane.rowIndex="3" GridPane.columnIndex="2" />
-                <TextField fx:id="genomeLengthField" GridPane.rowIndex="3" GridPane.columnIndex="3" />
+                <Label text="Parenting Energy:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <TextField fx:id="parentingEnergyField" promptText="Energy shared by parents" GridPane.rowIndex="7" GridPane.columnIndex="1" />
 
-                <!-- Row 5 -->
-                <Label text="Parenting Energy:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-                <TextField fx:id="parentingEnergyField" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                <Label text="Reproduction Energy:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                <TextField fx:id="reproductionEnergyField" promptText="Energy required to reproduce" GridPane.rowIndex="8" GridPane.columnIndex="1" />
 
-                <Label text="Reproduction Energy:" GridPane.rowIndex="4" GridPane.columnIndex="2" />
-                <TextField fx:id="reproductionEnergyField" GridPane.rowIndex="4" GridPane.columnIndex="3" />
+                <Label text="Min Mutation Count:" GridPane.rowIndex="9" GridPane.columnIndex="0" />
+                <TextField fx:id="minGeneMutationField" promptText="Minimum mutations" GridPane.rowIndex="9" GridPane.columnIndex="1" />
 
-                <!-- Row 6 -->
-                <Label text="Min Gene Mutation:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                <TextField fx:id="minGeneMutationField" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+                <Label text="Max Mutation Count:" GridPane.rowIndex="10" GridPane.columnIndex="0" />
+                <TextField fx:id="maxGeneMutationField" promptText="Maximum mutations" GridPane.rowIndex="10" GridPane.columnIndex="1" />
 
-                <Label text="Max Gene Mutation:" GridPane.rowIndex="5" GridPane.columnIndex="2" />
-                <TextField fx:id="maxGeneMutationField" GridPane.rowIndex="5" GridPane.columnIndex="3" />
+                <Label text="Genome Length:" GridPane.rowIndex="11" GridPane.columnIndex="0" />
+                <TextField fx:id="genomeLengthField" promptText="Length of genome" GridPane.rowIndex="11" GridPane.columnIndex="1" />
 
-                <!-- Row 7 -->
-                <Label text="Map Variant:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                <ChoiceBox fx:id="mapVariant" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+                <Label text="Map Variant:" GridPane.rowIndex="12" GridPane.columnIndex="0" />
+                <ChoiceBox fx:id="mapVariant" GridPane.rowIndex="12" GridPane.columnIndex="1" />
 
-                <Label text="Mutation Variant:" GridPane.rowIndex="6" GridPane.columnIndex="2" />
-                <CheckBox fx:id="mutationVariant" GridPane.rowIndex="6" GridPane.columnIndex="3" />
+                <Label text="Mutation Variant:" GridPane.rowIndex="13" GridPane.columnIndex="0" />
+                <CheckBox fx:id="mutationVariant" GridPane.rowIndex="13" GridPane.columnIndex="1" />
 
-                <!-- Row 8 -->
-                <Label text="Generate CSV:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
-                <CheckBox fx:id="generateCsvCheckBox" GridPane.rowIndex="7" GridPane.columnIndex="1" />
+                <Label text="Generate CSV?: " GridPane.rowIndex="14" GridPane.columnIndex="0" />
+                <CheckBox fx:id="generateCsvCheckBox" GridPane.rowIndex="14" GridPane.columnIndex="1" />
 
-                <Label text="Load Config ID:" GridPane.rowIndex="7" GridPane.columnIndex="2" />
-                <TextField fx:id="loadConfigIdField" GridPane.rowIndex="7" GridPane.columnIndex="3" />
-
-                <!-- Row 9 -->
-                <Label text="Save Config Name:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
-                <TextField fx:id="saveConfigNameField" GridPane.rowIndex="8" GridPane.columnIndex="1" />
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50" />
+                    <ColumnConstraints percentWidth="50" />
+                </columnConstraints>
             </GridPane>
 
-            <!-- Buttons -->
-            <HBox spacing="10.0" alignment="CENTER">
-                <Button text="Load Config" fx:id="loadConfigButton" onAction="#loadConfig" />
-                <Button text="Save Config" fx:id="saveConfigButton" onAction="#saveConfig" />
-                <Button text="Start Simulation" fx:id="startButton" onAction="#startSimulation" disable="true" />
-            </HBox>
+            <VBox spacing="10" alignment="CENTER">
+                <Button fx:id="startButton" text="Start Simulation" onAction="#onStartClicked" />
+                <Label fx:id="infoLabel" text="Information or Errors" />
 
-            <!-- Info Label -->
-            <Label fx:id="infoLabel" style="-fx-text-fill: red; -fx-font-weight: bold;" />
-        </VBox>
+                <TextField fx:id="loadConfigIdField" promptText="Enter config ID to load" />
+                <Button fx:id="loadConfigButton" text="Load Configuration" />
+
+                <TextField fx:id="saveConfigNameField" promptText="Save current config as..." />
+                <Button fx:id="saveConfigButton" text="Save Configuration" />
+            </VBox>
+        </HBox>
     </center>
 </BorderPane>
