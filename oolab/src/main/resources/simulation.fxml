@@ -1,38 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.Scene?>
-<?import javafx.stage.Stage?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" spacing="20" style="-fx-background-color: lightblue; -fx-padding: 20;">
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="agh.ics.oop.presenter.SimulationPresenter">
+    <center>
+        <VBox alignment="CENTER" spacing="20" style="-fx-background-color: lightblue; -fx-padding: 20;">
+            <Label text="Darwin World Simulation" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <GridPane hgap="10" vgap="10" alignment="CENTER">
+                <Label text="Most Common Genotypes:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="mostCommonGenotypesField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    <!-- Tytuł -->
-    <Label text="Darwin World Simulation" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                <Label text="Total Animals:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="totalAnimalsField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <!-- Formularz konfiguracji -->
-    <VBox alignment="CENTER" spacing="15">
-        <Label text="Liczba zwierząt:"/>
-        <TextField fx:id="animalsCountTextField" promptText="Wpisz liczbę zwierząt" />
+                <Label text="Total Plants:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="totalPlantsField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Początkowa energia:"/>
-        <TextField fx:id="startEnergyTextField" promptText="Wpisz początkową energię" />
+                <Label text="Free Fields:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="freeFieldsField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Rozmiar genomu:"/>
-        <TextField fx:id="genomeSizeTextField" promptText="Wpisz rozmiar genomu" />
+                <Label text="Average Energy:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="averageEnergyField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-        <Label text="Wartość trawy:"/>
-        <TextField fx:id="grassValueTextField" promptText="Wpisz wartość trawy" />
+                <Label text="Average Life Span:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="averageLifeSpanField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-        <Label text="Początkowa ilość trawy:"/>
-        <TextField fx:id="initialGrassTextField" promptText="Wpisz początkową ilość trawy" />
+                <Label text="Average Children Count:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <TextField fx:id="averageChildrenCountField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-        <Label text="Codzienna produkcja trawy:"/>
-        <TextField fx:id="dailyGrassTextField" promptText="Wpisz codzienną produkcję trawy" />
-    </VBox>
+                <Label text="Genome:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                <TextField fx:id="genomeField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
-    <!-- Przycisk do uruchomienia symulacji -->
-    <Button text="Start Simulation" fx:id="startButton" style="-fx-font-size: 16px; -fx-padding: 10px;" />
-</VBox>
+                <Label text="Active Part:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                <TextField fx:id="activePartField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                <Label text="Energy:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                <TextField fx:id="energyField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                <Label text="Eaten Plants:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                <TextField fx:id="eatenPlantsField" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+                <Label text="Children Count:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                <TextField fx:id="childrenCountField" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+                <Label text="Age:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+                <TextField fx:id="ageField" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+
+                <Label text="Death Day:" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
+                <TextField fx:id="deathDayField" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+
+                <Label text="Current Day:" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
+                <Label fx:id="currentDayField" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
+            </GridPane>
+            <Button fx:id="startStopButton" text="Start" style="-fx-font-size: 16px; -fx-padding: 10px;"/>
+        </VBox>
+    </center>
+</BorderPane>
