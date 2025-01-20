@@ -4,7 +4,7 @@ import agh.ics.oop.model.Enums.MapDirection;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.maps.MoveValidator;
 import agh.ics.oop.model.properities.Genomes;
-
+import javafx.scene.paint.*;
 import java.util.Random;
 
 public class Animal implements WorldElement {
@@ -79,6 +79,16 @@ public class Animal implements WorldElement {
         this.parent1 = parent1;
         this.parent2 = parent2;
         this.childrenCount = 0;
+    }
+
+    public Paint toColor(int startEnergy) {
+        if (this.energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
+        if (this.energy < 0.2 * startEnergy) return javafx.scene.paint.Color.rgb(173, 216, 230);
+        if (this.energy < 0.4 * startEnergy) return javafx.scene.paint.Color.rgb(100, 149, 237);
+        if (this.energy < 0.6 * startEnergy) return javafx.scene.paint.Color.rgb(70, 130, 180);
+        if (this.energy < 0.8 * startEnergy) return javafx.scene.paint.Color.rgb(0, 0, 255);
+        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(0, 0, 205);
+        return javafx.scene.paint.Color.rgb(0, 0, 51);
     }
 
     public int getEnergy() {

@@ -17,7 +17,7 @@ import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
 public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Map<Vector2d, Grass> grassPoints = new HashMap<>();
-    private final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
+    protected final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
     private final List<Animal> deadAnimals = new ArrayList<>();
     private final MapVisualizer visualizer = new MapVisualizer(this);
     private final List<MapChangeListener> observers = new ArrayList<>();
@@ -162,7 +162,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
-    /*
+
     public void plantNewGrasses(int grassesCount, int grassValue) {
         for (int i = 0; i < grassesCount; i++) {
             Set<Vector2d> targetSet;
@@ -189,7 +189,9 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             }
         }
     }
-     */
+
+
+    /*
     public void plantNewGrasses(int grassesCount, int grassValue) {
         int grassesPlanted = 0;
 
@@ -214,7 +216,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
         //System.out.println("Grasses planted this cycle: " + grassesPlanted);
     }
-
+    */
 
 
     public boolean isGrassOnPosition(Vector2d position){
@@ -429,7 +431,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
     protected void notifyAllObservers(String message){
         for(MapChangeListener observer : observers){
-            observer.mapChanged(this, message);
+            observer.mapChanged(this);
         }
     }
 
