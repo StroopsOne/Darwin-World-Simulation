@@ -268,12 +268,12 @@ public class MainPresenter {
             // Pobranie kontrolera i ustawienie wartości
             SimulationPresenter simulationPresenter = loader.getController();
             simulationPresenter.setGenerateCsv(generateCsvValue);
-            simulationPresenter.setAnimalsCount(animalCount);
-            simulationPresenter.setStartEnergy(startEnergy);
+            simulationPresenter.setNumberOfAnimals(animalCount);
+            simulationPresenter.setInitialEnergy(startEnergy);
             simulationPresenter.setGenomeLength(genomeLength);
             simulationPresenter.setGrassValue(grassValue);
             simulationPresenter.setDailyGrass(dailyGrass);
-            simulationPresenter.setGrassCount(grassCount);
+            simulationPresenter.setInitialGrass(grassCount);
 
             // Tworzenie mapy
             if (mapVariantValue.equals("Earth")) {
