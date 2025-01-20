@@ -87,8 +87,6 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private TextField childrenCountField;
 
-    @FXML
-    private TextField offspringCountField;
 
     @FXML
     private TextField ageField;
@@ -160,10 +158,11 @@ public class SimulationPresenter implements MapChangeListener {
         int mapHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
 
         int maxGridSize = Math.max(mapWidth, mapHeight);
-        int cellSize = 800 / maxGridSize;
+        int cellSize = Math.max(1, 800 / maxGridSize); // Zapewnienie, że cellSize >= 1
 
         return cellSize;
     }
+
 
     private void drawGrid(Boundary boundary, int cellSize) {
         for (int i = boundary.lowerLeft().getY(); i <= boundary.upperRight().getY(); i++) {
@@ -294,14 +293,49 @@ public class SimulationPresenter implements MapChangeListener {
             deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
         }
     }
-    
+
     @FXML
     public void initialize() {
+        if (mapGrid == null) {
+            System.out.println("mapGrid is null!");
+        } else {
+            System.out.println("mapGrid is initialized.");
+        }
+        // Ustawienie tekstu na przycisku
         startStopButton.setText("Start");
+
+        // Ustawienie domyślnych wartości dla pól tekstowych
+        mostCommonGenotypesField.setText("");
+        totalAnimalsField.setText("0");
+        totalPlantsField.setText("0");
+        freeFieldsField.setText("0");
+        averageEnergyField.setText("0.00");
+        averageLifeSpanField.setText("0.00");
+        averageChildrenCountField.setText("0.00");
+        genomeField.setText("");
+        activePartField.setText("0");
+        energyField.setText("0");
+        eatenPlantsField.setText("0");
+        childrenCountField.setText("0");
+        ageField.setText("0");
+        deathDayField.setText("");
+
+        // Aktualizacja widoku mapy, jeśli już istnieje
+        if (worldMap != null) {
+            drawMap();
+        }
+
+        // Inicjalizacja innych zmiennych lub struktur danych
+        isAnimalStatisticsDisplayed = false;
+
+        // Dodatkowe logi dla debugowania
+        System.out.println("SimulationPresenter initialized.");
     }
+
 
     @FXML
     public void onStartStopButtonClicked() {
+        System.out.println("Symulacje kliknieto");
         try {
             if (simulation == null) {
                 if (generateCsv) {
@@ -311,8 +345,13 @@ public class SimulationPresenter implements MapChangeListener {
                     csvWriter = new PrintWriter(new FileWriter(filename, true));
                     csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
                 }
-                simulation = new Simulation(worldMap, animalsCount, startEnergy, genomeLength,  grassValue, grassCount, dailyGrass);
-                simulation.run();
+                simulation = new Simulation(worldMap, animalsCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
+
+                // Uruchamianie symulacji w osobnym wątku
+                Thread simulationThread = new Thread(simulation);
+                simulationThread.setDaemon(true); // Ustawienie wątku jako daemona
+                simulationThread.start();
+
                 startStopButton.setText("Stop");
             } else if (simulation.isRunning()) {
                 simulation.pauseSimulation();
@@ -320,10 +359,16 @@ public class SimulationPresenter implements MapChangeListener {
             } else {
                 simulation.resumeSimulation();
                 startStopButton.setText("Stop");
-            }} catch (Exception e) {
-            System.out.println(e.getMessage());
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Number format exception");
+            System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Inny blad");
         }
     }
+
 
 
 }
