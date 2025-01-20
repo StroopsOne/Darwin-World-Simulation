@@ -35,6 +35,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final int reproductionEnergy;
     private final int parentingEnergy;
     private final boolean slightCorrection;
+    private int totalAnimalsCount=0;
+    private int totalGrasses=0;
     Random random = new Random();
 
 
@@ -164,6 +166,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
 
 
     public void plantNewGrasses(int grassesCount, int grassValue) {
+        totalGrasses+=grassesCount;
         for (int i = 0; i < grassesCount; i++) {
             Set<Vector2d> targetSet;
             int x = random.nextInt(5); // 20% szans na niepreferowane pola, 80% na preferowane
@@ -257,8 +260,12 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return deadAnimals.size();
     }
 
+    public List<Animal> getDeadAnimals(){
+        return deadAnimals;
+    }
+
     public int getTotalAnimalsCount(){
-        return getDeadAnimalsCount() + getLivingAnimalsCount();
+        return totalAnimalsCount;
     }
 
     @Override
@@ -267,6 +274,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         if (canMoveTo(position)) {
             animals.computeIfAbsent(position, key -> new ArrayList<>()).add(animal);
             notifyAllObservers("animal placed on " + position);
+            totalAnimalsCount+=1;
         }
         else throw new IncorrectPositionException(position);
     }
@@ -357,6 +365,14 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         for(MapChangeListener observer : observers){
             observer.mapChanged(this, message);
         }
+    }
+
+    public int getTotalGrasses(){
+        return totalGrasses;
+    }
+
+    public int getFreeFields(){
+        return width*height-getAllLivingAnimals().size()-getGrassCount();
     }
 
     public String toString() {

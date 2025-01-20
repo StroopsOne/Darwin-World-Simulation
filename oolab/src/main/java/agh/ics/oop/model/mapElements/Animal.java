@@ -155,6 +155,10 @@ public class Animal implements WorldElement {
         return "";
     }
 
+    public int getPlantEatenCount() {
+        return plantEatenCount;
+    }
+
     public boolean isAt(Vector2d position) {
         return this.position.equals(position);
     }
