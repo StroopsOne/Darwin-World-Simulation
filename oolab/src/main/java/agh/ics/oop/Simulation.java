@@ -37,6 +37,10 @@ public class Simulation implements Runnable {
         }
     }
 
+    public int getDay(){
+        return day;
+    }
+
     public void run() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
