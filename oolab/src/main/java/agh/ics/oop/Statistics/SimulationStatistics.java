@@ -10,21 +10,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SimulationStatistics {
-    private final Simulation simulation;
     private final AbstractWorldMap map;
-
-
+    
     public SimulationStatistics(Simulation simulation, AbstractWorldMap map) {
-        this.simulation = simulation;
         this.map = map;
     }
 
     public int getTotalAnimals() {
-        return map.getTotalAnimalsCount();
+        return map.getAllLivingAnimals().size()+map.getDeadAnimalsCount();
     }
 
     public int getTotalPlants() {
-        return map.getTotalGrasses();       //wszystkie kiedykolwiek
+        return map.getGrassCount();       //wszystkie kiedykolwiek
     }
 
     public int getFreeFields() {
