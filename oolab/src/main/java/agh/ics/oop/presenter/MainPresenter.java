@@ -36,6 +36,8 @@ public class MainPresenter {
     @FXML
     private CheckBox owlBearCheckBox; // Checkbox "Sowoniedźwiedź"
     @FXML
+    private CheckBox slightCorrectionCheckBox; // Checkbox "Slight Correction"
+    @FXML
     private TextField widthField;
     @FXML
     private TextField heightField;
@@ -148,6 +150,7 @@ public class MainPresenter {
         try {
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
             boolean isOwlBearEnabled = owlBearCheckBox.isSelected();
+            boolean slightCorrection = slightCorrectionCheckBox.isSelected(); // Pobieranie wartości Slight Correction
             int mapWidth = parseTextFieldToInt(widthField);
             int mapHeight = parseTextFieldToInt(heightField);
             int grassCount = parseTextFieldToInt(grassCountField);
@@ -172,6 +175,7 @@ public class MainPresenter {
             simulationPresenter.setGrassValue(grassValue);
             simulationPresenter.setDailyGrass(dailyGrass);
             simulationPresenter.setInitialGrass(grassCount);
+            simulationPresenter.setSlightCorrection(slightCorrection); // Przekazywanie Slight Correction
 
             if (isOwlBearEnabled) {
                 TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
@@ -217,6 +221,7 @@ public class MainPresenter {
         config.put("maxGeneMutation", maxGeneMutationField.getText());
         config.put("genomeLength", genomeLengthField.getText());
         config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected()));
+        config.put("slightCorrection", String.valueOf(slightCorrectionCheckBox.isSelected()));
 
         try {
             saveToJson(configName, config);
@@ -255,6 +260,7 @@ public class MainPresenter {
             maxGeneMutationField.setText(config.get("maxGeneMutation"));
             genomeLengthField.setText(config.get("genomeLength"));
             owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled")));
+            slightCorrectionCheckBox.setSelected(Boolean.parseBoolean(config.get("slightCorrection")));
 
             infoLabel.setText("Configuration loaded successfully.");
         } catch (IOException e) {
@@ -315,5 +321,6 @@ public class MainPresenter {
         loadConfigIdField.clear();
         owlBearCheckBox.setSelected(false);
         generateCsvCheckBox.setSelected(false);
+        slightCorrectionCheckBox.setSelected(false);
     }
 }
