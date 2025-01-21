@@ -40,25 +40,17 @@ public class SimulationPresenter implements MapChangeListener {
     private int initialAnimalsNumber;
     private int initialEnergy;
     private int genomeLength;
-    private int mingeneMutation;
-    private int maxgeneMutation;
-    private int reproduceEnergy;
-    private int parentEnergy;
-
-    private String behaviourvariant;
-    private boolean isAnimalStatisticsDisplayed = false;
-    private static final Color GRASS_COLOR = javafx.scene.paint.Color.GREEN;
-    private static final Color EMPTY_CELL_COLOR = javafx.scene.paint.Color.rgb(117, 180, 43);
-    private static final Color OWLBEAR_COLOR = javafx.scene.paint.Color.rgb(11, 19, 129);
-    private Simulation simulation;
-    private AnimalStatistics animalStatistics;
-    private PrintWriter csvWriter;
-    private boolean generateCsv;
-    private int day = 0;
     private int grassValue;
     private int dailyGrass;
     private int initialGrass;
-    
+    private boolean slighCorrection;
+    private int day = 0;
+
+    private static final Color GRASS_COLOR = Color.GREEN;
+    private static final Color EMPTY_CELL_COLOR = Color.rgb(69, 38, 38);
+    private static final Color OWLBEAR_COLOR = Color.RED;
+
+
 
     /// FXML fields ///
     @FXML
@@ -86,8 +78,6 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private TextField childrenCountField;
     @FXML
-    private TextField offspringCountField;
-    @FXML
     private TextField ageField;
     @FXML
     private TextField deathDayField;
@@ -99,12 +89,12 @@ public class SimulationPresenter implements MapChangeListener {
     private GridPane mapGrid;
 
     /// Setters ///
-    public void setMingeneMutation(int mingeneMutation) {
-        this.mingeneMutation = mingeneMutation;
-    }
-
     public void setGrassValue(int grassValue) {
         this.grassValue = grassValue;
+    }
+
+    public void setSlightCorrection(boolean slightCorrection) {
+        this.slighCorrection=slightCorrection;
     }
 
     public void setDailyGrass(int dailyGrass) {
@@ -115,16 +105,8 @@ public class SimulationPresenter implements MapChangeListener {
         this.initialGrass = initialGrass;
     }
 
-    public void setMaxgeneMutation(int maxgeneMutation) {
-        this.maxgeneMutation = maxgeneMutation;
-    }
-
     public void setGenomeLength(int genomeLength) {
         this.genomeLength = genomeLength;
-    }
-
-    public void setReproduceEnergy(int reproduceEnergy) {
-        this.reproduceEnergy = reproduceEnergy;
     }
 
     public void setInitialEnergy(int initialEnergy) {
@@ -137,10 +119,6 @@ public class SimulationPresenter implements MapChangeListener {
 
     public void setNumberOfAnimals(int numberOfAnimals) {
         this.initialAnimalsNumber = numberOfAnimals;
-    }
-
-    public void setParentEnergy(int parentEnergy) {
-        this.parentEnergy = parentEnergy;
     }
 
     public void setGenerateCsv(boolean generateCsv) {
