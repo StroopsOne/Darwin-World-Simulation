@@ -17,7 +17,7 @@ public class SimulationStatistics {
     }
 
     public int getTotalAnimals() {
-        return map.getAllLivingAnimals().size()+map.getDeadAnimalsCount();
+        return map.getAllLivingAnimals().size();
     }
 
     public int getTotalPlants() {

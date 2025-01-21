@@ -52,14 +52,11 @@
                 <Label text="Genome Length:" GridPane.rowIndex="11" GridPane.columnIndex="0" />
                 <TextField fx:id="genomeLengthField" promptText="Length of genome" GridPane.rowIndex="11" GridPane.columnIndex="1" />
 
-                <Label text="Map Variant:" GridPane.rowIndex="12" GridPane.columnIndex="0" />
-                <ChoiceBox fx:id="mapVariant" GridPane.rowIndex="12" GridPane.columnIndex="1" />
+                <Label text="Sowoniedźwiedź:" GridPane.rowIndex="12" GridPane.columnIndex="0" />
+                <CheckBox fx:id="owlBearCheckBox" text="Enable" GridPane.rowIndex="12" GridPane.columnIndex="1" />
 
-                <Label text="Mutation Variant:" GridPane.rowIndex="13" GridPane.columnIndex="0" />
-                <CheckBox fx:id="mutationVariant" GridPane.rowIndex="13" GridPane.columnIndex="1" />
-
-                <Label text="Generate CSV?: " GridPane.rowIndex="14" GridPane.columnIndex="0" />
-                <CheckBox fx:id="generateCsvCheckBox" GridPane.rowIndex="14" GridPane.columnIndex="1" />
+                <Label text="Generate CSV?: " GridPane.rowIndex="13" GridPane.columnIndex="0" />
+                <CheckBox fx:id="generateCsvCheckBox" GridPane.rowIndex="13" GridPane.columnIndex="1" />
 
                 <columnConstraints>
                     <ColumnConstraints percentWidth="50" />

@@ -7,6 +7,7 @@ import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.maps.AbstractWorldMap;
 import agh.ics.oop.model.maps.TheEarth;
+import agh.ics.oop.model.maps.TheEarthWithOwlBear;
 import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.util.MapChangeListener;
 import agh.ics.oop.model.Boundary;
@@ -54,6 +55,7 @@ public class SimulationPresenter implements MapChangeListener {
     private int grassValue;
     private int dailyGrass;
     private int initialGrass;
+    private static final Color OWLBEAR_COLOR = Color.RED;
 
 
     ///                                             FXML fields                                              ///
@@ -213,12 +215,18 @@ public class SimulationPresenter implements MapChangeListener {
 
         if (element instanceof Animal) {
             Circle circle = createAnimalCircle((Animal) element, cellSize);
-            circle.setOnMouseClicked(event -> handleAnimalClick((Animal) element));
             stackPane.getChildren().add(circle);
+        }
+
+        // Sprawdź, czy jest OwlBear na tej pozycji
+        if (worldMap instanceof TheEarthWithOwlBear && ((TheEarthWithOwlBear) worldMap).isOwlBearAtPosition(position)) {
+            Rectangle owlBear = createOwlBearRectangle(cellSize);
+            stackPane.getChildren().add(owlBear);
         }
 
         return stackPane;
     }
+
 
     private StackPane createStackPane(int cellSize) {
         StackPane stackPane = new StackPane();
@@ -255,12 +263,15 @@ public class SimulationPresenter implements MapChangeListener {
         return circle;
     }
 
-    ///                                tunnel methods                                                    ///
-    private Rectangle createTunnelRectangle(int cellSize) {
-        Rectangle tunnel = new Rectangle(cellSize / 5, cellSize / 5);
-        tunnel.setFill(TUNNEL_COLOR);
-        return tunnel;
+    ///                                OwlBear methods                                                    ///
+    private Rectangle createOwlBearRectangle(int cellSize) {
+        Rectangle owlBear = new Rectangle(cellSize / 2, cellSize / 2); // Rozmiar mniejszy od komórki
+        owlBear.setFill(OWLBEAR_COLOR); // Ustaw kolor
+        owlBear.setArcWidth(10); // Opcjonalne zaokrąglenia
+        owlBear.setArcHeight(10);
+        return owlBear;
     }
+
 
     ///                               statistics methods                                                 ///
     private void updateStatistics(WorldMap map) {
