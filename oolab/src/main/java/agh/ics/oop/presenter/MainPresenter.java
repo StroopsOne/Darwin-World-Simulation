@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,7 +34,7 @@ public class MainPresenter {
     @FXML
     public TextField maxGeneMutationField;
     @FXML
-    private CheckBox owlBearCheckBox; // Zmieniony checkbox na "Sowoniedźwiedź"
+    private CheckBox owlBearCheckBox; // Checkbox "Sowoniedźwiedź"
     @FXML
     private TextField widthField;
     @FXML
@@ -55,7 +54,7 @@ public class MainPresenter {
     @FXML
     private Button startButton;
     @FXML
-    private CheckBox generateCsvCheckBox;
+    private CheckBox generateCsvCheckBox; // Checkbox "Generate CSV"
     @FXML
     private Button loadConfigButton;
     @FXML
@@ -65,8 +64,14 @@ public class MainPresenter {
     @FXML
     private TextField saveConfigNameField;
 
+    private static final String CONFIG_FILE = "configurations.json";
+
     private void validateTextField(TextField textField, BiPredicate<String, Integer> validationFunction, int minVal) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.isEmpty()) {
+                return;
+            }
+
             if (!validationFunction.test(newValue, minVal)) {
                 textField.setText(oldValue);
             }
@@ -127,6 +132,8 @@ public class MainPresenter {
             );
 
             startButton.disableProperty().bind(areFieldsEmpty);
+            saveConfigButton.setOnAction(event -> saveConfiguration());
+            loadConfigButton.setOnAction(event -> loadConfiguration());
         } catch (Exception ignored) {
         }
     }
@@ -139,9 +146,8 @@ public class MainPresenter {
     public void onStartClicked() {
         System.out.println("Symulacje kliknieto");
         try {
-            // Pobieranie wartości z pól
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
-            boolean isOwlBearEnabled = owlBearCheckBox.isSelected(); // Sprawdzenie checkboxa "Sowoniedźwiedź"
+            boolean isOwlBearEnabled = owlBearCheckBox.isSelected();
             int mapWidth = parseTextFieldToInt(widthField);
             int mapHeight = parseTextFieldToInt(heightField);
             int grassCount = parseTextFieldToInt(grassCountField);
@@ -155,11 +161,9 @@ public class MainPresenter {
             int minGeneMutation = parseTextFieldToInt(minGeneMutationField);
             int maxGeneMutation = parseTextFieldToInt(maxGeneMutationField);
 
-            // Ładowanie pliku FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("simulation.fxml"));
             Parent root = loader.load();
 
-            // Pobranie kontrolera i ustawienie wartości
             SimulationPresenter simulationPresenter = loader.getController();
             simulationPresenter.setGenerateCsv(generateCsvValue);
             simulationPresenter.setNumberOfAnimals(animalCount);
@@ -169,7 +173,6 @@ public class MainPresenter {
             simulationPresenter.setDailyGrass(dailyGrass);
             simulationPresenter.setInitialGrass(grassCount);
 
-            // Tworzenie mapy w zależności od stanu checkboxa
             if (isOwlBearEnabled) {
                 TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
                 simulationPresenter.setWorldMap(worldMap);
@@ -180,10 +183,8 @@ public class MainPresenter {
                 worldMap.addObserver(simulationPresenter);
             }
 
-            // Rozpoczęcie symulacji
             simulationPresenter.onStartStopButtonClicked();
 
-            // Ustawienie nowego okna
             Stage simulationStage = new Stage();
             simulationStage.setScene(new Scene(root));
             simulationStage.show();
@@ -193,5 +194,126 @@ public class MainPresenter {
             e.printStackTrace();
             infoLabel.setText("An unexpected error occurred.");
         }
+    }
+
+    private void saveConfiguration() {
+        String configName = saveConfigNameField.getText();
+        if (configName.isEmpty()) {
+            infoLabel.setText("Error: Configuration name cannot be empty.");
+            return;
+        }
+
+        Map<String, String> config = new HashMap<>();
+        config.put("mapWidth", widthField.getText());
+        config.put("mapHeight", heightField.getText());
+        config.put("grassCount", grassCountField.getText());
+        config.put("animalCount", animalCountField.getText());
+        config.put("startEnergy", startEnergyField.getText());
+        config.put("grassValue", grassValueField.getText());
+        config.put("dailyGrass", dailyGrassField.getText());
+        config.put("parentingEnergy", parentingEnergyField.getText());
+        config.put("reproductionEnergy", reproductionEnergyField.getText());
+        config.put("minGeneMutation", minGeneMutationField.getText());
+        config.put("maxGeneMutation", maxGeneMutationField.getText());
+        config.put("genomeLength", genomeLengthField.getText());
+        config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected()));
+
+        try {
+            saveToJson(configName, config);
+            infoLabel.setText("Configuration saved successfully.");
+            clearFields();
+        } catch (IOException e) {
+            infoLabel.setText("Error: Could not save configuration.");
+            e.printStackTrace();
+        }
+    }
+
+    private void loadConfiguration() {
+        String configName = loadConfigIdField.getText();
+        if (configName.isEmpty()) {
+            infoLabel.setText("Error: Configuration ID cannot be empty.");
+            return;
+        }
+
+        try {
+            Map<String, String> config = loadFromJson(configName);
+            if (config == null) {
+                infoLabel.setText("Error: Configuration not found.");
+                return;
+            }
+
+            widthField.setText(config.get("mapWidth"));
+            heightField.setText(config.get("mapHeight"));
+            grassCountField.setText(config.get("grassCount"));
+            animalCountField.setText(config.get("animalCount"));
+            startEnergyField.setText(config.get("startEnergy"));
+            grassValueField.setText(config.get("grassValue"));
+            dailyGrassField.setText(config.get("dailyGrass"));
+            parentingEnergyField.setText(config.get("parentingEnergy"));
+            reproductionEnergyField.setText(config.get("reproductionEnergy"));
+            minGeneMutationField.setText(config.get("minGeneMutation"));
+            maxGeneMutationField.setText(config.get("maxGeneMutation"));
+            genomeLengthField.setText(config.get("genomeLength"));
+            owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled")));
+
+            infoLabel.setText("Configuration loaded successfully.");
+        } catch (IOException e) {
+            infoLabel.setText("Error: Could not load configuration.");
+            e.printStackTrace();
+        }
+    }
+
+    private void saveToJson(String configName, Map<String, String> config) throws IOException {
+        Gson gson = new Gson();
+        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+        Map<String, Map<String, String>> allConfigs;
+
+        try (FileReader reader = new FileReader(CONFIG_FILE)) {
+            allConfigs = gson.fromJson(reader, type);
+            if (allConfigs == null) {
+                allConfigs = new HashMap<>();
+            }
+        } catch (IOException e) {
+            allConfigs = new HashMap<>();
+        }
+
+        allConfigs.put(configName, config);
+
+        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+            gson.toJson(allConfigs, writer);
+        }
+    }
+
+    private Map<String, String> loadFromJson(String configName) throws IOException {
+        Gson gson = new Gson();
+        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+
+        try (FileReader reader = new FileReader(CONFIG_FILE)) {
+            Map<String, Map<String, String>> allConfigs = gson.fromJson(reader, type);
+            if (allConfigs != null) {
+                return allConfigs.get(configName);
+            }
+        }
+
+        return null;
+    }
+
+    private void clearFields() {
+        widthField.clear();
+        heightField.clear();
+        grassCountField.clear();
+        animalCountField.clear();
+        startEnergyField.clear();
+        grassValueField.clear();
+        dailyGrassField.clear();
+        parentingEnergyField.clear();
+        reproductionEnergyField.clear();
+        minGeneMutationField.clear();
+        maxGeneMutationField.clear();
+        genomeLengthField.clear();
+        saveConfigNameField.clear();
+        loadConfigIdField.clear();
+        owlBearCheckBox.setSelected(false);
+        generateCsvCheckBox.setSelected(false);
     }
 }
