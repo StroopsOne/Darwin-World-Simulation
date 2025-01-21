@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
-
 public class MainPresenter {
 
     @FXML
@@ -36,15 +35,13 @@ public class MainPresenter {
     @FXML
     public TextField maxGeneMutationField;
     @FXML
-    private CheckBox mutationVariant;
+    private CheckBox owlBearCheckBox; // Zmieniony checkbox na "Sowoniedźwiedź"
     @FXML
     private TextField widthField;
     @FXML
     private TextField heightField;
     @FXML
     private TextField grassCountField;
-    @FXML
-    private ChoiceBox<String> mapVariant;
     @FXML
     private TextField animalCountField;
     @FXML
@@ -61,12 +58,10 @@ public class MainPresenter {
     private CheckBox generateCsvCheckBox;
     @FXML
     private Button loadConfigButton;
-
     @FXML
     private Button saveConfigButton;
     @FXML
     private TextField loadConfigIdField;
-
     @FXML
     private TextField saveConfigNameField;
 
@@ -91,6 +86,7 @@ public class MainPresenter {
     @FXML
     public void initialize() {
         try {
+
             mapVariant.setItems(FXCollections.observableArrayList("Earth", "TheEarthWithOwlBear"));
             validateTextField(startEnergyField, this::isNonNegativeInteger, 0);
             validateTextField(grassValueField, this::isNonNegativeInteger, 0);
@@ -117,8 +113,7 @@ public class MainPresenter {
                                     parentingEnergyField.getText().isEmpty() ||
                                     reproductionEnergyField.getText().isEmpty() ||
                                     minGeneMutationField.getText().isEmpty() ||
-                                    maxGeneMutationField.getText().isEmpty() ||
-                                    mapVariant.getValue() == null,
+                                    maxGeneMutationField.getText().isEmpty(),
                     startEnergyField.textProperty(),
                     grassValueField.textProperty(),
                     widthField.textProperty(),
@@ -130,103 +125,11 @@ public class MainPresenter {
                     parentingEnergyField.textProperty(),
                     reproductionEnergyField.textProperty(),
                     minGeneMutationField.textProperty(),
-                    maxGeneMutationField.textProperty(),
-                    mapVariant.valueProperty()
+                    maxGeneMutationField.textProperty()
             );
 
             startButton.disableProperty().bind(areFieldsEmpty);
         } catch (Exception ignored) {
-        }
-
-        loadConfigButton.setOnAction(event -> {
-            String configId = loadConfigIdField.getText();
-            if (!configId.isEmpty()) {
-                try {
-                    loadConfigurations(configId);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        saveConfigButton.setOnAction(event -> {
-            String configName = saveConfigNameField.getText();
-            if (!configName.isEmpty()) {
-                Map<String, String> configs = new HashMap<>();
-                configs.put("mapWidth", widthField.getText());
-                configs.put("mapHeight", heightField.getText());
-                configs.put("startEnergy", startEnergyField.getText());
-                configs.put("grassEnergy", grassValueField.getText());
-                configs.put("animalCount", animalCountField.getText());
-                configs.put("grassCount", grassCountField.getText());
-                configs.put("dailyGrass", dailyGrassField.getText());
-                configs.put("reproductionEnergy", reproductionEnergyField.getText());
-                configs.put("parentingEnergy", parentingEnergyField.getText());
-                configs.put("minGeneMutation", minGeneMutationField.getText());
-                configs.put("maxGeneMutation", maxGeneMutationField.getText());
-                configs.put("genomeLength", genomeLengthField.getText());
-                configs.put("mapVariant", mapVariant.getValue());
-                configs.put("mutationVariant", mutationVariant.isSelected() ? "true" : "false");
-                configs.put("generateCsv", String.valueOf(generateCsvCheckBox.isSelected()));
-
-                try {
-                    saveConfigurations(configName, configs);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    private void saveConfigurations(String configName, Map<String, String> configs) throws IOException {
-        Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-        Map<String, Map<String, String>> allConfigs;
-
-        try (FileReader reader = new FileReader("configurations.json")) {
-            allConfigs = gson.fromJson(reader, type);
-            if (allConfigs == null) {
-                allConfigs = new HashMap<>();
-            }
-        }
-
-        allConfigs.put(configName, configs);
-
-        try (FileWriter writer = new FileWriter("configurations.json")) {
-            gson.toJson(allConfigs, writer);
-        }
-    }
-
-    private void loadConfigurations(String configName) throws IOException {
-        Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-
-        try (FileReader reader = new FileReader("configurations.json")) {
-            if (reader.ready()) {
-                Map<String, Map<String, String>> allConfigs = gson.fromJson(reader, type);
-
-                if (allConfigs != null) {
-                    Map<String, String> configs = allConfigs.get(configName);
-
-                    if (configs != null) {
-                        widthField.setText(configs.get("mapWidth"));
-                        heightField.setText(configs.get("mapHeight"));
-                        startEnergyField.setText(configs.get("startEnergy"));
-                        grassValueField.setText(configs.get("plantEnergy"));
-                        animalCountField.setText(configs.get("animalCount"));
-                        grassCountField.setText(configs.get("grassCount"));
-                        dailyGrassField.setText(configs.get("plantSpawnRate"));
-                        reproductionEnergyField.setText(configs.get("reproductionEnergy"));
-                        parentingEnergyField.setText(configs.get("parentEnergy"));
-                        minGeneMutationField.setText(configs.get("minMutation"));
-                        maxGeneMutationField.setText(configs.get("maxMutation"));
-                        genomeLengthField.setText(configs.get("genomeLength"));
-                        mapVariant.getSelectionModel().select(configs.get("mapVariant"));
-                        mutationVariant.setSelected(Boolean.parseBoolean(configs.get("mutationVariant")));
-                        generateCsvCheckBox.setSelected(Boolean.parseBoolean(configs.get("generateCsv")));
-                    }
-                }
-            }
         }
     }
 
@@ -238,16 +141,9 @@ public class MainPresenter {
     public void onStartClicked() {
         System.out.println("Symulacje kliknieto");
         try {
-            // Walidacja pól tekstowych
-            if (mapVariant.getValue() == null) {
-                infoLabel.setText("Error: Map variant must be selected.");
-                return;
-            }
-
             // Pobieranie wartości z pól
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
-            String mapVariantValue = mapVariant.getValue();
-            boolean mutationVariantValue = mutationVariant.isSelected();
+            boolean isOwlBearEnabled = owlBearCheckBox.isSelected(); // Sprawdzenie checkboxa "Sowoniedźwiedź"
             int mapWidth = parseTextFieldToInt(widthField);
             int mapHeight = parseTextFieldToInt(heightField);
             int grassCount = parseTextFieldToInt(grassCountField);
@@ -268,20 +164,20 @@ public class MainPresenter {
             // Pobranie kontrolera i ustawienie wartości
             SimulationPresenter simulationPresenter = loader.getController();
             simulationPresenter.setGenerateCsv(generateCsvValue);
-            simulationPresenter.setAnimalsCount(animalCount);
-            simulationPresenter.setStartEnergy(startEnergy);
+            simulationPresenter.setNumberOfAnimals(animalCount);
+            simulationPresenter.setInitialEnergy(startEnergy);
             simulationPresenter.setGenomeLength(genomeLength);
             simulationPresenter.setGrassValue(grassValue);
             simulationPresenter.setDailyGrass(dailyGrass);
-            simulationPresenter.setGrassCount(grassCount);
+            simulationPresenter.setInitialGrass(grassCount);
 
-            // Tworzenie mapy
-            if (mapVariantValue.equals("Earth")) {
-                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, mutationVariantValue);
+            // Tworzenie mapy w zależności od stanu checkboxa
+            if (isOwlBearEnabled) {
+                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             } else {
-                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, mutationVariantValue);
+                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, false);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             }
@@ -300,5 +196,4 @@ public class MainPresenter {
             infoLabel.setText("An unexpected error occurred.");
         }
     }
-
 }
