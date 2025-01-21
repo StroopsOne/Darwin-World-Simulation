@@ -86,6 +86,8 @@ public class MainPresenter {
     @FXML
     public void initialize() {
         try {
+
+            mapVariant.setItems(FXCollections.observableArrayList("Earth", "TheEarthWithOwlBear"));
             validateTextField(startEnergyField, this::isNonNegativeInteger, 0);
             validateTextField(grassValueField, this::isNonNegativeInteger, 0);
             validateTextField(widthField, this::isNonNegativeInteger, 1);

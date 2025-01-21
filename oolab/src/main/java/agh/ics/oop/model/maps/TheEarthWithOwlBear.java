@@ -59,13 +59,14 @@ import java.util.Random;
         super.moveAllAnimals(simulationDay);
         moveOwlBear(owlBear);
         owlBearKillsAnimals(simulationDay);
+        notifyAllObservers("Sowoniedzwiedz pozjadał zwierzęta");
     }
 
     public void moveOwlBear(OwlBear owlBear) {
         Random random = new Random();
         int gene = random.nextInt(8);
         Vector2d oldPosition = owlBear.getPosition();
-        owlBear.move(gene, this::canMoveOwlBearTo); //nadpisuje metode canMoveTo, aby działała jak canMoveOwlBearTo
+        owlBear.move(gene, this::canMoveOwlBearTo);
         Vector2d newPosition = owlBear.getPosition();
 
         if (!oldPosition.equals(newPosition)) {
