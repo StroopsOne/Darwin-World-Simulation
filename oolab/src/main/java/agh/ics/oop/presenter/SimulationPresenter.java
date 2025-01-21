@@ -45,8 +45,7 @@ public class SimulationPresenter implements MapChangeListener {
     private String behaviourvariant;
     private boolean isAnimalStatisticsDisplayed = false;
     private static final Color GRASS_COLOR = javafx.scene.paint.Color.GREEN;
-    private static final Color EMPTY_CELL_COLOR = javafx.scene.paint.Color.rgb(69, 38, 38);
-    private static final Color TUNNEL_COLOR = javafx.scene.paint.Color.BLACK;
+    private static final Color EMPTY_CELL_COLOR = javafx.scene.paint.Color.rgb(117, 180, 43);
     private Simulation simulation;
     private AnimalStatistics animalStatistics;
     private PrintWriter csvWriter;
@@ -55,7 +54,7 @@ public class SimulationPresenter implements MapChangeListener {
     private int grassValue;
     private int dailyGrass;
     private int initialGrass;
-    private static final Color OWLBEAR_COLOR = Color.RED;
+    private static final Color OWLBEAR_COLOR = javafx.scene.paint.Color.rgb(11, 19, 129);
 
 
     ///                                             FXML fields                                              ///
@@ -327,7 +326,7 @@ public class SimulationPresenter implements MapChangeListener {
             eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
-            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
+            deathDayField.setText(animalStatistics.getDeathDay() != null ? String.valueOf(animalStatistics.getDeathDay()) : "");
         }
     }
 

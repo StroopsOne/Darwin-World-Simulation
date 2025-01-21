@@ -49,7 +49,7 @@ public class Animal implements WorldElement {
 
     public void dayPasses(int simulationDay) {
         energy = energy - 1;
-        if (energy == 0) {
+        if (energy <= 0) {
             deathDay = simulationDay; //przypisanie dnia śmierci
         } else ageDays += 1;
     }
@@ -83,12 +83,11 @@ public class Animal implements WorldElement {
 
     public Paint toColor(int startEnergy) {
         if (this.energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
-        if (this.energy < 0.2 * startEnergy) return javafx.scene.paint.Color.rgb(173, 216, 230);
-        if (this.energy < 0.4 * startEnergy) return javafx.scene.paint.Color.rgb(100, 149, 237);
-        if (this.energy < 0.6 * startEnergy) return javafx.scene.paint.Color.rgb(70, 130, 180);
-        if (this.energy < 0.8 * startEnergy) return javafx.scene.paint.Color.rgb(0, 0, 255);
-        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(0, 0, 205);
-        return javafx.scene.paint.Color.rgb(0, 0, 51);
+        if (this.energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(255, 211, 166);
+        if (this.energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(234, 159, 91);
+        if (this.energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(156, 84, 7);
+        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(100, 38, 7);
+        return javafx.scene.paint.Color.rgb(66, 17, 0);
     }
 
     public int getEnergy() {

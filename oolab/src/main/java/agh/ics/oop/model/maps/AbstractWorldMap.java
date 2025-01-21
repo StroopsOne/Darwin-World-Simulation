@@ -274,20 +274,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         else throw new IncorrectPositionException(position);
     }
 
-    public void removeDeadAnimals(int simulationDay){
-        for (List<Animal> animalsAtPosition : animals.values()){
 
-            animalsAtPosition.removeIf(animal -> {
-                if (animal.getDeathDay() != null) {
-                    deadAnimals.add(animal);  // Dodaj martwe zwierzę do deadAnimals
-                    return true;  // Usuwamy martwe zwierzę
-                }
-                return false;  // Nie usuwamy żywego zwierzęcia
-            });
-        }
-    }
-    /*
-    public void removeDeadAnimals(int simulationDay) {
+    public void removeDeadAnimals() {
         List<Vector2d> emptyPositions = new ArrayList<>();
 
         // Iterujemy przez każdą pozycję na mapie
@@ -316,7 +304,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             animals.remove(position);
         }
     }
-    */
+
+
     public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
         Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();
 
