@@ -43,11 +43,10 @@ public class SimulationPresenter implements MapChangeListener {
     private int grassValue;
     private int dailyGrass;
     private int initialGrass;
-    private boolean slighCorrection;
     private int day = 0;
 
     private static final Color GRASS_COLOR = Color.GREEN;
-    private static final Color EMPTY_CELL_COLOR = Color.rgb(69, 38, 38);
+    private static final Color EMPTY_CELL_COLOR = Color.rgb(110, 204, 38);
     private static final Color OWLBEAR_COLOR = Color.RED;
 
 
@@ -91,10 +90,6 @@ public class SimulationPresenter implements MapChangeListener {
     /// Setters ///
     public void setGrassValue(int grassValue) {
         this.grassValue = grassValue;
-    }
-
-    public void setSlightCorrection(boolean slightCorrection) {
-        this.slighCorrection=slightCorrection;
     }
 
     public void setDailyGrass(int dailyGrass) {

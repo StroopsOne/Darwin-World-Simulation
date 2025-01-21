@@ -175,14 +175,13 @@ public class MainPresenter {
             simulationPresenter.setGrassValue(grassValue);
             simulationPresenter.setDailyGrass(dailyGrass);
             simulationPresenter.setInitialGrass(grassCount);
-            simulationPresenter.setSlightCorrection(slightCorrection); // Przekazywanie Slight Correction
 
             if (isOwlBearEnabled) {
-                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
+                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             } else {
-                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, false);
+                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             }
