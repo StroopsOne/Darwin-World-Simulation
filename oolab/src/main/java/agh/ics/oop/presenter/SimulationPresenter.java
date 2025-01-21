@@ -44,14 +44,21 @@ public class SimulationPresenter implements MapChangeListener {
     private int maxgeneMutation;
     private int reproduceEnergy;
     private int parentEnergy;
+
+    private String behaviourvariant;
+    private boolean isAnimalStatisticsDisplayed = false;
+    private static final Color GRASS_COLOR = javafx.scene.paint.Color.GREEN;
+    private static final Color EMPTY_CELL_COLOR = javafx.scene.paint.Color.rgb(117, 180, 43);
+    private static final Color OWLBEAR_COLOR = javafx.scene.paint.Color.rgb(11, 19, 129);
+    private Simulation simulation;
+    private AnimalStatistics animalStatistics;
+    private PrintWriter csvWriter;
+    private boolean generateCsv;
+    private int day = 0;
     private int grassValue;
     private int dailyGrass;
     private int initialGrass;
-    private int day = 0;
-
-    private static final Color GRASS_COLOR = Color.GREEN;
-    private static final Color EMPTY_CELL_COLOR = Color.rgb(69, 38, 38);
-    private static final Color OWLBEAR_COLOR = Color.RED;
+    
 
     /// FXML fields ///
     @FXML
