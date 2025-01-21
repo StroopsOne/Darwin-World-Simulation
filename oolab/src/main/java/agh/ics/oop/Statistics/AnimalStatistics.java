@@ -38,7 +38,7 @@ public class AnimalStatistics {
         return animal.getAgeDays();
     }
 
-    public int getDeathDay() {
+    public Integer getDeathDay() {
         return animal.getDeathDay();
     }
 }

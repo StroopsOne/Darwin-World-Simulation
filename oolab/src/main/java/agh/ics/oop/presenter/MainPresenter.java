@@ -36,8 +36,6 @@ public class MainPresenter {
     @FXML
     private CheckBox owlBearCheckBox; // Checkbox "Sowoniedźwiedź"
     @FXML
-    private CheckBox slightCorrectionCheckBox; // Checkbox "Slight Correction"
-    @FXML
     private TextField widthField;
     @FXML
     private TextField heightField;
@@ -56,7 +54,7 @@ public class MainPresenter {
     @FXML
     private Button startButton;
     @FXML
-    private CheckBox generateCsvCheckBox;
+    private CheckBox generateCsvCheckBox; // Checkbox "Generate CSV"
     @FXML
     private Button loadConfigButton;
     @FXML
@@ -66,7 +64,7 @@ public class MainPresenter {
     @FXML
     private TextField saveConfigNameField;
 
-    private static final String CONFIG_FILE = "configurations.json"; // Plik konfiguracji
+    private static final String CONFIG_FILE = "configurations.json";
 
     private void validateTextField(TextField textField, BiPredicate<String, Integer> validationFunction, int minVal) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -146,11 +144,10 @@ public class MainPresenter {
 
     @FXML
     public void onStartClicked() {
+        System.out.println("Symulacje kliknieto");
         try {
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
             boolean isOwlBearEnabled = owlBearCheckBox.isSelected();
-            boolean isSlightCorrectionEnabled = slightCorrectionCheckBox.isSelected();
-
             int mapWidth = parseTextFieldToInt(widthField);
             int mapHeight = parseTextFieldToInt(heightField);
             int grassCount = parseTextFieldToInt(grassCountField);
@@ -177,17 +174,11 @@ public class MainPresenter {
             simulationPresenter.setInitialGrass(grassCount);
 
             if (isOwlBearEnabled) {
-                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(
-                        mapHeight, mapWidth, minGeneMutation, maxGeneMutation,
-                        reproductionEnergy, parentingEnergy, isSlightCorrectionEnabled
-                );
+                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             } else {
-                TheEarth worldMap = new TheEarth(
-                        mapHeight, mapWidth, minGeneMutation, maxGeneMutation,
-                        reproductionEnergy, parentingEnergy, isSlightCorrectionEnabled
-                );
+                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, false);
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             }
@@ -226,7 +217,6 @@ public class MainPresenter {
         config.put("maxGeneMutation", maxGeneMutationField.getText());
         config.put("genomeLength", genomeLengthField.getText());
         config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected()));
-        config.put("slightCorrection", String.valueOf(slightCorrectionCheckBox.isSelected()));
 
         try {
             saveToJson(configName, config);
@@ -265,7 +255,6 @@ public class MainPresenter {
             maxGeneMutationField.setText(config.get("maxGeneMutation"));
             genomeLengthField.setText(config.get("genomeLength"));
             owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled")));
-            slightCorrectionCheckBox.setSelected(Boolean.parseBoolean(config.get("slightCorrection")));
 
             infoLabel.setText("Configuration loaded successfully.");
         } catch (IOException e) {
@@ -326,6 +315,5 @@ public class MainPresenter {
         loadConfigIdField.clear();
         owlBearCheckBox.setSelected(false);
         generateCsvCheckBox.setSelected(false);
-        slightCorrectionCheckBox.setSelected(false);
     }
 }
