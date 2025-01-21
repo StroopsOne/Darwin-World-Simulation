@@ -1,54 +1,61 @@
 package agh.ics.oop.presenter;
 
-import agh.ics.oop.Simulation;
+import agh.ics.oop.*;
 import agh.ics.oop.Statistics.AnimalStatistics;
 import agh.ics.oop.Statistics.SimulationStatistics;
-import agh.ics.oop.model.*;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.maps.AbstractWorldMap;
+import agh.ics.oop.model.maps.TheEarth;
 import agh.ics.oop.model.maps.TheEarthWithOwlBear;
 import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.util.MapChangeListener;
+import agh.ics.oop.model.Boundary;
+import agh.ics.oop.model.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
+
+import javafx.scene.Node;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.Node;
+import javafx.scene.control.TextField;
+
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static java.lang.Math.max;
-
 public class SimulationPresenter implements MapChangeListener {
 
-    private int grassCount;
-    private int dailyGrass;
-    private int grassValue;
-    private int genomeLength;
-    private int startEnergy;
-    private int animalsCount;
+    // fields
     private AbstractWorldMap worldMap;
+    private int initialAnimalsNumber;
+    private int initialEnergy;
+    private int genomeLength;
+    private int mingeneMutation;
+    private int maxgeneMutation;
+    private int reproduceEnergy;
+    private int parentEnergy;
+    private String behaviourvariant;
     private boolean isAnimalStatisticsDisplayed = false;
     private static final Color GRASS_COLOR = javafx.scene.paint.Color.GREEN;
     private static final Color EMPTY_CELL_COLOR = javafx.scene.paint.Color.rgb(69, 38, 38);
-    private static final Color OWLBEAR_COLOR = javafx.scene.paint.Color.BLACK;
+    private static final Color TUNNEL_COLOR = javafx.scene.paint.Color.BLACK;
     private Simulation simulation;
     private AnimalStatistics animalStatistics;
     private PrintWriter csvWriter;
     private boolean generateCsv;
-
+    private int day = 0;
+    private int grassValue;
+    private int dailyGrass;
+    private int initialGrass;
+    private static final Color OWLBEAR_COLOR = Color.RED;
 
 
     ///                                             FXML fields                                              ///
@@ -87,6 +94,8 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private TextField childrenCountField;
 
+    @FXML
+    private TextField offspringCountField;
 
     @FXML
     private TextField ageField;
@@ -102,48 +111,69 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML
     private GridPane mapGrid;
 
-    public void setGenerateCsv(boolean generateCsv) {
-        this.generateCsv = generateCsv;
+
+    ///                                             setters                                                    ///
+
+
+    public void setMingeneMutation(int mingeneMutation){
+        this.mingeneMutation=mingeneMutation;
     }
 
-    public void setAnimalsCount(int animalsCount) {
-        this.animalsCount = animalsCount;
+    public void setGrassValue(int grassValue){
+        this.grassValue=grassValue;
     }
 
-    public void setStartEnergy(int startEnergy) {
-        this.startEnergy = startEnergy;
+    public void setDailyGrass(int dailyGrass){
+        this.dailyGrass=dailyGrass;
     }
 
-    public void setGenomeLength(int genomeLength) {
-        this.genomeLength = genomeLength;
+    public void setInitialGrass(int initialGrass){
+        this.initialGrass=initialGrass;
     }
 
-    public void setGrassValue(int grassValue) {
-        this.grassValue = grassValue;
+    public void setMaxgeneMutation(int maxgeneMutation){
+        this.maxgeneMutation=maxgeneMutation;
     }
 
-    public void setDailyGrass(int dailyGrass) {
-        this.dailyGrass = dailyGrass;
+    public void setGenomeLength(int genomeLength){
+        this.genomeLength=genomeLength;
     }
 
-    public void setGrassCount(int grassCount) {
-        this.grassCount = grassCount;
+    public void setreproduceEnergy(int reproduceEnergy){
+        this.reproduceEnergy=reproduceEnergy;
     }
+
+    public void setInitialEnergy(int initialEnergy){
+        this.initialEnergy = initialEnergy;
+    }
+
 
     public void setWorldMap(AbstractWorldMap worldMap) {
         this.worldMap = worldMap;
     }
 
+    public void setNumberOfAnimals(int numberOfAnimals) {
+        this.initialAnimalsNumber = numberOfAnimals;
+    }
 
+    public void setParentEnergy(int parentEnergy){
+        this.parentEnergy=parentEnergy;
+    }
 
+    public void setBehaviourVariant(String behaviourvariant){
+        this.behaviourvariant = behaviourvariant;
+    }
+    public void setGenerateCsv(boolean generateCsv) {
+        this.generateCsv = generateCsv;
+    }
+
+    ///                                map drawing and calculations                               ///
 
     private void clearGrid() {
-        mapGrid.getChildren().retainAll(mapGrid.getChildren().getFirst()); // hack to retain visible grid lines
+        mapGrid.getChildren().retainAll(mapGrid.getChildren().get(0));
         mapGrid.getColumnConstraints().clear();
         mapGrid.getRowConstraints().clear();
     }
-
-
 
     @FXML
     public void drawMap() {
@@ -158,11 +188,10 @@ public class SimulationPresenter implements MapChangeListener {
         int mapHeight = boundary.upperRight().getY() - boundary.lowerLeft().getY() + 1;
 
         int maxGridSize = Math.max(mapWidth, mapHeight);
-        int cellSize = Math.max(1, 800 / maxGridSize); // Zapewnienie, że cellSize >= 1
+        int cellSize = 800 / maxGridSize;
 
         return cellSize;
     }
-
 
     private void drawGrid(Boundary boundary, int cellSize) {
         for (int i = boundary.lowerLeft().getY(); i <= boundary.upperRight().getY(); i++) {
@@ -186,10 +215,10 @@ public class SimulationPresenter implements MapChangeListener {
 
         if (element instanceof Animal) {
             Circle circle = createAnimalCircle((Animal) element, cellSize);
-            circle.setOnMouseClicked(event -> handleAnimalClick((Animal) element));
             stackPane.getChildren().add(circle);
         }
 
+        // Sprawdź, czy jest OwlBear na tej pozycji
         if (worldMap instanceof TheEarthWithOwlBear && ((TheEarthWithOwlBear) worldMap).isOwlBearAtPosition(position)) {
             Rectangle owlBear = createOwlBearRectangle(cellSize);
             stackPane.getChildren().add(owlBear);
@@ -197,6 +226,7 @@ public class SimulationPresenter implements MapChangeListener {
 
         return stackPane;
     }
+
 
     private StackPane createStackPane(int cellSize) {
         StackPane stackPane = new StackPane();
@@ -215,26 +245,35 @@ public class SimulationPresenter implements MapChangeListener {
         return cell;
     }
 
+    @Override
     public void mapChanged(WorldMap worldMap) {
         Platform.runLater(() -> {
             drawMap();
             updateStatistics(worldMap);
             updateAnimalStatistics();
+            updateDay();
+            day++;
         });
     }
 
+    ///                                animal methods                                                    ///
     private Circle createAnimalCircle(Animal animal, int cellSize) {
         Circle circle = new Circle(cellSize / 5);
-        circle.setFill(animal.toColor(startEnergy));
+        circle.setFill(animal.toColor(initialEnergy));
         return circle;
     }
 
+    ///                                OwlBear methods                                                    ///
     private Rectangle createOwlBearRectangle(int cellSize) {
-        Rectangle tunnel = new Rectangle(cellSize / 5, cellSize / 5);
-        tunnel.setFill(OWLBEAR_COLOR);
-        return tunnel;
+        Rectangle owlBear = new Rectangle(cellSize / 2, cellSize / 2); // Rozmiar mniejszy od komórki
+        owlBear.setFill(OWLBEAR_COLOR); // Ustaw kolor
+        owlBear.setArcWidth(10); // Opcjonalne zaokrąglenia
+        owlBear.setArcHeight(10);
+        return owlBear;
     }
 
+
+    ///                               statistics methods                                                 ///
     private void updateStatistics(WorldMap map) {
         SimulationStatistics stats = new SimulationStatistics(simulation, (AbstractWorldMap) map);
 
@@ -249,7 +288,7 @@ public class SimulationPresenter implements MapChangeListener {
 
         if(generateCsv) {
             csvWriter.printf("%d,%d,%d,%d,\"%s\",%.2f,%.2f,%.2f%n",
-                    simulation.getDay(),
+                    day,
                     stats.getTotalAnimals(),
                     stats.getTotalPlants(),
                     stats.getFreeFields(),
@@ -261,7 +300,6 @@ public class SimulationPresenter implements MapChangeListener {
             csvWriter.flush();
         }
     }
-
     private void handleAnimalClick(Animal animal) {
         if (!isAnimalStatisticsDisplayed) {
             animalStatistics = new AnimalStatistics(animal, simulation);
@@ -272,8 +310,7 @@ public class SimulationPresenter implements MapChangeListener {
             eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
-            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()))   ;
-
+            deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
         } else {
             updateStatistics(worldMap);
         }
@@ -288,50 +325,21 @@ public class SimulationPresenter implements MapChangeListener {
             energyField.setText(String.valueOf(animalStatistics.getEnergy()));
             eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
             childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
-            //offspringCountField.setText(String.valueOf(animalStatistics.getOffspringCount()));
             ageField.setText(String.valueOf(animalStatistics.getAge()));
             deathDayField.setText(String.valueOf(animalStatistics.getDeathDay()));
         }
     }
 
-    @FXML
-    public void initialize() {
-        if (mapGrid == null) {
-            System.out.println("mapGrid is null!");
-        } else {
-            System.out.println("mapGrid is initialized.");
-        }
-        // Ustawienie tekstu na przycisku
-        startStopButton.setText("Start");
-
-        // Ustawienie domyślnych wartości dla pól tekstowych
-        mostCommonGenotypesField.setText("");
-        totalAnimalsField.setText("0");
-        totalPlantsField.setText("0");
-        freeFieldsField.setText("0");
-        averageEnergyField.setText("0.00");
-        averageLifeSpanField.setText("0.00");
-        averageChildrenCountField.setText("0.00");
-        genomeField.setText("");
-        activePartField.setText("0");
-        energyField.setText("0");
-        eatenPlantsField.setText("0");
-        childrenCountField.setText("0");
-        ageField.setText("0");
-        deathDayField.setText("");
-
-        // Aktualizacja widoku mapy, jeśli już istnieje
-        if (worldMap != null) {
-            drawMap();
-        }
-
-        // Inicjalizacja innych zmiennych lub struktur danych
-        isAnimalStatisticsDisplayed = false;
-
-        // Dodatkowe logi dla debugowania
-        System.out.println("SimulationPresenter initialized.");
+    ///                                day methods                                                       ///
+    public void updateDay() {
+        currentDayField.setText(String.valueOf(simulation.getDay()));
     }
 
+    ///                                start/stop methods                                               ///
+    @FXML
+    public void initialize() {
+        startStopButton.setText("Start");
+    }
 
     @FXML
     public void onStartStopButtonClicked() {
@@ -345,7 +353,7 @@ public class SimulationPresenter implements MapChangeListener {
                     csvWriter = new PrintWriter(new FileWriter(filename, true));
                     csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
                 }
-                simulation = new Simulation(worldMap, animalsCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
+                simulation = new Simulation(worldMap, initialAnimalsNumber, initialEnergy, genomeLength, grassValue, initialGrass, dailyGrass);
 
                 // Uruchamianie symulacji w osobnym wątku
                 Thread simulationThread = new Thread(simulation);
@@ -368,7 +376,4 @@ public class SimulationPresenter implements MapChangeListener {
             System.out.println("Inny blad");
         }
     }
-
-
-
 }
