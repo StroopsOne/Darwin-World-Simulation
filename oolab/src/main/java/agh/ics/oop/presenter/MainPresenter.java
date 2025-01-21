@@ -36,6 +36,8 @@ public class MainPresenter {
     @FXML
     private CheckBox owlBearCheckBox; // Checkbox "Sowoniedźwiedź"
     @FXML
+    private CheckBox slightCorrectionCheckBox; // Checkbox "Slight Correction"
+    @FXML
     private TextField widthField;
     @FXML
     private TextField heightField;
@@ -68,14 +70,12 @@ public class MainPresenter {
 
     private void validateTextField(TextField textField, BiPredicate<String, Integer> validationFunction, int minVal) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Pozwól na tymczasowe puste wartości
             if (newValue.isEmpty()) {
-                return; // Pozwól użytkownikowi usunąć zawartość
+                return;
             }
 
-            // Walidacja liczbowego formatu i minimalnej wartości
             if (!validationFunction.test(newValue, minVal)) {
-                textField.setText(oldValue); // Przywróć poprzednią wartość, jeśli niepoprawna
+                textField.setText(oldValue);
             }
         });
     }
@@ -146,11 +146,11 @@ public class MainPresenter {
 
     @FXML
     public void onStartClicked() {
-        System.out.println("Symulacje kliknieto");
         try {
-            // Pobieranie wartości z pól
             boolean generateCsvValue = generateCsvCheckBox.isSelected();
-            boolean isOwlBearEnabled = owlBearCheckBox.isSelected(); // Sprawdzenie checkboxa "Sowoniedźwiedź"
+            boolean isOwlBearEnabled = owlBearCheckBox.isSelected();
+            boolean isSlightCorrectionEnabled = slightCorrectionCheckBox.isSelected();
+
             int mapWidth = parseTextFieldToInt(widthField);
             int mapHeight = parseTextFieldToInt(heightField);
             int grassCount = parseTextFieldToInt(grassCountField);
@@ -164,11 +164,9 @@ public class MainPresenter {
             int minGeneMutation = parseTextFieldToInt(minGeneMutationField);
             int maxGeneMutation = parseTextFieldToInt(maxGeneMutationField);
 
-            // Ładowanie pliku FXML
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("simulation.fxml"));
             Parent root = loader.load();
 
-            // Pobranie kontrolera i ustawienie wartości
             SimulationPresenter simulationPresenter = loader.getController();
             simulationPresenter.setGenerateCsv(generateCsvValue);
             simulationPresenter.setNumberOfAnimals(animalCount);
@@ -178,21 +176,24 @@ public class MainPresenter {
             simulationPresenter.setDailyGrass(dailyGrass);
             simulationPresenter.setInitialGrass(grassCount);
 
-            // Tworzenie mapy w zależności od stanu checkboxa
             if (isOwlBearEnabled) {
-                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, true);
+                TheEarthWithOwlBear worldMap = new TheEarthWithOwlBear(
+                        mapHeight, mapWidth, minGeneMutation, maxGeneMutation,
+                        reproductionEnergy, parentingEnergy, isSlightCorrectionEnabled
+                );
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             } else {
-                TheEarth worldMap = new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, false);
+                TheEarth worldMap = new TheEarth(
+                        mapHeight, mapWidth, minGeneMutation, maxGeneMutation,
+                        reproductionEnergy, parentingEnergy, isSlightCorrectionEnabled
+                );
                 simulationPresenter.setWorldMap(worldMap);
                 worldMap.addObserver(simulationPresenter);
             }
 
-            // Rozpoczęcie symulacji
             simulationPresenter.onStartStopButtonClicked();
 
-            // Ustawienie nowego okna
             Stage simulationStage = new Stage();
             simulationStage.setScene(new Scene(root));
             simulationStage.show();
@@ -203,7 +204,6 @@ public class MainPresenter {
             infoLabel.setText("An unexpected error occurred.");
         }
     }
-
 
     private void saveConfiguration() {
         String configName = saveConfigNameField.getText();
@@ -225,12 +225,13 @@ public class MainPresenter {
         config.put("minGeneMutation", minGeneMutationField.getText());
         config.put("maxGeneMutation", maxGeneMutationField.getText());
         config.put("genomeLength", genomeLengthField.getText());
-        config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected())); // Zapisujemy wartość checkboxa
+        config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected()));
+        config.put("slightCorrection", String.valueOf(slightCorrectionCheckBox.isSelected()));
 
         try {
             saveToJson(configName, config);
             infoLabel.setText("Configuration saved successfully.");
-            clearFields(); // Czyścimy pola po zapisaniu
+            clearFields();
         } catch (IOException e) {
             infoLabel.setText("Error: Could not save configuration.");
             e.printStackTrace();
@@ -263,7 +264,8 @@ public class MainPresenter {
             minGeneMutationField.setText(config.get("minGeneMutation"));
             maxGeneMutationField.setText(config.get("maxGeneMutation"));
             genomeLengthField.setText(config.get("genomeLength"));
-            owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled"))); // Wczytujemy wartość checkboxa
+            owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled")));
+            slightCorrectionCheckBox.setSelected(Boolean.parseBoolean(config.get("slightCorrection")));
 
             infoLabel.setText("Configuration loaded successfully.");
         } catch (IOException e) {
@@ -308,7 +310,6 @@ public class MainPresenter {
     }
 
     private void clearFields() {
-        // Czyści wszystkie pola tekstowe i checkboxy
         widthField.clear();
         heightField.clear();
         grassCountField.clear();
@@ -325,5 +326,6 @@ public class MainPresenter {
         loadConfigIdField.clear();
         owlBearCheckBox.setSelected(false);
         generateCsvCheckBox.setSelected(false);
+        slightCorrectionCheckBox.setSelected(false);
     }
 }
