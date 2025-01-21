@@ -215,6 +215,7 @@ public class SimulationPresenter implements MapChangeListener {
 
         if (element instanceof Animal) {
             Circle circle = createAnimalCircle((Animal) element, cellSize);
+            circle.setOnMouseClicked(event -> handleAnimalClick((Animal) element));
             stackPane.getChildren().add(circle);
         }
 
