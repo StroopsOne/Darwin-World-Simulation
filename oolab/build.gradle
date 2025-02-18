@@ -5,7 +5,7 @@ plugins {
 }
 
 application {
-    getMainClass().set('agh.ics.oop.Apps.SimulationApp')
+    getMainClass().set('agh.ics.oop.WorldGUI')
 }
 
 java {

@@ -15,7 +15,6 @@ import java.util.Random;
     private final Vector2d lowerTerritoryCoordinates;
     private final Vector2d upperTerritoryCoordinates;
     private final OwlBear owlBear;
-    //blad sie tu wyswietla bo zakomentowałem niedziałające metody w AbstractWorldMap
     public TheEarthWithOwlBear(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection) {
         super(height, width,mingeneMutation,maxgeneMutation,reproductionEnergy,parentingEnergy,slightCorrection);
         owlBearTerritorySide = (int) Math.sqrt(0.2 * height * width);
@@ -33,8 +32,8 @@ import java.util.Random;
 
     public Vector2d generateOwlBearTerritory(int height, int width){ //wybiera losowe pole, które jest lewym dolnym rogiem terytorium SowoNiedźwiedzia
         Random random = new Random();
-        int lowerX = random.nextInt(width - owlBearTerritorySide -1) + owlBearTerritorySide;
-        int lowerY = random.nextInt(height - owlBearTerritorySide -1) + owlBearTerritorySide;
+        int lowerX = random.nextInt(width - owlBearTerritorySide -1);
+        int lowerY = random.nextInt(height - owlBearTerritorySide -1);
         return new Vector2d(lowerX, lowerY);
     }
 
