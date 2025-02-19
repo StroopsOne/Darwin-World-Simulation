@@ -37,10 +37,10 @@ import java.util.Objects;
 public class SimulationPresenter implements MapChangeListener {
     private AbstractWorldMap map;
     private Simulation simulation;
-    private AnimalStatistics selectedAnimalStats;
     private PrintWriter csvWriter;
     private boolean generateCsv;
     private boolean showAnimalStats = false;
+    private AnimalStatistics selectedAnimalStats;
     private int startAnimalCount, startEnergy, genomeSize, grassNutrient, dailyGrassSpawn, initialGrass, currentDay = 0;
     private SimulationCharts simulationCharts;
     private static final Color CELL_COLOR = Color.rgb(42, 211, 38);
@@ -56,6 +56,7 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML private Label owlBearKillsLabel;
     @FXML private VBox chartContainer;
 
+
     @FXML
     public void initialize() {
         startStopButton.setText("Start");
@@ -64,6 +65,25 @@ public class SimulationPresenter implements MapChangeListener {
         chartContainer.getChildren().add(simulationCharts.getChart());
     }
 
+    public void configureMap(AbstractWorldMap worldMap) {
+        this.map = worldMap;
+        owlBearKillsLabel.setVisible(worldMap instanceof TheEarthWithOwlBear);
+    }
+
+    public void setInitialParams(int animals, int energy, int genome, int grassValue, int grassStart, int dailyGrass) {
+        this.startAnimalCount = animals;
+        this.startEnergy = energy;
+        this.genomeSize = genome;
+        this.grassNutrient = grassValue;
+        this.initialGrass = grassStart;
+        this.dailyGrassSpawn = dailyGrass;
+    }
+
+    public void enableCsvExport(boolean enable) {
+        this.generateCsv = enable;
+    }
+
+    /// Obsługa symulacji ///
     @FXML
     public void onStartStopButtonClicked() {
         System.out.println("Simulation button clicked");
@@ -79,14 +99,6 @@ public class SimulationPresenter implements MapChangeListener {
             e.printStackTrace();
             System.out.println("Unexpected error");
         }
-    }
-
-    private void initializeCsvWriter() throws Exception {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-        LocalDateTime now = LocalDateTime.now();
-        String filename = "simulation_data_" + dtf.format(now) + ".csv";
-        csvWriter = new PrintWriter(new FileWriter(filename, true));
-        csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
     }
 
     private void startSimulation() throws Exception {
@@ -108,23 +120,15 @@ public class SimulationPresenter implements MapChangeListener {
         startStopButton.setText("Stop");
     }
 
-    public void configureMap(AbstractWorldMap worldMap) {
-        this.map = worldMap;
-        owlBearKillsLabel.setVisible(worldMap instanceof TheEarthWithOwlBear);
+    private void initializeCsvWriter() throws Exception {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String filename = "simulation_data_" + dtf.format(now) + ".csv";
+        csvWriter = new PrintWriter(new FileWriter(filename, true));
+        csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
     }
 
-    public void setInitialParams(int animals, int energy, int genome, int grassValue, int grassStart, int dailyGrass) {
-        this.startAnimalCount = animals;
-        this.startEnergy = energy;
-        this.genomeSize = genome;
-        this.grassNutrient = grassValue;
-        this.initialGrass = grassStart;
-        this.dailyGrassSpawn = dailyGrass;
-    }
-
-    public void enableCsvExport(boolean enable) {
-        this.generateCsv = enable;
-    }
+    /// renderowanie mapy ///
 
     private void clearGrid() {
         mapGrid.getChildren().clear();
@@ -156,7 +160,7 @@ public class SimulationPresenter implements MapChangeListener {
         owlBearView.setFitHeight(size * 0.9);
         return owlBearView;
     }
-    
+
     private Node createMapElement(Vector2d pos, int size) {
         StackPane cellContainer = new StackPane();
         cellContainer.setPrefSize(size, size);
@@ -170,7 +174,6 @@ public class SimulationPresenter implements MapChangeListener {
         if (map.isGrassOnPosition(pos)) {
             cellContainer.getChildren().add(createGrassElement(size));
         }
-
         // Sprawdź, czy na danej pozycji jest OwlBear
         if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
             cellContainer.getChildren().add(createOwlBearElement(size));
@@ -205,7 +208,7 @@ public class SimulationPresenter implements MapChangeListener {
         StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
 
         animalContainer.getChildren().addAll(animalView, energyBar);
-        animalContainer.setOnMouseClicked(event -> toggleAnimalStats(firstAnimal));
+        animalContainer.setOnMouseClicked(event -> showAnimalStats(firstAnimal));
 
         return animalContainer;
     }
@@ -217,6 +220,8 @@ public class SimulationPresenter implements MapChangeListener {
         return grassView;
     }
 
+
+    /// Obsługa statystyk ///
     @Override
     public void mapChanged(WorldMap updatedMap) {
         Platform.runLater(() -> {
@@ -226,66 +231,13 @@ public class SimulationPresenter implements MapChangeListener {
             updateDayCounter();
             simulationCharts.updateChart(currentDay, map);
 
-            // Aktualizacja wykresów energii zwierząt
             for (AnimalEnergyChart chart : animalEnergyCharts) {
                 chart.updateChart(currentDay);
             }
 
-            // Aktualizacja statystyk OwlBera
             updateOwlBearStats();
-
             currentDay++;
         });
-    }
-
-    private void toggleAnimalStats(Animal animal) {
-        if (!showAnimalStats) {
-            selectedAnimalStats = new AnimalStatistics(animal, simulation);
-
-            // Wypełnij pola tekstowe statystykami zwierzęcia
-            genomeField.setText(selectedAnimalStats.getGenome().toString());
-            activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
-            energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
-            eatenPlantsField.setText(String.valueOf(selectedAnimalStats.getEatenPlants()));
-            childrenCountField.setText(String.valueOf(selectedAnimalStats.getChildrenCount()));
-            ageField.setText(String.valueOf(selectedAnimalStats.getAge()));
-            deathDayField.setText(selectedAnimalStats.getDeathDay() != null ? String.valueOf(selectedAnimalStats.getDeathDay()) : "");
-
-            // Dodaj wykres energii dla zwierzęcia
-            if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
-                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay, this));
-            }
-        } else {
-            updateGlobalStats(map);
-        }
-        showAnimalStats = !showAnimalStats;
-    }
-
-    private void updateSelectedAnimalStats() {
-        if (selectedAnimalStats != null) {
-            fillAnimalStats(selectedAnimalStats);
-        }
-    }
-
-    private void fillAnimalStats(AnimalStatistics animalStatistics) {
-        genomeField.setText(animalStatistics.getGenome().toString());
-        activePartField.setText(String.valueOf(animalStatistics.getActivePart()));
-        energyField.setText(String.valueOf(animalStatistics.getEnergy()));
-        eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
-        childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
-        ageField.setText(String.valueOf(animalStatistics.getAge()));
-        deathDayField.setText(animalStatistics.getDeathDay() != null ? String.valueOf(animalStatistics.getDeathDay()) : "");
-    }
-
-    private void updateGlobalStats(WorldMap updatedMap) {
-        SimulationStatistics stats = new SimulationStatistics(simulation, (AbstractWorldMap) updatedMap);
-        freeFieldsField.setText(String.valueOf(stats.getFreeFieldsCount()));
-        livingAnimalsField.setText(String.valueOf(stats.getAnimalNumber()));
-        totalPlantsField.setText(String.valueOf(stats.getPlantsNumber()));
-        averageEnergyField.setText(String.format("%.2f", stats.getAverageEnergy()));
-        averageLifeSpanField.setText(String.format("%.2f", stats.getAverageLifeSpan()));
-        averageChildrenCountField.setText(String.format("%.2f", stats.getAverageChildrenCount()));
-        mostCommonGenotypesField.setText(stats.getMostCommonGenotypes().toString());
     }
 
     private void updateDayCounter() {
@@ -298,6 +250,56 @@ public class SimulationPresenter implements MapChangeListener {
         }
     }
 
+    private void updateGlobalStats(WorldMap updatedMap) {
+        SimulationStatistics simulationStatistics = new SimulationStatistics(simulation, (AbstractWorldMap) updatedMap);
+        freeFieldsField.setText(String.valueOf(simulationStatistics.getFreeFieldsCount()));
+        livingAnimalsField.setText(String.valueOf(simulationStatistics.getAnimalNumber()));
+        totalPlantsField.setText(String.valueOf(simulationStatistics.getPlantsNumber()));
+        averageEnergyField.setText(String.format("%.2f", simulationStatistics.getAverageEnergy()));
+        averageLifeSpanField.setText(String.format("%.2f", simulationStatistics.getAverageLifeSpan()));
+        averageChildrenCountField.setText(String.format("%.2f", simulationStatistics.getAverageChildrenCount()));
+        mostCommonGenotypesField.setText(simulationStatistics.getMostCommonGenotypes().toString());
+    }
+
+    private void fillAnimalStats(AnimalStatistics animalStatistics) {
+        energyField.setText(String.valueOf(animalStatistics.getEnergy()));
+        eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
+        ageField.setText(String.valueOf(animalStatistics.getAge()));
+        childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
+        genomeField.setText(animalStatistics.getGenome().toString());
+        activePartField.setText(String.valueOf(animalStatistics.getActivePart()));
+        deathDayField.setText(animalStatistics.getDeathDay() != null ? String.valueOf(animalStatistics.getDeathDay()) : "");
+    }
+
+    private void showAnimalStats(Animal animal) {
+        if (!showAnimalStats) {
+            selectedAnimalStats = new AnimalStatistics(animal, simulation);
+            genomeField.setText(selectedAnimalStats.getGenome().toString());
+            activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
+            energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
+            eatenPlantsField.setText(String.valueOf(selectedAnimalStats.getEatenPlants()));
+            childrenCountField.setText(String.valueOf(selectedAnimalStats.getChildrenCount()));
+            ageField.setText(String.valueOf(selectedAnimalStats.getAge()));
+            deathDayField.setText(selectedAnimalStats.getDeathDay() != null ? String.valueOf(selectedAnimalStats.getDeathDay()) : "");
+
+            // Dodaj wykres energii dla zwierzęcia
+            if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
+                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay));
+            }
+        } else {
+            selectedAnimalStats = null;
+        }
+        showAnimalStats = !showAnimalStats;
+    }
+
+    private void updateSelectedAnimalStats() {
+        if (selectedAnimalStats != null) {
+            fillAnimalStats(selectedAnimalStats);
+        }
+    }
+
+
+    /// funkcje pomocnicze ///
     private void loadImages() {
         try {
             grassImage = new Image(Objects.requireNonNull(getClass().getResource("/images/grass-icon.png")).toExternalForm());
