@@ -23,17 +23,17 @@
                 <Label text="Initial grass number:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
                 <TextField fx:id="grassCountField" promptText="Initial grass count" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
-                <Label text="Initial animal Count:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                <TextField fx:id="animalCountField" promptText="Initial animal count" GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                <Label text="Daily Grass Spawn:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                <TextField fx:id="dailyGrassField" promptText="Daily grass spawn count" GridPane.rowIndex="3" GridPane.columnIndex="1" />
 
-                <Label text="Animal Start Energy:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
-                <TextField fx:id="startEnergyField" promptText="Starting energy" GridPane.rowIndex="4" GridPane.columnIndex="1" />
+                <Label text="Grass Energy Value:" GridPane.rowIndex="4" GridPane.columnIndex="0" />
+                <TextField fx:id="grassValueField" promptText="Energy from eating grass" GridPane.rowIndex="4" GridPane.columnIndex="1" />
 
-                <Label text="Grass Energy Value:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
-                <TextField fx:id="grassValueField" promptText="Energy from eating grass" GridPane.rowIndex="5" GridPane.columnIndex="1" />
+                <Label text="Initial animal Count:" GridPane.rowIndex="5" GridPane.columnIndex="0" />
+                <TextField fx:id="animalCountField" promptText="Initial animal count" GridPane.rowIndex="5" GridPane.columnIndex="1" />
 
-                <Label text="Daily Grass Spawn:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
-                <TextField fx:id="dailyGrassField" promptText="Daily grass spawn count" GridPane.rowIndex="6" GridPane.columnIndex="1" />
+                <Label text="Animal Start Energy:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
+                <TextField fx:id="startEnergyField" promptText="Starting energy" GridPane.rowIndex="6" GridPane.columnIndex="1" />
 
                 <Label text="Parenting Substraction Energy:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
                 <TextField fx:id="parentingEnergyField" promptText="Energy shared by parents" GridPane.rowIndex="7" GridPane.columnIndex="1" />
@@ -41,14 +41,14 @@
                 <Label text="Reproduction Required Energy:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
                 <TextField fx:id="reproductionEnergyField" promptText="Energy required to reproduce" GridPane.rowIndex="8" GridPane.columnIndex="1" />
 
-                <Label text="Min Mutation Number:" GridPane.rowIndex="9" GridPane.columnIndex="0" />
-                <TextField fx:id="minGeneMutationField" promptText="Minimum mutations" GridPane.rowIndex="9" GridPane.columnIndex="1" />
+                <Label text="Genome Size:" GridPane.rowIndex="9" GridPane.columnIndex="0" />
+                <TextField fx:id="genomeLengthField" promptText="Length of genome" GridPane.rowIndex="9" GridPane.columnIndex="1" />
 
-                <Label text="Max Mutation Number:" GridPane.rowIndex="10" GridPane.columnIndex="0" />
-                <TextField fx:id="maxGeneMutationField" promptText="Maximum mutations" GridPane.rowIndex="10" GridPane.columnIndex="1" />
+                <Label text="Min Mutation Number:" GridPane.rowIndex="10" GridPane.columnIndex="0" />
+                <TextField fx:id="minGeneMutationField" promptText="Minimum mutations" GridPane.rowIndex="10" GridPane.columnIndex="1" />
 
-                <Label text="Genome Size:" GridPane.rowIndex="11" GridPane.columnIndex="0" />
-                <TextField fx:id="genomeLengthField" promptText="Length of genome" GridPane.rowIndex="11" GridPane.columnIndex="1" />
+                <Label text="Max Mutation Number:" GridPane.rowIndex="11" GridPane.columnIndex="0" />
+                <TextField fx:id="maxGeneMutationField" promptText="Maximum mutations" GridPane.rowIndex="11" GridPane.columnIndex="1" />
 
                 <Label text="Sowoniedźwiedź:" GridPane.rowIndex="12" GridPane.columnIndex="0" />
                 <CheckBox fx:id="owlBearCheckBox" text="Enable" GridPane.rowIndex="12" GridPane.columnIndex="1" />
