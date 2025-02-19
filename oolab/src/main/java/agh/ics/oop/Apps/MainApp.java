@@ -3,9 +3,12 @@ package agh.ics.oop.Apps;
 import agh.ics.oop.presenter.SimulationPresenter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.image.Image;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class MainApp extends Application {
     @Override
@@ -15,6 +18,7 @@ public class MainApp extends Application {
         loader.setLocation(getClass().getClassLoader().getResource("main.fxml"));
         BorderPane viewRoot = loader.load();
         configureStage(primaryStage, viewRoot);
+
         primaryStage.show();
 
 
@@ -24,6 +28,9 @@ public class MainApp extends Application {
         var scene = new Scene(viewRoot);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Darwin Simulation");
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(
+                getClass().getClassLoader().getResourceAsStream("images/DarwinSimulationIcon.png")
+        )));
         primaryStage.minWidthProperty().bind(viewRoot.minWidthProperty());
         primaryStage.minHeightProperty().bind(viewRoot.minHeightProperty());
     }

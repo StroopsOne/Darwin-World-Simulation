@@ -73,7 +73,7 @@ public class Animal implements WorldElement {
         this.energy = inheritedEnergy;
         this.plantEatenCount = 0;
         this.genes = genomes;
-        this.genePartUsed = random.nextInt(this.getGenes().getGenomeSize()); //Nie wiem czemu to nie ma geneSize, ale nie chce psuc niczego, wiec na razie zostawie
+        this.genePartUsed = random.nextInt(this.getGenes().getGenomeSize());
         this.ageDays = 0;
         this.deathDay = null;       //czyli zwierzak żyje
         this.parent1 = parent1;
@@ -83,11 +83,11 @@ public class Animal implements WorldElement {
 
     public Paint toColor(int startEnergy) {
         if (this.energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
-        if (this.energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(255, 211, 166);
-        if (this.energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(234, 159, 91);
-        if (this.energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(156, 84, 7);
-        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(100, 38, 7);
-        return javafx.scene.paint.Color.rgb(66, 17, 0);
+        if (this.energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
+        if (this.energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
+        if (this.energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(244, 237, 62);
+        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(131, 180, 31);
+        return javafx.scene.paint.Color.rgb(18, 124, 0);
     }
 
     public int getEnergy() {
