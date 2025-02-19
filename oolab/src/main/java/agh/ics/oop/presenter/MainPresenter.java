@@ -5,8 +5,6 @@ import agh.ics.oop.model.maps.TheEarth;
 import agh.ics.oop.model.maps.TheEarthWithOwlBear;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,26 +15,26 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainPresenter {
 
     @FXML private Label infoLabel;
+    @FXML private TextField widthField;
+    @FXML private TextField heightField;
+    @FXML private TextField grassCountField;
+    @FXML private TextField dailyGrassField;
+    @FXML private TextField grassValueField;
+    @FXML private TextField animalCountField;
+    @FXML private TextField startEnergyField;
     @FXML private TextField parentingEnergyField;
     @FXML private TextField reproductionEnergyField;
+    @FXML private TextField genomeLengthField;
     @FXML private TextField minGeneMutationField;
     @FXML private TextField maxGeneMutationField;
     @FXML private CheckBox owlBearCheckBox;
     @FXML private CheckBox slightCorrectionCheckBox;
-    @FXML private TextField widthField;
-    @FXML private TextField heightField;
-    @FXML private TextField grassCountField;
-    @FXML private TextField animalCountField;
-    @FXML private TextField startEnergyField;
-    @FXML private TextField grassValueField;
-    @FXML private TextField genomeLengthField;
-    @FXML private TextField dailyGrassField;
-    @FXML private Button startButton;
     @FXML private CheckBox generateCsvCheckBox;
     @FXML private Button loadConfigButton;
     @FXML private Button saveConfigButton;
@@ -47,17 +45,14 @@ public class MainPresenter {
     private static final String CONFIG_FILE_PATH = getConfigPath();
 
     private static String getConfigPath() {
-        String devPath = "src/main/resources/configurations.json"; // Działa podczas developmentu
-        String prodPath = System.getProperty("user.home") + "/configurations.json"; // Działa po zapakowaniu do JAR
+        String devPath = "src/main/resources/configurations.json";
+        String prodPath = System.getProperty("user.home") + "/configurations.json";
         return new File(devPath).exists() ? devPath : prodPath;
     }
-
-
 
     @FXML
     public void initialize() {
         setupValidation();
-        setupBindings();
         setupConfigButtons();
     }
 
@@ -69,57 +64,13 @@ public class MainPresenter {
         validateTextField(grassValueField, 0, 1000);
         validateTextField(animalCountField, 0, 1000);
         validateTextField(startEnergyField, 0, 1000);
-        validateTextField(genomeLengthField, 1, 50);
         validateTextField(parentingEnergyField, 0, 1000);
         validateTextField(reproductionEnergyField, 0, 1000);
+        validateTextField(genomeLengthField, 1, 50);
         validateTextField(minGeneMutationField, 0, 15);
         validateTextField(maxGeneMutationField, 0, 15);
     }
 
-    private void validateTextField(TextField field, int minVal, int maxVal) {
-        field.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.isEmpty()) {
-                try {
-                    int value = Integer.parseInt(newVal);
-                    if (value < minVal || value > maxVal) {
-                        field.setText(oldVal);
-                    }
-                } catch (NumberFormatException e) {
-                    field.setText(oldVal);
-                }
-            }
-        });
-    }
-
-    private void setupBindings() {
-        BooleanBinding fieldsEmpty = Bindings.createBooleanBinding(() ->
-                        startEnergyField.getText().isEmpty() ||
-                                grassValueField.getText().isEmpty() ||
-                                widthField.getText().isEmpty() ||
-                                heightField.getText().isEmpty() ||
-                                grassCountField.getText().isEmpty() ||
-                                animalCountField.getText().isEmpty() ||
-                                genomeLengthField.getText().isEmpty() ||
-                                dailyGrassField.getText().isEmpty() ||
-                                parentingEnergyField.getText().isEmpty() ||
-                                reproductionEnergyField.getText().isEmpty() ||
-                                minGeneMutationField.getText().isEmpty() ||
-                                maxGeneMutationField.getText().isEmpty(),
-                startEnergyField.textProperty(),
-                grassValueField.textProperty(),
-                widthField.textProperty(),
-                heightField.textProperty(),
-                grassCountField.textProperty(),
-                animalCountField.textProperty(),
-                genomeLengthField.textProperty(),
-                dailyGrassField.textProperty(),
-                parentingEnergyField.textProperty(),
-                reproductionEnergyField.textProperty(),
-                minGeneMutationField.textProperty(),
-                maxGeneMutationField.textProperty()
-        );
-        startButton.disableProperty().bind(fieldsEmpty);
-    }
 
     private void setupConfigButtons() {
         saveConfigButton.setOnAction(e -> saveConfiguration());
@@ -127,60 +78,72 @@ public class MainPresenter {
     }
 
 
-
-
-    private int parse(TextField field) {
-        return Integer.parseInt(field.getText());
-    }
-
-
     @FXML
     public void onStartClicked() {
-        System.out.println("Symulacja została uruchomiona");
+
+
+        List<TextField> fields = List.of(
+                widthField, heightField, grassCountField, dailyGrassField, grassValueField,
+                animalCountField, startEnergyField, parentingEnergyField, reproductionEnergyField,
+                genomeLengthField, minGeneMutationField, maxGeneMutationField
+        );
+
+        // Sprawdzanie pustych pól
+        for (TextField field : fields) {
+            if (field.getText().isEmpty()) {
+                infoLabel.setText("Error: All fields must be filled.");
+                return;
+            }
+        }
+
         try {
+            // Pobieranie wartości
+            int mapWidth = Integer.parseInt(widthField.getText());
+            int mapHeight = Integer.parseInt(heightField.getText());
+            int grassCount = Integer.parseInt(grassCountField.getText());
+            int dailyGrass = Integer.parseInt(dailyGrassField.getText());
+            int grassValue = Integer.parseInt(grassValueField.getText());
+            int animalCount = Integer.parseInt(animalCountField.getText());
+            int startEnergy = Integer.parseInt(startEnergyField.getText());
+            int parentingEnergy = Integer.parseInt(parentingEnergyField.getText());
+            int reproductionEnergy = Integer.parseInt(reproductionEnergyField.getText());
+            int genomeLength = Integer.parseInt(genomeLengthField.getText());
+            int minGeneMutation = Integer.parseInt(minGeneMutationField.getText());
+            int maxGeneMutation = Integer.parseInt(maxGeneMutationField.getText());
             boolean csvEnabled = generateCsvCheckBox.isSelected();
             boolean owlBearEnabled = owlBearCheckBox.isSelected();
             boolean slightCorrection = slightCorrectionCheckBox.isSelected();
 
-            int mapWidth = parse(widthField);
-            int mapHeight = parse(heightField);
-            int grassCount = parse(grassCountField);
-            int animalCount = parse(animalCountField);
-            int startEnergy = parse(startEnergyField);
-            int grassValue = parse(grassValueField);
-            int dailyGrass = parse(dailyGrassField);
-            int genomeLength = parse(genomeLengthField);
-            int parentingEnergy = parse(parentingEnergyField);
-            int reproductionEnergy = parse(reproductionEnergyField);
-            int minGeneMutation = parse(minGeneMutationField);
-            int maxGeneMutation = parse(maxGeneMutationField);
+            if (minGeneMutation > maxGeneMutation) {
+                infoLabel.setText("Error: Min mutation cannot be greater than max mutation.");
+                return;
+            }
 
+            // Wczytanie sceny symulacji
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("simulation.fxml"));
             Parent simRoot = loader.load();
             SimulationPresenter simPresenter = loader.getController();
             simPresenter.enableCsvExport(csvEnabled);
-
             simPresenter.setInitialParams(animalCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
 
             AbstractWorldMap worldMap = owlBearEnabled
                     ? new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection)
                     : new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection);
+
             simPresenter.configureMap(worldMap);
             worldMap.addObserver(simPresenter);
-
             simPresenter.onStartStopButtonClicked();
 
             Stage simStage = new Stage();
             simStage.setScene(new Scene(simRoot));
             simStage.show();
         } catch (NumberFormatException e) {
-            infoLabel.setText("Error: All fields must contain valid numbers.");
+            infoLabel.setText("Error: Invalid number format.");
         } catch (Exception e) {
+            infoLabel.setText("Unexpected error: " + e.getMessage());
             e.printStackTrace();
-            infoLabel.setText("An unexpected error occurred.");
         }
     }
-
 
     private void saveConfiguration() {
         String configName = saveConfigNameField.getText();
@@ -192,15 +155,16 @@ public class MainPresenter {
         config.put("mapWidth", widthField.getText());
         config.put("mapHeight", heightField.getText());
         config.put("grassCount", grassCountField.getText());
+        config.put("dailyGrass", dailyGrassField.getText());
+        config.put("grassValue", grassValueField.getText());
         config.put("animalCount", animalCountField.getText());
         config.put("startEnergy", startEnergyField.getText());
-        config.put("grassValue", grassValueField.getText());
-        config.put("dailyGrass", dailyGrassField.getText());
         config.put("parentingEnergy", parentingEnergyField.getText());
         config.put("reproductionEnergy", reproductionEnergyField.getText());
+        config.put("genomeLength", genomeLengthField.getText());
         config.put("minGeneMutation", minGeneMutationField.getText());
         config.put("maxGeneMutation", maxGeneMutationField.getText());
-        config.put("genomeLength", genomeLengthField.getText());
+
         config.put("owlBearEnabled", String.valueOf(owlBearCheckBox.isSelected()));
         config.put("slightCorrection", String.valueOf(slightCorrectionCheckBox.isSelected()));
 
@@ -229,15 +193,15 @@ public class MainPresenter {
             widthField.setText(config.get("mapWidth"));
             heightField.setText(config.get("mapHeight"));
             grassCountField.setText(config.get("grassCount"));
+            dailyGrassField.setText(config.get("dailyGrass"));
+            grassValueField.setText(config.get("grassValue"));
             animalCountField.setText(config.get("animalCount"));
             startEnergyField.setText(config.get("startEnergy"));
-            grassValueField.setText(config.get("grassValue"));
-            dailyGrassField.setText(config.get("dailyGrass"));
             parentingEnergyField.setText(config.get("parentingEnergy"));
             reproductionEnergyField.setText(config.get("reproductionEnergy"));
+            genomeLengthField.setText(config.get("genomeLength"));
             minGeneMutationField.setText(config.get("minGeneMutation"));
             maxGeneMutationField.setText(config.get("maxGeneMutation"));
-            genomeLengthField.setText(config.get("genomeLength"));
             owlBearCheckBox.setSelected(Boolean.parseBoolean(config.get("owlBearEnabled")));
             slightCorrectionCheckBox.setSelected(Boolean.parseBoolean(config.get("slightCorrection")));
 
@@ -246,6 +210,35 @@ public class MainPresenter {
             infoLabel.setText("Error: Could not load configuration.");
             e.printStackTrace();
         }
+    }
+
+    private void clearFields() {
+        List<TextField> textFields = List.of(
+                widthField, heightField, grassCountField, grassValueField, dailyGrassField,
+                animalCountField, startEnergyField, parentingEnergyField, reproductionEnergyField,
+                genomeLengthField, minGeneMutationField, maxGeneMutationField,
+                saveConfigNameField, loadConfigIdField
+        );
+
+        textFields.forEach(TextField::clear);
+
+        List<CheckBox> checkBoxes = List.of(owlBearCheckBox, generateCsvCheckBox, slightCorrectionCheckBox);
+        checkBoxes.forEach(cb -> cb.setSelected(false));
+    }
+
+    private void validateTextField(TextField field, int minVal, int maxVal) {
+        field.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.isEmpty()) {
+                try {
+                    int value = Integer.parseInt(newVal);
+                    if (value < minVal || value > maxVal) {
+                        field.setText(oldVal);
+                    }
+                } catch (NumberFormatException e) {
+                    field.setText(oldVal);
+                }
+            }
+        });
     }
 
     private void saveToJson(String configName, Map<String, String> config) throws IOException {
@@ -291,23 +284,5 @@ public class MainPresenter {
         return null;
     }
 
-    private void clearFields() {
-        widthField.clear();
-        heightField.clear();
-        grassCountField.clear();
-        animalCountField.clear();
-        startEnergyField.clear();
-        grassValueField.clear();
-        dailyGrassField.clear();
-        parentingEnergyField.clear();
-        reproductionEnergyField.clear();
-        minGeneMutationField.clear();
-        maxGeneMutationField.clear();
-        genomeLengthField.clear();
-        saveConfigNameField.clear();
-        loadConfigIdField.clear();
-        owlBearCheckBox.setSelected(false);
-        generateCsvCheckBox.setSelected(false);
-        slightCorrectionCheckBox.setSelected(false);
-    }
+
 }

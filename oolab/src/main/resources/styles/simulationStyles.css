@@ -1,25 +1,29 @@
 /* simulationStyles.css */
-.large-font {
-    -fx-font-size: 20px;
-}
+
 * {
     -fx-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 
 BorderPane {
     background-color: #f0f0f0;
 }
 
 VBox {
-    -fx-spacing: 15;
-    -fx-padding: 5 10;
+    -fx-spacing: 10;
+    -fx-padding: 5 5;
+}
+
+.category-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
 Button {
     -fx-background-color: #27ae60;
     -fx-text-fill: #ffffff;
-    -fx-font-size: 14px;
-    -fx-padding: 10 20;
+    -fx-font-size: 18px;
+    -fx-padding: 10 10;
 }
 
 .large-font {
@@ -27,8 +31,8 @@ Button {
 }
 
 GridPane {
-    -fx-background-color: #ecf0f1;
-    -fx-border-color: #bdc3c7;
+    -fx-background-color: linear-gradient(to bottom, #3eafca, #5b9cdc);
+    -fx-border-color: #688ea8;
     -fx-border-width: 1;
     -fx-padding: 10;
     -fx-alignment: center;

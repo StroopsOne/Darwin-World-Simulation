@@ -7,8 +7,7 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             minHeight="800.0" minWidth="900.0"
@@ -17,23 +16,24 @@
     <center>
         <HBox alignment="CENTER" spacing="10">
 
-            <!-- Nowa sekcja na wykres po lewej stronie -->
+            <!-- Lewo: wykresy -->
             <VBox fx:id="chartContainer" alignment="CENTER">
                 <Label text="Ecosystem Statistics" styleClass="large-font" />
                 <Label fx:id="owlBearKillsLabel" text="OwlBear Kills: 0" visible="false" styleClass="large-font"/>
             </VBox>
 
-            <!-- Środek: GridPane z mapą -->
+            <!-- Środek: mapa -->
             <GridPane fx:id="mapGrid" gridLinesVisible="true" alignment="CENTER" />
 
-            <!-- Prawa strona: Statystyki -->
+            <!-- Prawo: Statystyki -->
             <VBox alignment="CENTER">
                 <Button fx:id="startStopButton" text="Start" onAction="#onStartStopButtonClicked" />
-                <Label text="Current Day:" />
+                <Label text="Current Day:" styleClass="large-font"/>
                 <Label fx:id="currentDayField" styleClass="large-font" />
-                <Label text="Simulation Statistics:" />
+                <Label text="Simulation Statistics:" styleClass="large-font"/>
                 <HBox>
                     <VBox>
+                        <Label text="Global" styleClass="category-label"/>
                         <Label text="Free Fields:" />
                         <TextField fx:id="freeFieldsField" editable="false" prefWidth="160" />
                         <Label text="Living Animals:" />
@@ -50,18 +50,19 @@
                         <TextField fx:id="mostCommonGenotypesField" editable="false" prefWidth="160" />
                     </VBox>
                     <VBox>
-                        <Label text="Genome:" />
-                        <TextField fx:id="genomeField" editable="false" prefWidth="160" />
-                        <Label text="Active Part:" />
-                        <TextField fx:id="activePartField" editable="false" prefWidth="160" />
+                        <Label text="Animal" styleClass="category-label"/>
                         <Label text="Energy:" />
                         <TextField fx:id="energyField" editable="false" prefWidth="160" />
                         <Label text="Eaten Plants:" />
                         <TextField fx:id="eatenPlantsField" editable="false" prefWidth="160" />
-                        <Label text="Children Count:" />
-                        <TextField fx:id="childrenCountField" editable="false" prefWidth="160" />
                         <Label text="Age:" />
                         <TextField fx:id="ageField" editable="false" prefWidth="160" />
+                        <Label text="Children Count:" />
+                        <TextField fx:id="childrenCountField" editable="false" prefWidth="160" />
+                        <Label text="Genome:" />
+                        <TextField fx:id="genomeField" editable="false" prefWidth="160" />
+                        <Label text="Active Part:" />
+                        <TextField fx:id="activePartField" editable="false" prefWidth="160" />
                         <Label text="Death Day:" />
                         <TextField fx:id="deathDayField" editable="false" prefWidth="160" />
                     </VBox>
