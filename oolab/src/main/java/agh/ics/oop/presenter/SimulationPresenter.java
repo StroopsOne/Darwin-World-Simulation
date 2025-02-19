@@ -174,6 +174,7 @@ public class SimulationPresenter implements MapChangeListener {
         if (map.isGrassOnPosition(pos)) {
             cellContainer.getChildren().add(createGrassElement(size));
         }
+
         // Sprawdź, czy na danej pozycji jest OwlBear
         if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
             cellContainer.getChildren().add(createOwlBearElement(size));
@@ -274,6 +275,7 @@ public class SimulationPresenter implements MapChangeListener {
     private void showAnimalStats(Animal animal) {
         if (!showAnimalStats) {
             selectedAnimalStats = new AnimalStatistics(animal, simulation);
+
             genomeField.setText(selectedAnimalStats.getGenome().toString());
             activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
             energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
