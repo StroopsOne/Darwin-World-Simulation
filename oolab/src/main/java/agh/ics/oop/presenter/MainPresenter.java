@@ -44,7 +44,14 @@ public class MainPresenter {
     @FXML private TextField saveConfigNameField;
 
     private static final String CONFIG_FILE = "/configurations.json";
-    private static final String CONFIG_FILE_PATH = "configurations.json";
+    private static final String CONFIG_FILE_PATH = getConfigPath();
+
+    private static String getConfigPath() {
+        String devPath = "src/main/resources/configurations.json"; // Działa podczas developmentu
+        String prodPath = System.getProperty("user.home") + "/configurations.json"; // Działa po zapakowaniu do JAR
+        return new File(devPath).exists() ? devPath : prodPath;
+    }
+
 
 
     @FXML
@@ -126,7 +133,7 @@ public class MainPresenter {
         return Integer.parseInt(field.getText());
     }
 
-    // Metoda wywoływana przez przycisk Start Simulation (onAction="#onStartClicked")
+
     @FXML
     public void onStartClicked() {
         System.out.println("Symulacja została uruchomiona");
@@ -152,17 +159,15 @@ public class MainPresenter {
             Parent simRoot = loader.load();
             SimulationPresenter simPresenter = loader.getController();
             simPresenter.enableCsvExport(csvEnabled);
-            // Ustawienie wszystkich parametrów symulacji jednorazowo
+
             simPresenter.setInitialParams(animalCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
 
-            // Wybór mapy w zależności od ustawienia (z OwlBear lub bez)
             AbstractWorldMap worldMap = owlBearEnabled
                     ? new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection)
                     : new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection);
             simPresenter.configureMap(worldMap);
             worldMap.addObserver(simPresenter);
 
-            // Uruchomienie symulacji (metoda onStartStopButtonClicked w SimulationPresenter)
             simPresenter.onStartStopButtonClicked();
 
             Stage simStage = new Stage();
@@ -176,7 +181,6 @@ public class MainPresenter {
         }
     }
 
-    // Metody zapisu/odczytu konfiguracji
 
     private void saveConfiguration() {
         String configName = saveConfigNameField.getText();
@@ -249,24 +253,25 @@ public class MainPresenter {
         Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
         Map<String, Map<String, String>> allConfigs;
 
-        // Odczytaj istniejące konfiguracje
-        try (FileReader reader = new FileReader(CONFIG_FILE_PATH)) {
-            allConfigs = gson.fromJson(reader, type);
-            if (allConfigs == null) {
-                allConfigs = new HashMap<>();
-            }
-        } catch (IOException e) {
+        File configFile = new File(CONFIG_FILE_PATH);
+        if (!configFile.exists()) {
+            configFile.createNewFile();
             allConfigs = new HashMap<>();
+        } else {
+            try (FileReader reader = new FileReader(configFile)) {
+                allConfigs = gson.fromJson(reader, type);
+                if (allConfigs == null) {
+                    allConfigs = new HashMap<>();
+                }
+            }
         }
-
-        // Dodaj nową konfigurację
         allConfigs.put(configName, config);
 
-        // Zapisz do pliku w katalogu głównym projektu
-        try (FileWriter writer = new FileWriter(CONFIG_FILE_PATH)) {
+        try (FileWriter writer = new FileWriter(configFile)) {
             gson.toJson(allConfigs, writer);
         }
     }
+
 
     private Map<String, String> loadFromJson(String configName) throws IOException {
         Gson gson = new Gson();
