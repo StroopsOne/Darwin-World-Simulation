@@ -14,13 +14,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiPredicate;
 
 public class MainPresenter {
 
@@ -46,7 +43,9 @@ public class MainPresenter {
     @FXML private TextField loadConfigIdField;
     @FXML private TextField saveConfigNameField;
 
-    private static final String CONFIG_FILE = "configurations.json";
+    private static final String CONFIG_FILE = "/configurations.json";
+    private static final String CONFIG_FILE_PATH = "configurations.json";
+
 
     @FXML
     public void initialize() {
@@ -249,7 +248,9 @@ public class MainPresenter {
         Gson gson = new Gson();
         Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
         Map<String, Map<String, String>> allConfigs;
-        try (FileReader reader = new FileReader(CONFIG_FILE)) {
+
+        // Odczytaj istniejące konfiguracje
+        try (FileReader reader = new FileReader(CONFIG_FILE_PATH)) {
             allConfigs = gson.fromJson(reader, type);
             if (allConfigs == null) {
                 allConfigs = new HashMap<>();
@@ -257,8 +258,12 @@ public class MainPresenter {
         } catch (IOException e) {
             allConfigs = new HashMap<>();
         }
+
+        // Dodaj nową konfigurację
         allConfigs.put(configName, config);
-        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+
+        // Zapisz do pliku w katalogu głównym projektu
+        try (FileWriter writer = new FileWriter(CONFIG_FILE_PATH)) {
             gson.toJson(allConfigs, writer);
         }
     }
@@ -266,7 +271,13 @@ public class MainPresenter {
     private Map<String, String> loadFromJson(String configName) throws IOException {
         Gson gson = new Gson();
         Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-        try (FileReader reader = new FileReader(CONFIG_FILE)) {
+
+        try (InputStream inputStream = getClass().getResourceAsStream(CONFIG_FILE)) {
+            if (inputStream == null) {
+                System.out.println("Configuration file not found in resources.");
+                return null;
+            }
+            Reader reader = new InputStreamReader(inputStream);
             Map<String, Map<String, String>> allConfigs = gson.fromJson(reader, type);
             if (allConfigs != null) {
                 return allConfigs.get(configName);
