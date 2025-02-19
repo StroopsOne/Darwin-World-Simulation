@@ -84,6 +84,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         animalsEatGrasses();
         animalsReproduce();
         plantNewGrasses(grassesCount, grassValue);
+        decreaseEnergyForAllAnimals(simulationDay);
 
         notifyAllObservers("Zaktualizowano mapę po dniu symulacji");
     }

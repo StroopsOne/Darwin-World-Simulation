@@ -15,8 +15,11 @@ import java.util.Random;
     private final Vector2d lowerTerritoryCoordinates;
     private final Vector2d upperTerritoryCoordinates;
     private final OwlBear owlBear;
+    private int owlBearkillCounter;
+
     public TheEarthWithOwlBear(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection) {
         super(height, width,mingeneMutation,maxgeneMutation,reproductionEnergy,parentingEnergy,slightCorrection);
+        owlBearkillCounter = 0;
         owlBearTerritorySide = (int) Math.sqrt(0.2 * height * width);
 
         lowerTerritoryCoordinates = generateOwlBearTerritory(height, width);
@@ -79,11 +82,16 @@ import java.util.Random;
         if (animalsAtPosition != null) {
             for (Animal animal : animalsAtPosition) {
                 animal.killAnimal(simulationDay);
+                owlBearkillCounter++;
             }
             animals.remove(position);
         }
 
     }
+
+     public int getOwlBearKillsCounter() {
+         return owlBearkillCounter;
+     }
 
     public boolean canMoveOwlBearTo(Vector2d position) {
         return position.follows(lowerTerritoryCoordinates) && position.precedes(upperTerritoryCoordinates);

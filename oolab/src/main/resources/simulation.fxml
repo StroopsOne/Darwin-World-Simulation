@@ -18,16 +18,9 @@
         <HBox alignment="CENTER" spacing="10">
 
             <!-- Nowa sekcja na wykres po lewej stronie -->
-            <VBox alignment="CENTER">
-                <Label text="Liczba zwierząt i roślin w czasie" styleClass="large-font" />
-                <LineChart fx:id="animalChart" title="Wykres zależności" minWidth="400">
-                    <xAxis>
-                        <NumberAxis label="Dzień" />
-                    </xAxis>
-                    <yAxis>
-                        <NumberAxis label="Ilość" />
-                    </yAxis>
-                </LineChart>
+            <VBox fx:id="chartContainer" alignment="CENTER">
+                <Label text="Ecosystem Statistics" styleClass="large-font" />
+                <Label fx:id="owlBearKillsLabel" text="OwlBear Kills: 0" visible="false" styleClass="large-font"/>
             </VBox>
 
             <!-- Środek: GridPane z mapą -->
@@ -41,12 +34,12 @@
                 <Label text="Simulation Statistics:" />
                 <HBox>
                     <VBox>
-                        <Label text="Total Animals:" />
-                        <TextField fx:id="totalAnimalsField" editable="false" prefWidth="160" />
-                        <Label text="Total Plants:" />
-                        <TextField fx:id="totalPlantsField" editable="false" prefWidth="160" />
                         <Label text="Free Fields:" />
                         <TextField fx:id="freeFieldsField" editable="false" prefWidth="160" />
+                        <Label text="Living Animals:" />
+                        <TextField fx:id="livingAnimalsField" editable="false" prefWidth="160" />
+                        <Label text="Total Plants:" />
+                        <TextField fx:id="totalPlantsField" editable="false" prefWidth="160" />
                         <Label text="Average Energy:" />
                         <TextField fx:id="averageEnergyField" editable="false" prefWidth="160" />
                         <Label text="Average Life Span:" />

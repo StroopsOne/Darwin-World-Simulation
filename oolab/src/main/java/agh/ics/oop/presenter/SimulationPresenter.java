@@ -2,6 +2,7 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.*;
 import agh.ics.oop.Statistics.AnimalStatistics;
+import agh.ics.oop.Statistics.SimulationCharts;
 import agh.ics.oop.Statistics.SimulationStatistics;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.mapElements.Animal;
@@ -18,7 +19,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,9 +31,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 
 public class SimulationPresenter implements MapChangeListener {
     private AbstractWorldMap map;
@@ -40,20 +40,21 @@ public class SimulationPresenter implements MapChangeListener {
     private boolean generateCsv;
     private boolean showAnimalStats = false;
     private int startAnimalCount, startEnergy, genomeSize, grassNutrient, dailyGrassSpawn, initialGrass, currentDay = 0;
-
+    private SimulationCharts simulationCharts;
     private static final Color CELL_COLOR = Color.rgb(42, 211, 38);
-    private Image grassImage, animalImage, multiAnimalImage, owlBearImage;
+    private Image grassImage, animalImage, doubleAnimalImage, multiAnimalImage, owlBearImage;
 
     // Nazwy pól muszą odpowiadać identyfikatorom w simulation.fxml
-    @FXML private TextField mostCommonGenotypesField, totalAnimalsField, totalPlantsField, freeFieldsField,
+    @FXML private TextField mostCommonGenotypesField, livingAnimalsField, totalPlantsField, freeFieldsField,
             averageEnergyField, averageLifeSpanField, averageChildrenCountField;
     @FXML private TextField genomeField, activePartField, energyField, eatenPlantsField, childrenCountField, ageField, deathDayField;
     @FXML private Label currentDayField;
     @FXML private Button startStopButton;
     @FXML private GridPane mapGrid;
-    @FXML private LineChart<Number, Number> animalChart;
-    private XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> plantSeries = new XYChart.Series<>();
+    @FXML private Label owlBearKillsLabel;
+    @FXML private VBox chartContainer;
+
+
 
 
     @FXML
@@ -64,34 +65,23 @@ public class SimulationPresenter implements MapChangeListener {
         try {
             grassImage = new Image(Objects.requireNonNull(getClass().getResource("/images/grass-icon.png")).toExternalForm());
             animalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deer_icon.png")).toExternalForm());
+            doubleAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/two_deer_icon.png")).toExternalForm());
             multiAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deers_icon.png")).toExternalForm());
             owlBearImage = new Image(Objects.requireNonNull(getClass().getResource("/images/OwlBear-icon.png")).toExternalForm());
         } catch (NullPointerException e) {
             System.err.println("Błąd: Nie znaleziono obrazków.");
         }
-        // Konfiguracja wykresu
-        animalChart.getData().add(animalSeries);
-        animalChart.getData().add(plantSeries);
-
-        // Nazwy serii danych
-        animalSeries.setName("Liczba zwierząt");
-        plantSeries.setName("Liczba roślin");
-
-        // Konfiguracja osi X
-        NumberAxis xAxis = (NumberAxis) animalChart.getXAxis();
-        xAxis.setLabel("Dzień");
-
-        // Konfiguracja osi Y
-        NumberAxis yAxis = (NumberAxis) animalChart.getYAxis();
-        yAxis.setLabel("Ilość");
-
-        // Ograniczenie liczby punktów (np. do 100)
-        animalChart.setCreateSymbols(false); // Ukrycie punktów na linii
+        // Inicjalizacja wykresu
+        simulationCharts = new SimulationCharts();
+        chartContainer.getChildren().add(simulationCharts.getChart());
 
     }
 
     public void configureMap(AbstractWorldMap worldMap) {
         this.map = worldMap;
+        if (worldMap instanceof TheEarthWithOwlBear) {
+            owlBearKillsLabel.setVisible(true);
+        }
     }
 
     public void setInitialParams(int animals, int energy, int genome, int grassValue, int grassStart, int dailyGrass) {
@@ -156,18 +146,31 @@ public class SimulationPresenter implements MapChangeListener {
         return owlBearView;
     }
 
+    public Paint setEnergyBarColor(int energy) {
+        if (energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
+        if (energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
+        if (energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
+        if (energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(244, 237, 62);
+        if (energy < startEnergy) return javafx.scene.paint.Color.rgb(131, 180, 31);
+        return javafx.scene.paint.Color.rgb(18, 124, 0);
+    }
+
     private Node createAnimalElement(Vector2d pos, int size) {
         StackPane animalContainer = new StackPane();
 
         List<Animal> animals = map.getAnimalsAtPos(pos);
-        ImageView animalView = new ImageView(animals.size() > 1 ? multiAnimalImage : animalImage);
+        ImageView animalView = new ImageView(
+                animals.size() == 1 ? animalImage :
+                        animals.size() == 2 ? doubleAnimalImage :
+                                multiAnimalImage
+        );
         animalView.setFitWidth(size * 0.8);
         animalView.setFitHeight(size * 0.8);
 
         // Pasek energii
-        Animal firstAnimal = animals.get(0);
+        Animal firstAnimal = animals.getFirst();
         Rectangle energyBar = new Rectangle(size * 0.8, size * 0.1);
-        energyBar.setFill((Color) firstAnimal.toColor(startEnergy));
+        energyBar.setFill((Color) setEnergyBarColor(firstAnimal.getEnergy()));
         StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
 
         animalContainer.getChildren().addAll(animalView, energyBar);
@@ -178,8 +181,8 @@ public class SimulationPresenter implements MapChangeListener {
 
     private Node createGrassElement(int size) {
         ImageView grassView = new ImageView(grassImage);
-        grassView.setFitWidth(size * 0.6);
-        grassView.setFitHeight(size * 0.6);
+        grassView.setFitWidth(size * 0.75);
+        grassView.setFitHeight(size * 0.75);
         return grassView;
     }
 
@@ -203,12 +206,10 @@ public class SimulationPresenter implements MapChangeListener {
             updateGlobalStats(updatedMap);
             updateSelectedAnimalStats();
             updateDayCounter();
-
-            int animalCount = updatedMap.getLivingAnimalsCount();
-            int plantCount = updatedMap.getGrassCount();
-
-            animalSeries.getData().add(new XYChart.Data<>(currentDay, animalCount));
-            plantSeries.getData().add(new XYChart.Data<>(currentDay, plantCount));
+            simulationCharts.updateChart(currentDay, map);
+            if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear) {
+                owlBearKillsLabel.setText("OwlBear Kills: " + theEarthWithOwlBear.getOwlBearKillsCounter());
+            }
             currentDay++;
         });
     }
@@ -231,9 +232,9 @@ public class SimulationPresenter implements MapChangeListener {
 
     private void updateGlobalStats(WorldMap updatedMap) {
         SimulationStatistics stats = new SimulationStatistics(simulation, (AbstractWorldMap) updatedMap);
-        totalAnimalsField.setText(String.valueOf(stats.getTotalAnimals()));
-        totalPlantsField.setText(String.valueOf(stats.getTotalPlants()));
-        freeFieldsField.setText(String.valueOf(stats.getFreeFields()));
+        freeFieldsField.setText(String.valueOf(stats.getFreeFieldsCount()));
+        livingAnimalsField.setText(String.valueOf(stats.getAnimalNumber()));
+        totalPlantsField.setText(String.valueOf(stats.getPlantsNumber()));
         averageEnergyField.setText(String.format("%.2f", stats.getAverageEnergy()));
         averageLifeSpanField.setText(String.format("%.2f", stats.getAverageLifeSpan()));
         averageChildrenCountField.setText(String.format("%.2f", stats.getAverageChildrenCount()));

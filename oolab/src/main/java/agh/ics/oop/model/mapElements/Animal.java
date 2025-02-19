@@ -81,14 +81,6 @@ public class Animal implements WorldElement {
         this.childrenCount = 0;
     }
 
-    public Paint toColor(int startEnergy) {
-        if (this.energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
-        if (this.energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
-        if (this.energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
-        if (this.energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(244, 237, 62);
-        if (this.energy < startEnergy) return javafx.scene.paint.Color.rgb(131, 180, 31);
-        return javafx.scene.paint.Color.rgb(18, 124, 0);
-    }
 
     public int getEnergy() {
         return energy;
