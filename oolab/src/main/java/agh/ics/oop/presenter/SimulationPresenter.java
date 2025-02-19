@@ -5,7 +5,6 @@ import agh.ics.oop.Statistics.AnimalStatistics;
 import agh.ics.oop.Statistics.SimulationStatistics;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.mapElements.Animal;
-import agh.ics.oop.model.mapElements.WorldElement;
 import agh.ics.oop.model.maps.AbstractWorldMap;
 import agh.ics.oop.model.maps.TheEarthWithOwlBear;
 import agh.ics.oop.model.maps.WorldMap;
@@ -20,13 +19,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Objects;
 
 public class SimulationPresenter implements MapChangeListener {
     private AbstractWorldMap map;
@@ -37,9 +38,8 @@ public class SimulationPresenter implements MapChangeListener {
     private boolean showAnimalStats = false;
     private int startAnimalCount, startEnergy, genomeSize, grassNutrient, dailyGrassSpawn, initialGrass, currentDay = 0;
 
-    private static final Color GRASS_COLOR = Color.GREEN;
-    private static final Color EMPTY_CELL_COLOR = Color.rgb(110, 204, 38);
-    private static final Color OWLBEAR_COLOR = Color.RED;
+    private static final Color CELL_COLOR = Color.rgb(42, 211, 38);
+    private Image grassImage, animalImage, multiAnimalImage, owlBearImage;
 
     // Nazwy pól muszą odpowiadać identyfikatorom w simulation.fxml
     @FXML private TextField mostCommonGenotypesField, totalAnimalsField, totalPlantsField, freeFieldsField,
@@ -48,6 +48,22 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML private Label currentDayField;
     @FXML private Button startStopButton;
     @FXML private GridPane mapGrid;
+
+
+    @FXML
+    public void initialize() {
+        startStopButton.setText("Start");
+
+        // Wczytanie obrazków
+        try {
+            grassImage = new Image(Objects.requireNonNull(getClass().getResource("/images/grass-icon.png")).toExternalForm());
+            animalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deer_icon.png")).toExternalForm());
+            multiAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deers_icon.png")).toExternalForm());
+            owlBearImage = new Image(Objects.requireNonNull(getClass().getResource("/images/OwlBear-icon.png")).toExternalForm());
+        } catch (NullPointerException e) {
+            System.err.println("Błąd: Nie znaleziono obrazków.");
+        }
+    }
 
     public void configureMap(AbstractWorldMap worldMap) {
         this.map = worldMap;
@@ -67,7 +83,7 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     private void clearGrid() {
-        mapGrid.getChildren().retainAll(mapGrid.getChildren().get(0));
+        mapGrid.getChildren().clear();
         mapGrid.getColumnConstraints().clear();
         mapGrid.getRowConstraints().clear();
     }
@@ -78,47 +94,70 @@ public class SimulationPresenter implements MapChangeListener {
         Boundary bounds = map.getCurrentBounds();
         int gridSize = 800 / Math.max(bounds.upperRight().getX() - bounds.lowerLeft().getX() + 1,
                 bounds.upperRight().getY() - bounds.lowerLeft().getY() + 1);
-        drawGrid(bounds, gridSize);
-    }
 
-    private void drawGrid(Boundary bounds, int cellSize) {
         for (int y = bounds.lowerLeft().getY(); y <= bounds.upperRight().getY(); y++) {
             for (int x = bounds.lowerLeft().getX(); x <= bounds.upperRight().getX(); x++) {
                 Vector2d pos = new Vector2d(x, y);
-                drawCell(pos, x - bounds.lowerLeft().getX() + 1, bounds.upperRight().getY() - y + 1, cellSize);
+                Node cell = createVisualElement(pos, gridSize);
+                mapGrid.add(cell, x - bounds.lowerLeft().getX(), bounds.upperRight().getY() - y);
             }
         }
     }
 
-    private void drawCell(Vector2d pos, int col, int row, int size) {
-        WorldElement element = map.objectAt(pos);
-        Node node = createVisualElement(element, pos, size);
-        mapGrid.add(node, col, row);
-    }
-
-    private Node createVisualElement(WorldElement element, Vector2d pos, int size) {
+    private Node createVisualElement(Vector2d pos, int size) {
         StackPane container = new StackPane();
         container.setMinSize(size, size);
         container.setMaxSize(size, size);
+
         Rectangle cell = new Rectangle(size, size);
-        cell.setFill(map.isGrassOnPosition(pos) ? GRASS_COLOR : EMPTY_CELL_COLOR);
+        cell.setFill(CELL_COLOR);
         container.getChildren().add(cell);
 
-        if (element instanceof Animal animal) {
-            Circle animalCircle = new Circle(size / 5, animal.toColor(startEnergy));
-            animalCircle.setOnMouseClicked(event -> toggleAnimalStats(animal));
-            container.getChildren().add(animalCircle);
-        }
-
         if (map instanceof TheEarthWithOwlBear && ((TheEarthWithOwlBear) map).isOwlBearAtPosition(pos)) {
-            Rectangle owlBear = new Rectangle(size / 2, size / 2, OWLBEAR_COLOR);
-            owlBear.setArcWidth(10);
-            owlBear.setArcHeight(10);
-            container.getChildren().add(owlBear);
+            container.getChildren().add(createOwlBearElement(size));
+        } else if (map.isAnimalAtPosition(pos)) {
+            container.getChildren().add(createAnimalElement(pos, size));
+        } else if (map.isGrassOnPosition(pos)) {
+            container.getChildren().add(createGrassElement(size));
         }
 
         return container;
     }
+
+    private Node createOwlBearElement(int size) {
+        ImageView owlBearView = new ImageView(owlBearImage);
+        owlBearView.setFitWidth(size * 0.9);
+        owlBearView.setFitHeight(size * 0.9);
+        return owlBearView;
+    }
+
+    private Node createAnimalElement(Vector2d pos, int size) {
+        StackPane animalContainer = new StackPane();
+
+        List<Animal> animals = map.getAnimalsAtPos(pos);
+        ImageView animalView = new ImageView(animals.size() > 1 ? multiAnimalImage : animalImage);
+        animalView.setFitWidth(size * 0.8);
+        animalView.setFitHeight(size * 0.8);
+
+        // Pasek energii
+        Animal firstAnimal = animals.get(0);
+        Rectangle energyBar = new Rectangle(size * 0.8, size * 0.1);
+        energyBar.setFill((Color) firstAnimal.toColor(startEnergy));
+        StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
+
+        animalContainer.getChildren().addAll(animalView, energyBar);
+        animalContainer.setOnMouseClicked(event -> toggleAnimalStats(firstAnimal));
+
+        return animalContainer;
+    }
+
+    private Node createGrassElement(int size) {
+        ImageView grassView = new ImageView(grassImage);
+        grassView.setFitWidth(size * 0.6);
+        grassView.setFitHeight(size * 0.6);
+        return grassView;
+    }
+
 
     private void updateSelectedAnimalStats() {
         if (selectedAnimalStats != null) {
@@ -172,11 +211,6 @@ public class SimulationPresenter implements MapChangeListener {
 
     private void updateDayCounter() {
         currentDayField.setText(String.valueOf(simulation.getDay()));
-    }
-
-    @FXML
-    public void initialize() {
-        startStopButton.setText("Start");
     }
 
     @FXML

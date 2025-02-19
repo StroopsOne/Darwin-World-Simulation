@@ -305,6 +305,13 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
+    public List<Animal> getAnimalsAtPos(Vector2d position){
+        return animals.get(position);
+    }
+
+    public boolean isAnimalAtPosition(Vector2d position){
+        return animals.containsKey(position);
+    }
 
     public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
         Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();

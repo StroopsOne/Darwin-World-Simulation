@@ -4,8 +4,11 @@ import agh.ics.oop.presenter.SimulationPresenter;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class SimulationApp extends Application {
     @Override
@@ -27,6 +30,9 @@ public class SimulationApp extends Application {
         var scene = new Scene(viewRoot);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Darwin Simulation");
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(
+                getClass().getClassLoader().getResourceAsStream("images/DarwinSimulationIcon.png")
+        )));
         primaryStage.minWidthProperty().bind(viewRoot.minWidthProperty());
         primaryStage.minHeightProperty().bind(viewRoot.minHeightProperty());
     }

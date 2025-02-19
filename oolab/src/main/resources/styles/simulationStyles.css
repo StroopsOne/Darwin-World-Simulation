@@ -32,3 +32,13 @@ GridPane {
     -fx-padding: 10;
     -fx-alignment: center;
 }
+
+.energy-bar {
+    -fx-background-color: linear-gradient(to right, red, yellow, green);
+    -fx-opacity: 0.8;
+    -fx-border-radius: 3px;
+}
+
+.animal-highlight {
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,0,0.8), 10, 0, 0, 0);
+}
