@@ -174,7 +174,7 @@ public class SimulationPresenter implements MapChangeListener {
         if (map.isGrassOnPosition(pos)) {
             cellContainer.getChildren().add(createGrassElement(size));
         }
-//Z WYKRESY
+
         // Sprawdź, czy na danej pozycji jest OwlBear
         if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
             cellContainer.getChildren().add(createOwlBearElement(size));
@@ -275,8 +275,7 @@ public class SimulationPresenter implements MapChangeListener {
     private void showAnimalStats(Animal animal) {
         if (!showAnimalStats) {
             selectedAnimalStats = new AnimalStatistics(animal, simulation);
-            //Z WYKRESY
-            // Wypełnij pola tekstowe statystykami zwierzęcia
+
             genomeField.setText(selectedAnimalStats.getGenome().toString());
             activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
             energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
@@ -287,7 +286,7 @@ public class SimulationPresenter implements MapChangeListener {
 
             // Dodaj wykres energii dla zwierzęcia
             if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
-                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay, this));
+                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay));
             }
         } else {
             selectedAnimalStats = null;
