@@ -4,13 +4,13 @@ import agh.ics.oop.*;
 import agh.ics.oop.Statistics.AnimalStatistics;
 import agh.ics.oop.Statistics.SimulationCharts;
 import agh.ics.oop.Statistics.SimulationStatistics;
+import agh.ics.oop.model.Boundary;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.maps.AbstractWorldMap;
 import agh.ics.oop.model.maps.TheEarthWithOwlBear;
 import agh.ics.oop.model.maps.WorldMap;
 import agh.ics.oop.model.util.MapChangeListener;
-import agh.ics.oop.model.Boundary;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -21,14 +21,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
+
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,8 +45,8 @@ public class SimulationPresenter implements MapChangeListener {
     private SimulationCharts simulationCharts;
     private static final Color CELL_COLOR = Color.rgb(42, 211, 38);
     private Image grassImage, animalImage, doubleAnimalImage, multiAnimalImage, owlBearImage;
+    private List<AnimalEnergyChart> animalEnergyCharts = new ArrayList<>();
 
-    // Nazwy pól muszą odpowiadać identyfikatorom w simulation.fxml
     @FXML private TextField mostCommonGenotypesField, livingAnimalsField, totalPlantsField, freeFieldsField,
             averageEnergyField, averageLifeSpanField, averageChildrenCountField;
     @FXML private TextField genomeField, activePartField, energyField, eatenPlantsField, childrenCountField, ageField, deathDayField;
@@ -54,34 +56,61 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML private Label owlBearKillsLabel;
     @FXML private VBox chartContainer;
 
-
-
-
     @FXML
     public void initialize() {
         startStopButton.setText("Start");
-
-        // Wczytanie obrazków
-        try {
-            grassImage = new Image(Objects.requireNonNull(getClass().getResource("/images/grass-icon.png")).toExternalForm());
-            animalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deer_icon.png")).toExternalForm());
-            doubleAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/two_deer_icon.png")).toExternalForm());
-            multiAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deers_icon.png")).toExternalForm());
-            owlBearImage = new Image(Objects.requireNonNull(getClass().getResource("/images/OwlBear-icon.png")).toExternalForm());
-        } catch (NullPointerException e) {
-            System.err.println("Błąd: Nie znaleziono obrazków.");
-        }
-        // Inicjalizacja wykresu
+        loadImages();
         simulationCharts = new SimulationCharts();
         chartContainer.getChildren().add(simulationCharts.getChart());
+    }
 
+    @FXML
+    public void onStartStopButtonClicked() {
+        System.out.println("Simulation button clicked");
+        try {
+            if (simulation == null) {
+                startSimulation();
+            } else if (simulation.isRunning()) {
+                pauseSimulation();
+            } else {
+                resumeSimulation();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Unexpected error");
+        }
+    }
+
+    private void initializeCsvWriter() throws Exception {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        LocalDateTime now = LocalDateTime.now();
+        String filename = "simulation_data_" + dtf.format(now) + ".csv";
+        csvWriter = new PrintWriter(new FileWriter(filename, true));
+        csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
+    }
+
+    private void startSimulation() throws Exception {
+        if (generateCsv) initializeCsvWriter();
+        simulation = new Simulation(map, startAnimalCount, startEnergy, genomeSize, grassNutrient, initialGrass, dailyGrassSpawn);
+        Thread simulationThread = new Thread(simulation);
+        simulationThread.setDaemon(true);
+        simulationThread.start();
+        startStopButton.setText("Stop");
+    }
+
+    private void pauseSimulation() {
+        simulation.pauseSimulation();
+        startStopButton.setText("Start");
+    }
+
+    private void resumeSimulation() {
+        simulation.resumeSimulation();
+        startStopButton.setText("Stop");
     }
 
     public void configureMap(AbstractWorldMap worldMap) {
         this.map = worldMap;
-        if (worldMap instanceof TheEarthWithOwlBear) {
-            owlBearKillsLabel.setVisible(true);
-        }
+        owlBearKillsLabel.setVisible(worldMap instanceof TheEarthWithOwlBear);
     }
 
     public void setInitialParams(int animals, int energy, int genome, int grassValue, int grassStart, int dailyGrass) {
@@ -113,30 +142,12 @@ public class SimulationPresenter implements MapChangeListener {
         for (int y = bounds.lowerLeft().getY(); y <= bounds.upperRight().getY(); y++) {
             for (int x = bounds.lowerLeft().getX(); x <= bounds.upperRight().getX(); x++) {
                 Vector2d pos = new Vector2d(x, y);
-                Node cell = createVisualElement(pos, gridSize);
-                mapGrid.add(cell, x - bounds.lowerLeft().getX(), bounds.upperRight().getY() - y);
+                Node cell = createMapElement(pos, gridSize);
+                if (cell != null) {
+                    mapGrid.add(cell, x - bounds.lowerLeft().getX(), y - bounds.lowerLeft().getY());
+                }
             }
         }
-    }
-
-    private Node createVisualElement(Vector2d pos, int size) {
-        StackPane container = new StackPane();
-        container.setMinSize(size, size);
-        container.setMaxSize(size, size);
-
-        Rectangle cell = new Rectangle(size, size);
-        cell.setFill(CELL_COLOR);
-        container.getChildren().add(cell);
-
-        if (map instanceof TheEarthWithOwlBear && ((TheEarthWithOwlBear) map).isOwlBearAtPosition(pos)) {
-            container.getChildren().add(createOwlBearElement(size));
-        } else if (map.isAnimalAtPosition(pos)) {
-            container.getChildren().add(createAnimalElement(pos, size));
-        } else if (map.isGrassOnPosition(pos)) {
-            container.getChildren().add(createGrassElement(size));
-        }
-
-        return container;
     }
 
     private Node createOwlBearElement(int size) {
@@ -145,20 +156,40 @@ public class SimulationPresenter implements MapChangeListener {
         owlBearView.setFitHeight(size * 0.9);
         return owlBearView;
     }
+    
+    private Node createMapElement(Vector2d pos, int size) {
+        StackPane cellContainer = new StackPane();
+        cellContainer.setPrefSize(size, size);
 
-    public Paint setEnergyBarColor(int energy) {
-        if (energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
-        if (energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
-        if (energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
-        if (energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(244, 237, 62);
-        if (energy < startEnergy) return javafx.scene.paint.Color.rgb(131, 180, 31);
-        return javafx.scene.paint.Color.rgb(18, 124, 0);
+        // Dodaj kolor tła (zobacz punkt 2)
+        Rectangle background = new Rectangle(size, size);
+        background.setFill(CELL_COLOR);
+        cellContainer.getChildren().add(background);
+
+        // Sprawdź, czy na danej pozycji jest trawa
+        if (map.isGrassOnPosition(pos)) {
+            cellContainer.getChildren().add(createGrassElement(size));
+        }
+
+        // Sprawdź, czy na danej pozycji jest OwlBear
+        if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
+            cellContainer.getChildren().add(createOwlBearElement(size));
+        }
+
+        // Sprawdź, czy na danej pozycji są zwierzęta
+        List<Animal> animals = map.getAnimalsAtPos(pos);
+        if (animals != null && !animals.isEmpty()) {
+            cellContainer.getChildren().add(createAnimalElement(pos, size));
+        }
+
+        return cellContainer;
     }
 
     private Node createAnimalElement(Vector2d pos, int size) {
         StackPane animalContainer = new StackPane();
-
         List<Animal> animals = map.getAnimalsAtPos(pos);
+
+        // Wybierz odpowiedni obrazek w zależności od liczby zwierząt
         ImageView animalView = new ImageView(
                 animals.size() == 1 ? animalImage :
                         animals.size() == 2 ? doubleAnimalImage :
@@ -168,7 +199,7 @@ public class SimulationPresenter implements MapChangeListener {
         animalView.setFitHeight(size * 0.8);
 
         // Pasek energii
-        Animal firstAnimal = animals.getFirst();
+        Animal firstAnimal = animals.get(0); // Załóżmy, że lista nie jest pusta
         Rectangle energyBar = new Rectangle(size * 0.8, size * 0.1);
         energyBar.setFill((Color) setEnergyBarColor(firstAnimal.getEnergy()));
         StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
@@ -186,19 +217,6 @@ public class SimulationPresenter implements MapChangeListener {
         return grassView;
     }
 
-
-    private void updateSelectedAnimalStats() {
-        if (selectedAnimalStats != null) {
-            genomeField.setText(selectedAnimalStats.getGenome().toString());
-            activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
-            energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
-            eatenPlantsField.setText(String.valueOf(selectedAnimalStats.getEatenPlants()));
-            childrenCountField.setText(String.valueOf(selectedAnimalStats.getChildrenCount()));
-            ageField.setText(String.valueOf(selectedAnimalStats.getAge()));
-            deathDayField.setText(selectedAnimalStats.getDeathDay() != null ? String.valueOf(selectedAnimalStats.getDeathDay()) : "");
-        }
-    }
-
     @Override
     public void mapChanged(WorldMap updatedMap) {
         Platform.runLater(() -> {
@@ -207,9 +225,15 @@ public class SimulationPresenter implements MapChangeListener {
             updateSelectedAnimalStats();
             updateDayCounter();
             simulationCharts.updateChart(currentDay, map);
-            if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear) {
-                owlBearKillsLabel.setText("OwlBear Kills: " + theEarthWithOwlBear.getOwlBearKillsCounter());
+
+            // Aktualizacja wykresów energii zwierząt
+            for (AnimalEnergyChart chart : animalEnergyCharts) {
+                chart.updateChart(currentDay);
             }
+
+            // Aktualizacja statystyk OwlBera
+            updateOwlBearStats();
+
             currentDay++;
         });
     }
@@ -217,6 +241,8 @@ public class SimulationPresenter implements MapChangeListener {
     private void toggleAnimalStats(Animal animal) {
         if (!showAnimalStats) {
             selectedAnimalStats = new AnimalStatistics(animal, simulation);
+
+            // Wypełnij pola tekstowe statystykami zwierzęcia
             genomeField.setText(selectedAnimalStats.getGenome().toString());
             activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
             energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
@@ -224,10 +250,31 @@ public class SimulationPresenter implements MapChangeListener {
             childrenCountField.setText(String.valueOf(selectedAnimalStats.getChildrenCount()));
             ageField.setText(String.valueOf(selectedAnimalStats.getAge()));
             deathDayField.setText(selectedAnimalStats.getDeathDay() != null ? String.valueOf(selectedAnimalStats.getDeathDay()) : "");
+
+            // Dodaj wykres energii dla zwierzęcia
+            if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
+                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay, this));
+            }
         } else {
             updateGlobalStats(map);
         }
         showAnimalStats = !showAnimalStats;
+    }
+
+    private void updateSelectedAnimalStats() {
+        if (selectedAnimalStats != null) {
+            fillAnimalStats(selectedAnimalStats);
+        }
+    }
+
+    private void fillAnimalStats(AnimalStatistics animalStatistics) {
+        genomeField.setText(animalStatistics.getGenome().toString());
+        activePartField.setText(String.valueOf(animalStatistics.getActivePart()));
+        energyField.setText(String.valueOf(animalStatistics.getEnergy()));
+        eatenPlantsField.setText(String.valueOf(animalStatistics.getEatenPlants()));
+        childrenCountField.setText(String.valueOf(animalStatistics.getChildrenCount()));
+        ageField.setText(String.valueOf(animalStatistics.getAge()));
+        deathDayField.setText(animalStatistics.getDeathDay() != null ? String.valueOf(animalStatistics.getDeathDay()) : "");
     }
 
     private void updateGlobalStats(WorldMap updatedMap) {
@@ -245,36 +292,30 @@ public class SimulationPresenter implements MapChangeListener {
         currentDayField.setText(String.valueOf(simulation.getDay()));
     }
 
-    @FXML
-    public void onStartStopButtonClicked() {
-        System.out.println("Simulation button clicked");
-        try {
-            if (simulation == null) {
-                if (generateCsv) {
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
-                    LocalDateTime now = LocalDateTime.now();
-                    String filename = "simulation_data_" + dtf.format(now) + ".csv";
-                    csvWriter = new PrintWriter(new FileWriter(filename, true));
-                    csvWriter.println("Day,Total Animals,Total Plants,Free Fields,Most Common Genotypes,Average Energy,Average Life Span,Average Children Count");
-                }
-                simulation = new Simulation(map, startAnimalCount, startEnergy, genomeSize, grassNutrient, initialGrass, dailyGrassSpawn);
-                Thread simulationThread = new Thread(simulation);
-                simulationThread.setDaemon(true);
-                simulationThread.start();
-                startStopButton.setText("Stop");
-            } else if (simulation.isRunning()) {
-                simulation.pauseSimulation();
-                startStopButton.setText("Start");
-            } else {
-                simulation.resumeSimulation();
-                startStopButton.setText("Stop");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Number format exception");
-            System.exit(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Unexpected error");
+    private void updateOwlBearStats() {
+        if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear) {
+            owlBearKillsLabel.setText("OwlBear Kills: " + theEarthWithOwlBear.getOwlBearKillsCounter());
         }
+    }
+
+    private void loadImages() {
+        try {
+            grassImage = new Image(Objects.requireNonNull(getClass().getResource("/images/grass-icon.png")).toExternalForm());
+            animalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deer_icon.png")).toExternalForm());
+            doubleAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/two_deer_icon.png")).toExternalForm());
+            multiAnimalImage = new Image(Objects.requireNonNull(getClass().getResource("/images/deers_icon.png")).toExternalForm());
+            owlBearImage = new Image(Objects.requireNonNull(getClass().getResource("/images/OwlBear-icon.png")).toExternalForm());
+        } catch (NullPointerException e) {
+            System.err.println("Błąd: Nie znaleziono obrazków.");
+        }
+    }
+
+    public Paint setEnergyBarColor(int energy) {
+        if (energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
+        if (energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
+        if (energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
+        if (energy < 0.75 * startEnergy) return javafx.scene.paint.Color.rgb(244, 237, 62);
+        if (energy < startEnergy) return javafx.scene.paint.Color.rgb(131, 180, 31);
+        return javafx.scene.paint.Color.rgb(18, 124, 0);
     }
 }
