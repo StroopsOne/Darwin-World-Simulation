@@ -16,16 +16,28 @@ public class SimulationStatistics {
         this.map = map;
     }
 
-    public int getTotalAnimals() {
+    public int getFreeFieldsCount() {
+        return map.getFreeFields();
+    }
+
+    public int getAnimalNumber() {
         return map.getAllLivingAnimals().size();
     }
 
-    public int getTotalPlants() {
+    public int getPlantsNumber() {
         return map.getGrassCount();       //wszystkie kiedykolwiek
     }
 
-    public int getFreeFields() {
-        return map.getFreeFields();
+    public double getAverageEnergy() {
+        return map.getAvgLivingAnimalsEnergy();
+    }
+
+    public double getAverageLifeSpan() {
+        return map.getAvgDeadAnimalsLifespan();
+    }
+
+    public double getAverageChildrenCount() {
+        return map.getAvgChildrenCount();
     }
 
     public List<Integer> getMostCommonGenotypes() {
@@ -44,28 +56,18 @@ public class SimulationStatistics {
                 .orElse(Collections.emptyList());
     }
 
-    public double getAverageEnergy() {
-        return map.getAvgLivingAnimalsEnergy();
-    }
 
-    public double getAverageLifeSpan() {
-        return map.getAvgDeadAnimalsLifespan();
-    }
-
-    public double getAverageChildrenCount() {
-        return map.getAvgChildrenCount();
-    }
 
     @Override
     public String toString() {
         return "SimulationStatistics{" +
-                "totalAnimals=" + getTotalAnimals() +
-                ", totalPlants=" + getTotalPlants() +
-                ", freeFields=" + getFreeFields() +
-                ", mostCommonGenotypes=" + getMostCommonGenotypes() +
+                "freeFields=" + getFreeFieldsCount() +
+                ", livingAnimals=" + getAnimalNumber() +
+                ", Plants=" + getPlantsNumber() +
                 ", averageEnergy=" + String.format("%.2f", getAverageEnergy()) +
                 ", averageLifeSpan=" + String.format("%.2f", getAverageLifeSpan()) +
                 ", averageChildrenCount=" + String.format("%.2f", getAverageChildrenCount()) +
+                ", mostCommonGenotypes=" + getMostCommonGenotypes() +
                 '}';
     }
 }

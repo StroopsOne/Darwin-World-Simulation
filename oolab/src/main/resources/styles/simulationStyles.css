@@ -12,6 +12,7 @@ BorderPane {
 
 VBox {
     -fx-spacing: 15;
+    -fx-padding: 5 10;
 }
 
 Button {
@@ -36,7 +37,7 @@ GridPane {
 .energy-bar {
     -fx-background-color: linear-gradient(to right, red, yellow, green);
     -fx-opacity: 0.8;
-    -fx-border-radius: 3px;
+    -fx-border-radius: 1px;
 }
 
 .animal-highlight {
@@ -46,6 +47,12 @@ GridPane {
 .chart-series-line { -fx-stroke-width: 2px; }
 .chart-series-line.series0 { -fx-stroke: blue; }  /* Zwierzęta */
 .chart-series-line.series1 { -fx-stroke: green; } /* Rośliny */
+.chart-series-line.series2 { -fx-stroke: purple; }
+.chart-series-line.series3 { -fx-stroke: red; }
+.chart-series-line.series4 { -fx-stroke: #9c5407; }
 
 .chart-legend-item-symbol.series0 { -fx-background-color: blue; }  /* Zwierzęta */
 .chart-legend-item-symbol.series1 { -fx-background-color: green; } /* Rośliny */
+.chart-legend-item-symbol.series2 { -fx-background-color: purple; }
+.chart-legend-item-symbol.series3 { -fx-background-color: red; }
+.chart-legend-item-symbol.series4 { -fx-background-color: #9c5407; }

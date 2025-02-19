@@ -56,18 +56,33 @@ public class MainPresenter {
     }
 
     private void setupValidation() {
-        validateTextField(startEnergyField, this::isNonNegativeInt, 0);
-        validateTextField(grassValueField, this::isNonNegativeInt, 0);
-        validateTextField(widthField, this::isNonNegativeInt, 1);
-        validateTextField(heightField, this::isNonNegativeInt, 1);
-        validateTextField(grassCountField, this::isNonNegativeInt, 0);
-        validateTextField(animalCountField, this::isNonNegativeInt, 0);
-        validateTextField(genomeLengthField, this::isNonNegativeInt, 1);
-        validateTextField(dailyGrassField, this::isNonNegativeInt, 0);
-        validateTextField(parentingEnergyField, this::isNonNegativeInt, 0);
-        validateTextField(reproductionEnergyField, this::isNonNegativeInt, 0);
-        validateTextField(minGeneMutationField, this::isNonNegativeInt, 0);
-        validateTextField(maxGeneMutationField, this::isNonNegativeInt, 0);
+        validateTextField(widthField, 1, 100);
+        validateTextField(heightField, 1, 100);
+        validateTextField(grassCountField, 0, 1000);
+        validateTextField(dailyGrassField, 0, 100);
+        validateTextField(grassValueField, 0, 1000);
+        validateTextField(animalCountField, 0, 1000);
+        validateTextField(startEnergyField, 0, 1000);
+        validateTextField(genomeLengthField, 1, 50);
+        validateTextField(parentingEnergyField, 0, 1000);
+        validateTextField(reproductionEnergyField, 0, 1000);
+        validateTextField(minGeneMutationField, 0, 15);
+        validateTextField(maxGeneMutationField, 0, 15);
+    }
+
+    private void validateTextField(TextField field, int minVal, int maxVal) {
+        field.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.isEmpty()) {
+                try {
+                    int value = Integer.parseInt(newVal);
+                    if (value < minVal || value > maxVal) {
+                        field.setText(oldVal);
+                    }
+                } catch (NumberFormatException e) {
+                    field.setText(oldVal);
+                }
+            }
+        });
     }
 
     private void setupBindings() {
@@ -105,17 +120,8 @@ public class MainPresenter {
         loadConfigButton.setOnAction(e -> loadConfiguration());
     }
 
-    private void validateTextField(TextField field, BiPredicate<String, Integer> validator, int minVal) {
-        field.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.isEmpty() && !validator.test(newVal, minVal)) {
-                field.setText(oldVal);
-            }
-        });
-    }
 
-    private boolean isNonNegativeInt(String value, int min) {
-        return value.matches("\\d+") && Integer.parseInt(value) >= min;
-    }
+
 
     private int parse(TextField field) {
         return Integer.parseInt(field.getText());
