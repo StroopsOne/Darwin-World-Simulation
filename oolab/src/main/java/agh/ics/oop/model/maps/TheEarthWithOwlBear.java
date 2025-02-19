@@ -58,7 +58,6 @@ import java.util.Random;
         super.moveAllAnimals(simulationDay);
         moveOwlBear(owlBear);
         owlBearKillsAnimals(simulationDay);
-        notifyAllObservers("Sowoniedzwiedz pozjadał zwierzęta");
     }
 
     public void moveOwlBear(OwlBear owlBear) {
@@ -67,10 +66,6 @@ import java.util.Random;
         Vector2d oldPosition = owlBear.getPosition();
         owlBear.move(gene, this::canMoveOwlBearTo);
         Vector2d newPosition = owlBear.getPosition();
-
-        if (!oldPosition.equals(newPosition)) {
-            notifyAllObservers("owlBear moved to " + newPosition);
-        }
     }
 
     public boolean isOwlBearAtPosition(Vector2d position){

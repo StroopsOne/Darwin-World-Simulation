@@ -76,7 +76,16 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             System.exit(0);
         }
         plantNewGrasses(grassCount, grassValue);
-        notifyAllObservers("umieszczono zwierzeta i trawe na mapie");
+    }
+
+    public void runSimulationDay(int simulationDay, int grassesCount, int grassValue) throws IncorrectPositionException {
+        removeDeadAnimals();
+        moveAllAnimals(simulationDay);
+        animalsEatGrasses();
+        animalsReproduce();
+        plantNewGrasses(grassesCount, grassValue);
+
+        notifyAllObservers("Zaktualizowano mapę po dniu symulacji");
     }
 
     public boolean isOccupied(Vector2d position){
@@ -138,7 +147,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                 grassPoints.remove(position);
             }
         }
-        notifyAllObservers("Zwierzeta zjadły trawe");
     } //Zwierzę zjada trawe
 
     public void animalsReproduce(){
@@ -159,7 +167,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                     }
                 }
             }
-            notifyAllObservers("zwierzeta sie rozmnozyly");
         }catch(IncorrectPositionException e){
             System.out.println("Blad przy wrzucaniu dziecka na mape");
         }
@@ -191,7 +198,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                 grassPoints.put(position, new Grass(position, grassValue)); // Dodanie trawy
             }
         }
-        notifyAllObservers("Wyrosła nowa trawa");
     }
 
 
@@ -337,7 +343,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                     animals.remove(position);
                 }
             }
-            notifyAllObservers("zwierzeta poruszyły sie");
         }
 
         // Dodaj przeniesione zwierzęta na nowe pozycje

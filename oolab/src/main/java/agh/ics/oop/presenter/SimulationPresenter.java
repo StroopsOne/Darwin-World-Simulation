@@ -28,6 +28,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 
 public class SimulationPresenter implements MapChangeListener {
     private AbstractWorldMap map;
@@ -48,6 +51,9 @@ public class SimulationPresenter implements MapChangeListener {
     @FXML private Label currentDayField;
     @FXML private Button startStopButton;
     @FXML private GridPane mapGrid;
+    @FXML private LineChart<Number, Number> animalChart;
+    private XYChart.Series<Number, Number> animalSeries = new XYChart.Series<>();
+    private XYChart.Series<Number, Number> plantSeries = new XYChart.Series<>();
 
 
     @FXML
@@ -63,6 +69,25 @@ public class SimulationPresenter implements MapChangeListener {
         } catch (NullPointerException e) {
             System.err.println("Błąd: Nie znaleziono obrazków.");
         }
+        // Konfiguracja wykresu
+        animalChart.getData().add(animalSeries);
+        animalChart.getData().add(plantSeries);
+
+        // Nazwy serii danych
+        animalSeries.setName("Liczba zwierząt");
+        plantSeries.setName("Liczba roślin");
+
+        // Konfiguracja osi X
+        NumberAxis xAxis = (NumberAxis) animalChart.getXAxis();
+        xAxis.setLabel("Dzień");
+
+        // Konfiguracja osi Y
+        NumberAxis yAxis = (NumberAxis) animalChart.getYAxis();
+        yAxis.setLabel("Ilość");
+
+        // Ograniczenie liczby punktów (np. do 100)
+        animalChart.setCreateSymbols(false); // Ukrycie punktów na linii
+
     }
 
     public void configureMap(AbstractWorldMap worldMap) {
@@ -178,6 +203,12 @@ public class SimulationPresenter implements MapChangeListener {
             updateGlobalStats(updatedMap);
             updateSelectedAnimalStats();
             updateDayCounter();
+
+            int animalCount = updatedMap.getLivingAnimalsCount();
+            int plantCount = updatedMap.getGrassCount();
+
+            animalSeries.getData().add(new XYChart.Data<>(currentDay, animalCount));
+            plantSeries.getData().add(new XYChart.Data<>(currentDay, plantCount));
             currentDay++;
         });
     }
