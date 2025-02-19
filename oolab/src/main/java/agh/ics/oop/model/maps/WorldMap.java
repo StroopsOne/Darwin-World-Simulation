@@ -28,7 +28,8 @@ public interface WorldMap extends MoveValidator {
      * If the move is not possible, this method has no effect.
      */
     void moveAllAnimals(int simulationDay) throws IncorrectPositionException;
-
+    int getLivingAnimalsCount();
+    int getGrassCount();
 
     Boundary getCurrentBounds();
     UUID getId();

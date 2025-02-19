@@ -42,3 +42,10 @@ GridPane {
 .animal-highlight {
     -fx-effect: dropshadow(three-pass-box, rgba(255,255,0,0.8), 10, 0, 0, 0);
 }
+
+.chart-series-line { -fx-stroke-width: 2px; }
+.chart-series-line.series0 { -fx-stroke: blue; }  /* Zwierzęta */
+.chart-series-line.series1 { -fx-stroke: green; } /* Rośliny */
+
+.chart-legend-item-symbol.series0 { -fx-background-color: blue; }  /* Zwierzęta */
+.chart-legend-item-symbol.series1 { -fx-background-color: green; } /* Rośliny */

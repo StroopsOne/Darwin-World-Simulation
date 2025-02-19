@@ -51,12 +51,7 @@ public class Simulation implements Runnable {
                 }
                 try {
                     Thread.sleep(1000);     //przerwa między dniami
-                    map.removeDeadAnimals();
-                    map.moveAllAnimals(day);
-                    map.animalsEatGrasses();
-                    map.decreaseEnergyForAllAnimals(day);
-                    map.animalsReproduce();
-                    map.plantNewGrasses(dailyGrass,grassValue);
+                    map.runSimulationDay(day, dailyGrass, grassValue);
                     day++;
                 } catch (IncorrectPositionException e) {
                     System.out.println("Blad w poruszaniu zwierzat");
