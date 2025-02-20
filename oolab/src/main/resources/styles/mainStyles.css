@@ -33,7 +33,6 @@ Button:hover {
     -fx-background-color: #3367d6;
 }
 
-/* Styl pól tekstowych */
 TextField, ChoiceBox {
     -fx-font-size: 14px;
     -fx-padding: 8;
@@ -44,28 +43,21 @@ TextField, ChoiceBox {
 }
 
 TextField:focused, ChoiceBox:focused {
-    -fx-border-color: #0f9d58; /* Zielony obrys po kliknięciu */
+    -fx-border-color: #0f9d58;
 }
 
-/* Styl etykiet */
+
 Label {
     -fx-font-size: 14px;
     -fx-text-fill: #333333;
 }
 
-.info-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #ff0000; /* Czerwony tekst dla błędów/informacji */
-    -fx-font-style: italic;
-}
 
-/* Styl CheckBox */
 CheckBox {
     -fx-font-size: 14px;
     -fx-text-fill: #333333;
 }
 
-/* Styl kontenerów */
 VBox, HBox {
     -fx-spacing: 15;
 }
@@ -81,12 +73,10 @@ GridPane {
     -fx-text-fill: #555555;
 }
 
-/* Efekt hover dla elementów formularza */
 TextField:hover, ChoiceBox:hover {
-    -fx-background-color: #f7f7f7; /* Jaśniejsze tło */
+    -fx-background-color: #f7f7f7;
 }
 
-/* Styl wprowadzania danych */
 TextField:disabled {
     -fx-opacity: 0.7;
     -fx-background-color: #eeeeee;
@@ -98,7 +88,6 @@ Button:disabled {
     -fx-text-fill: #666666;
 }
 
-/* Styl pola informacji */
 #infoLabel {
     -fx-text-fill: #ff0000; /* Czerwony dla błędów */
     -fx-font-size: 12px;
