@@ -74,7 +74,7 @@ class SimulationTest {
     @Test
     void testMultipleDays() throws IncorrectPositionException, InterruptedException {
         AbstractWorldMap map = new TheEarth(10, 10, 1, 3, 50, 20, true);
-        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 5);
+        Simulation simulation = new Simulation(map, 5, 100, 8, 50, 10, 10);
 
         Thread simulationThread = new Thread(simulation);
         simulationThread.start();
