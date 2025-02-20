@@ -288,6 +288,7 @@ public class SimulationPresenter implements MapChangeListener {
     private void showAnimalStats(Animal animal) {
         if (!showAnimalStats) {
             selectedAnimalStats = new AnimalStatistics(animal);
+            fillAnimalStats(selectedAnimalStats);
 
             // Dodaj wykres energii dla zwierzęcia
             if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
