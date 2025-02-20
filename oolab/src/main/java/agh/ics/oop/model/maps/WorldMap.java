@@ -5,6 +5,7 @@ import agh.ics.oop.model.Exceptions.IncorrectPositionException;
 import agh.ics.oop.model.mapElements.Animal;
 import agh.ics.oop.model.util.MapChangeListener;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,11 +20,35 @@ public interface WorldMap extends MoveValidator {
 
     void moveAllAnimals(int simulationDay) throws IncorrectPositionException;
 
-    int getLivingAnimalsCount();
+    void animalsEatGrasses();
+
+    void animalsReproduce();
+
+    Animal groupAnimalsToReproduce(Animal mom, Animal dad);
+
+    void plantNewGrasses(int grassesCount, int grassValue);
 
     int getGrassCount();
 
+    List<Animal> getAllLivingAnimals();
+
     float getAvgLivingAnimalsEnergy();
+
+    float getAvgDeadAnimalsLifespan();
+
+    float getAvgChildrenCount();
+
+    int getFreePositionsCount();
+
+    int getLivingAnimalsCount();
+
+    int getDeadAnimalsCount();
+
+    List<Animal> getDeadAnimals();
+
+    List<Animal> getAnimalsAtPos(Vector2d position);
+
+    List<Integer> getMostCommonGenotypes();
 
     Boundary getCurrentBounds();
 

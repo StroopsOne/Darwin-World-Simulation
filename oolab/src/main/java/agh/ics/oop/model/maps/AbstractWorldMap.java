@@ -29,8 +29,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
     private final Vector2d minVector;
     private final Set<Vector2d> preferredPositions = new HashSet<>();
     private final Set<Vector2d> notPreferredPositions = new HashSet<>();
-    private final int preferredPositionsCount;
-    private final int notPreferredPositionsCount;
     private final int minGeneMutation;
     private final int maxGeneMutation;
     private final int reproductionEnergy;
@@ -62,8 +60,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                 }
             }
         }
-        this.preferredPositionsCount = preferredPositions.size();
-        this.notPreferredPositionsCount = notPreferredPositions.size();
     }
 
     public void placeStartObjects(int animalsCount, int grassCount, int grassValue, int startEnergy, int geneSize){
@@ -234,7 +230,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
             } else if (!preferredPositions.isEmpty()) {
                 targetSet = preferredPositions;
             } else if (!notPreferredPositions.isEmpty()) {
-                targetSet = notPreferredPositions; // Fallback do niepreferowanych pól
+                targetSet = notPreferredPositions;
             } else {
                 continue; // Brak dostępnych pól
             }

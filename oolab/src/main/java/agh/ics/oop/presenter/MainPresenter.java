@@ -81,7 +81,6 @@ public class MainPresenter {
     @FXML
     public void onStartBtnClicked() {
 
-
         List<TextField> fields = List.of(
                 widthField, heightField, grassCountField, dailyGrassField, grassValueField,
                 animalCountField, startEnergyField, parentingEnergyField, reproductionEnergyField,
@@ -121,22 +120,22 @@ public class MainPresenter {
 
             // Wczytanie sceny symulacji
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("simulation.fxml"));
-            Parent simRoot = loader.load();
-            SimulationPresenter simPresenter = loader.getController();
-            simPresenter.enableCsvExport(csvEnabled);
-            simPresenter.setInitialParams(animalCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
+            Parent simulationRoot = loader.load();
+            SimulationPresenter simulationPresenter = loader.getController();
+            simulationPresenter.enableCsvExport(csvEnabled);
+            simulationPresenter.setInitialParams(animalCount, startEnergy, genomeLength, grassValue, grassCount, dailyGrass);
 
             AbstractWorldMap worldMap = owlBearEnabled
                     ? new TheEarthWithOwlBear(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection)
                     : new TheEarth(mapHeight, mapWidth, minGeneMutation, maxGeneMutation, reproductionEnergy, parentingEnergy, slightCorrection);
 
-            simPresenter.configureMap(worldMap);
-            worldMap.addObserver(simPresenter);
-            simPresenter.onStartStopButtonClicked();
+            simulationPresenter.configureMap(worldMap);
+            worldMap.addObserver(simulationPresenter);
+            simulationPresenter.onStartStopButtonClicked();
 
-            Stage simStage = new Stage();
-            simStage.setScene(new Scene(simRoot));
-            simStage.show();
+            Stage simulationStage = new Stage();
+            simulationStage.setScene(new Scene(simulationRoot));
+            simulationStage.show();
         } catch (NumberFormatException e) {
             infoLabel.setText("Error: Invalid number format.");
         } catch (Exception e) {
@@ -171,7 +170,7 @@ public class MainPresenter {
         try {
             saveToJson(configName, config);
             infoLabel.setText("Configuration saved successfully.");
-            clearFields();
+            clearTextFields();
         } catch (IOException e) {
             infoLabel.setText("Error: Could not save configuration.");
             e.printStackTrace();
@@ -212,7 +211,7 @@ public class MainPresenter {
         }
     }
 
-    private void clearFields() {
+    private void clearTextFields() {
         List<TextField> textFields = List.of(
                 widthField, heightField, grassCountField, grassValueField, dailyGrassField,
                 animalCountField, startEnergyField, parentingEnergyField, reproductionEnergyField,
@@ -283,6 +282,4 @@ public class MainPresenter {
         }
         return null;
     }
-
-
 }
