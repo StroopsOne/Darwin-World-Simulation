@@ -16,6 +16,7 @@ public class AnimalEnergyChart {
     private final XYChart.Series<Number, Number> AvgEnergySeries = new XYChart.Series<>();
     private final int startDay;
 
+    /// klasa po kliknięciu na zwierze otwiera nowe okno z wykresem zależności energii zwierzęcia od średniej energii ///
     public AnimalEnergyChart(Animal animal, WorldMap map, int currentDay) {
         this.animal = animal;
         this.map = map;

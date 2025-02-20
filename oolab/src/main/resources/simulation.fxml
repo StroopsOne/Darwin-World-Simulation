@@ -42,11 +42,11 @@
                         <TextField fx:id="totalPlantsField" editable="false" prefWidth="160" />
                         <Label text="Average Energy:" />
                         <TextField fx:id="averageEnergyField" editable="false" prefWidth="160" />
-                        <Label text="Average Life Span:" />
+                        <Label text="Average Life Span:" wrapText="true"/>
                         <TextField fx:id="averageLifeSpanField" editable="false" prefWidth="160" />
-                        <Label text="Average Children Count:" />
+                        <Label text="Average Children Count:" wrapText="true"/>
                         <TextField fx:id="averageChildrenCountField" editable="false" prefWidth="160" />
-                        <Label text="Most Common Genotypes:" />
+                        <Label text="Most Common Genotypes:" wrapText="true"/>
                         <TextField fx:id="mostCommonGenotypesField" editable="false" prefWidth="160" />
                     </VBox>
                     <VBox>

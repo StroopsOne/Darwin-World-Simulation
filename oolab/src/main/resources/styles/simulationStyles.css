@@ -31,12 +31,24 @@ Button {
 }
 
 GridPane {
-    -fx-background-color: linear-gradient(to bottom, #3eafca, #5b9cdc);
+    -fx-background-color: linear-gradient(to bottom,
+    #e0e6da 1%,
+    #b7d881 5%,
+    #92bd4a 25%,
+    #3faa3f 40%,
+    #3faa3f 60%,
+    #92bd4a 75%,
+    #b7d881 95%,
+    #e0e6da 99%
+    );
     -fx-border-color: #688ea8;
     -fx-border-width: 1;
-    -fx-padding: 10;
+    -fx-padding: 0;
+    -fx-max-width: inherit;
+    -fx-max-height: inherit;
     -fx-alignment: center;
 }
+
 
 .energy-bar {
     -fx-background-color: linear-gradient(to right, red, yellow, green);

@@ -32,7 +32,7 @@ public class SimulationCharts {
         plantSeries.setName("Number of plants");
         energySeries.setName("Average energy");
         lifespanSeries.setName("Average lifespan");
-        childrenSeries.setName("Average offspring count");
+        childrenSeries.setName("Average children count");
 
         chart.getData().addAll(animalSeries, plantSeries, energySeries, lifespanSeries, childrenSeries);
     }

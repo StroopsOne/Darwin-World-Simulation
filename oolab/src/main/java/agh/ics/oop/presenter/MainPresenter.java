@@ -79,7 +79,7 @@ public class MainPresenter {
 
 
     @FXML
-    public void onStartClicked() {
+    public void onStartBtnClicked() {
 
 
         List<TextField> fields = List.of(

@@ -29,11 +29,9 @@ public class AnimalStatistics {
         return animal.getChildrenCount();
     }
 
-    public int getActivePart() { return animal.getGenePartUsed(); } //UWAGA ZWRACA INDEKS A NIE ZAWARTOŚĆ GENU
+    public List<Integer> getGenome() { return animal.getGenes().getGenes(); }
 
-    public List<Integer> getGenome() {
-        return animal.getGenes().getGenes();
-    }
+    public int getActivePart() { return animal.getGenePartUsed(); } //UWAGA ZWRACA INDEKS A NIE ZAWARTOŚĆ GENU
 
     public Integer getDeathDay() { return animal.getDeathDay(); }
 }

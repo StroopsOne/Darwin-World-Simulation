@@ -35,10 +35,10 @@
                 <Label text="Animal Start Energy:" GridPane.rowIndex="6" GridPane.columnIndex="0" />
                 <TextField fx:id="startEnergyField" promptText="Starting energy" GridPane.rowIndex="6" GridPane.columnIndex="1" />
 
-                <Label text="Parenting Substraction Energy:" GridPane.rowIndex="7" GridPane.columnIndex="0" />
+                <Label text="Parenting Substraction Energy:" GridPane.rowIndex="7" GridPane.columnIndex="0" wrapText="true"/>
                 <TextField fx:id="parentingEnergyField" promptText="Energy shared by parents" GridPane.rowIndex="7" GridPane.columnIndex="1" />
 
-                <Label text="Reproduction Required Energy:" GridPane.rowIndex="8" GridPane.columnIndex="0" />
+                <Label text="Reproduction Required Energy:" GridPane.rowIndex="8" GridPane.columnIndex="0" wrapText="true"/>
                 <TextField fx:id="reproductionEnergyField" promptText="Energy required to reproduce" GridPane.rowIndex="8" GridPane.columnIndex="1" />
 
                 <Label text="Genome Size:" GridPane.rowIndex="9" GridPane.columnIndex="0" />
@@ -66,7 +66,7 @@
             </GridPane>
 
             <VBox spacing="10" alignment="CENTER">
-                <Button fx:id="startButton" text="Start Simulation" onAction="#onStartClicked" />
+                <Button fx:id="startButton" text="Start Simulation" onAction="#onStartBtnClicked" />
                 <Label fx:id="infoLabel" text="Information or Errors" />
 
                 <TextField fx:id="loadConfigIdField" promptText="Enter config ID to load" />
@@ -74,6 +74,11 @@
 
                 <TextField fx:id="saveConfigNameField" promptText="Save current config as..." />
                 <Button fx:id="saveConfigButton" text="Save Configuration" />
+
+                <Label text="Configurations ID:" />
+                <Label text="S: '56' " />
+                <Label text="M: '55' " />
+                <Label text="XL: '57' " />
             </VBox>
         </HBox>
     </center>
