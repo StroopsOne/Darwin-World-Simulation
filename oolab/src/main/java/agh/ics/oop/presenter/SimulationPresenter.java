@@ -257,6 +257,22 @@ public class SimulationPresenter implements MapChangeListener {
         averageLifeSpanField.setText(String.format("%.2f", updatedMap.getAvgDeadAnimalsLifespan()));
         averageChildrenCountField.setText(String.format("%.2f", updatedMap.getAvgChildrenCount()));
         mostCommonGenotypesField.setText(updatedMap.getMostCommonGenotypes().toString());
+
+        //obsługa CSV
+
+        if(generateCsv) {
+            csvWriter.printf("%d,%d,%d,%d,\"%s\",%.2f,%.2f,%.2f%n",
+                    simulation.getDay(),
+                    map.getAllLivingAnimals().size(),
+                    map.getGrassCount(),
+                    map.getFreePositionsCount(),
+                    map.getMostCommonGenotypes().toString(),
+                    map.getAvgLivingAnimalsEnergy(),
+                    map.getAvgDeadAnimalsLifespan(),
+                    map.getAvgChildrenCount()
+            );
+            csvWriter.flush();
+        }
     }
 
     private void fillAnimalStats(AnimalStatistics animalStatistics) {
