@@ -1,6 +1,7 @@
 package agh.ics.oop.presenter;
 
 import agh.ics.oop.model.mapElements.Animal;
+import agh.ics.oop.model.maps.WorldMap;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -10,29 +11,36 @@ import javafx.stage.Stage;
 
 public class AnimalEnergyChart {
     private final Animal animal;
-    private final XYChart.Series<Number, Number> energySeries;
+    private final WorldMap map;
+    private final XYChart.Series<Number, Number> animalEnergySeries = new XYChart.Series<>();
+    private final XYChart.Series<Number, Number> AvgEnergySeries = new XYChart.Series<>();
     private final int startDay;
 
-    public AnimalEnergyChart(Animal animal, int currentDay) {
+    public AnimalEnergyChart(Animal animal, WorldMap map, int currentDay) {
         this.animal = animal;
+        this.map = map;
         this.startDay = currentDay;
 
         Stage stage = new Stage();
-        stage.setTitle("Energy Chart for Animal: ");
+        stage.setTitle("Animal Energy Chart ");
 
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Days");
+        xAxis.setForceZeroInRange(false);
+        xAxis.setLowerBound(startDay);
+
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Energy Level");
 
         LineChart<Number, Number> energyChart = new LineChart<>(xAxis, yAxis);
         energyChart.setTitle("Energy Level Over Time");
+        energyChart.setCreateSymbols(false);
 
-        energySeries = new XYChart.Series<>();
-        energySeries.setName("Energy Level");
-        energyChart.getData().add(energySeries);
+        animalEnergySeries.setName("Animal Energy Level");
+        AvgEnergySeries.setName("Average Energy Level");
+        energyChart.getData().addAll(animalEnergySeries, AvgEnergySeries);
 
-        Scene scene = new Scene(energyChart, 800, 600);
+        Scene scene = new Scene(energyChart, 400, 300);
         stage.setScene(scene);
 
         stage.show();
@@ -40,8 +48,8 @@ public class AnimalEnergyChart {
 
     public void updateChart(int currentDay) {
         Platform.runLater(() -> {
-            int relativeDay = currentDay - startDay;
-            energySeries.getData().add(new XYChart.Data<>(relativeDay, animal.getEnergy()));
+            animalEnergySeries.getData().add(new XYChart.Data<>(currentDay, animal.getEnergy()));
+            AvgEnergySeries.getData().add(new XYChart.Data<>(currentDay, map.getAvgLivingAnimalsEnergy()));
         });
     }
 
