@@ -15,26 +15,22 @@ import java.util.UUID;
  */
 public interface WorldMap extends MoveValidator {
 
-    /**
-     * Place a animal on the map.
-     *
-     * @param animal The animal to place on the map.
-     * @return True if the animal was placed. The animal cannot be placed if the move is not valid.
-     */
     void placeAnimal(Animal animal) throws IncorrectPositionException;
 
-    /**
-     * Moves an animal (if it is present on the map) according to specified direction.
-     * If the move is not possible, this method has no effect.
-     */
     void moveAllAnimals(int simulationDay) throws IncorrectPositionException;
+
     int getLivingAnimalsCount();
+
     int getGrassCount();
+
     float getAvgLivingAnimalsEnergy();
 
     Boundary getCurrentBounds();
+
     UUID getId();
+
     void addObserver(MapChangeListener observer);
+
     void removeObserver(MapChangeListener observer);
 
     boolean isOccupied(Vector2d currentPosition);

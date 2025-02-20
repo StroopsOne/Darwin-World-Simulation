@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 public class SimulationPresenter implements MapChangeListener {
     private AbstractWorldMap map;
     private Simulation simulation;
@@ -43,7 +44,6 @@ public class SimulationPresenter implements MapChangeListener {
     private AnimalStatistics selectedAnimalStats;
     private int startAnimalCount, startEnergy, genomeSize, grassNutrient, dailyGrassSpawn, initialGrass, currentDay = 0;
     private SimulationCharts simulationCharts;
-    private static final Color CELL_COLOR = Color.rgb(42, 211, 38);
     private Image grassImage, animalImage, doubleAnimalImage, multiAnimalImage, owlBearImage;
     private List<AnimalEnergyChart> animalEnergyCharts = new ArrayList<>();
 
@@ -71,12 +71,12 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     public void setInitialParams(int animals, int energy, int genome, int grassValue, int grassStart, int dailyGrass) {
+        this.initialGrass = grassStart;
+        this.dailyGrassSpawn = dailyGrass;
+        this.grassNutrient = grassValue;
         this.startAnimalCount = animals;
         this.startEnergy = energy;
         this.genomeSize = genome;
-        this.grassNutrient = grassValue;
-        this.initialGrass = grassStart;
-        this.dailyGrassSpawn = dailyGrass;
     }
 
     public void enableCsvExport(boolean enable) {
@@ -140,15 +140,22 @@ public class SimulationPresenter implements MapChangeListener {
     public void renderMap() {
         clearGrid();
         Boundary bounds = map.getCurrentBounds();
-        int gridSize = 800 / Math.max(bounds.upperRight().getX() - bounds.lowerLeft().getX() + 1,
-                bounds.upperRight().getY() - bounds.lowerLeft().getY() + 1);
+        int mapWidth = bounds.upperRight().getX() - bounds.lowerLeft().getX() + 1;
+        int mapHeight = bounds.upperRight().getY() - bounds.lowerLeft().getY() + 1;
+
+        int cellSize = Math.min(50, Math.min(800 / mapWidth, 800 / mapHeight));
+
+        mapGrid.setMinWidth(cellSize * mapWidth);
+        mapGrid.setMinHeight(cellSize * mapHeight);
+        mapGrid.setMaxWidth(cellSize * mapWidth);
+        mapGrid.setMaxHeight(cellSize * mapHeight);
 
         for (int y = bounds.lowerLeft().getY(); y <= bounds.upperRight().getY(); y++) {
             for (int x = bounds.lowerLeft().getX(); x <= bounds.upperRight().getX(); x++) {
                 Vector2d pos = new Vector2d(x, y);
-                Node cell = createMapElement(pos, gridSize);
-                if (cell != null) {
-                    mapGrid.add(cell, x - bounds.lowerLeft().getX(), y - bounds.lowerLeft().getY());
+                Node mapElement = createMapElement(pos, cellSize);
+                if (mapElement != null) {
+                    mapGrid.add(mapElement, x - bounds.lowerLeft().getX(), y - bounds.lowerLeft().getY());
                 }
             }
         }
@@ -157,10 +164,6 @@ public class SimulationPresenter implements MapChangeListener {
     private Node createMapElement(Vector2d pos, int size) {
         StackPane cellContainer = new StackPane();
         cellContainer.setPrefSize(size, size);
-
-        Rectangle background = new Rectangle(size, size);
-        background.setFill(CELL_COLOR);
-        cellContainer.getChildren().add(background);
 
         if (map.isGrassOnPosition(pos)) {
             cellContainer.getChildren().add(createGrassElement(size));
@@ -251,8 +254,8 @@ public class SimulationPresenter implements MapChangeListener {
     private void updateGlobalStats(WorldMap updatedMap) {
         SimulationStatistics simulationStatistics = new SimulationStatistics((AbstractWorldMap) updatedMap);
         freeFieldsField.setText(String.valueOf(simulationStatistics.getFreeFieldsCount()));
-        livingAnimalsField.setText(String.valueOf(simulationStatistics.getAnimalNumber()));
-        totalPlantsField.setText(String.valueOf(simulationStatistics.getPlantsNumber()));
+        livingAnimalsField.setText(String.valueOf(simulationStatistics.getLivingAnimalsNumber()));
+        totalPlantsField.setText(String.valueOf(simulationStatistics.getCurrentPlantsNumber()));
         averageEnergyField.setText(String.format("%.2f", simulationStatistics.getAverageEnergy()));
         averageLifeSpanField.setText(String.format("%.2f", simulationStatistics.getAverageLifeSpan()));
         averageChildrenCountField.setText(String.format("%.2f", simulationStatistics.getAverageChildrenCount()));

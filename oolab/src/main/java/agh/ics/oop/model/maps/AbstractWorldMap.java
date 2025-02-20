@@ -12,6 +12,7 @@ import agh.ics.oop.model.util.MapVisualizer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
@@ -49,8 +50,8 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         this.width = width;
         maxVector = new Vector2d(width-1, height-1);
         minVector = new Vector2d(0,0);
-        int upperEquatorBound = (int) (0.4*(height-1));
-        int lowerEquatorBound = (int) (0.6*(height-1));
+        int upperEquatorBound = (int) Math.round(0.4*(height-1));
+        int lowerEquatorBound = (int) Math.round(0.6*(height-1));
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 Vector2d position = new Vector2d(i, j);
@@ -78,6 +79,15 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         plantNewGrasses(grassCount, grassValue);
     }
 
+    @Override
+    public void placeAnimal(Animal animal) throws IncorrectPositionException {
+        Vector2d position = animal.getPosition();
+        if (canMoveTo(position)) {
+            animals.computeIfAbsent(position, key -> new ArrayList<>()).add(animal);
+        }
+        else throw new IncorrectPositionException(position);
+    }
+
     public void runSimulationDay(int simulationDay, int grassesCount, int grassValue) throws IncorrectPositionException {
         removeDeadAnimals();
         moveAllAnimals(simulationDay);
@@ -89,37 +99,65 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         notifyAllObservers("Zaktualizowano mapę po dniu symulacji");
     }
 
-    public boolean isOccupied(Vector2d position){
-        if (animals.containsKey(position)){
-            return true;
-        }
-        if(grassPoints.containsKey(position)){
-            return true;
-        }
-        return false;
-    }
+    public void removeDeadAnimals() {
+        List<Vector2d> emptyPositions = new ArrayList<>();
 
+        // Iterujemy przez każdą pozycję na mapie
+        for (Map.Entry<Vector2d, List<Animal>> entry : animals.entrySet()) {
+            Vector2d position = entry.getKey();
+            List<Animal> animalsAtPosition = entry.getValue();
 
-    public WorldElement objectAt(Vector2d position) {
-        if (animals.containsKey(position)){
-            return animals.get(position).getFirst();
-        }
-        return grassPoints.get(position);
-    }
-
-    public int getFreePositionsCount() {
-        Set<Vector2d> takenPositionsCount = new HashSet<>();
-        takenPositionsCount.addAll(animals.keySet());
-        takenPositionsCount.addAll(grassPoints.keySet());
-
-        return width * height - takenPositionsCount.size();
-    }
-
-    public void decreaseEnergyForAllAnimals(int simulationDay) {
-        for (List<Animal> animalsAtPosition : animals.values()) {
-            for (Animal animal : animalsAtPosition) {
-                animal.dayPasses(simulationDay);
+            // Usuwa zwierze i dodaje do listy martwych
+            Iterator<Animal> iterator = animalsAtPosition.iterator();
+            while (iterator.hasNext()) {
+                Animal animal = iterator.next();
+                if (animal.getDeathDay() != null) { // Zwierzę jest martwe, jeśli energia <= 0
+                    deadAnimals.add(animal);
+                    iterator.remove();
+                }
             }
+
+            // Jeśli pozycja jest pusta, oznacza ją do usunięcia
+            if (animalsAtPosition.isEmpty()) {
+                emptyPositions.add(position);
+            }
+        }
+
+        // Usuwamy puste pozycje z mapy
+        for (Vector2d position : emptyPositions) {
+            animals.remove(position);
+        }
+    }
+
+    public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
+        Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();
+
+        for (Vector2d position : new HashSet<>(animals.keySet())) { // Kopiujemy klucze, aby uniknąć modyfikacji w trakcie iteracji
+            List<Animal> animalsAtPosition = animals.get(position);
+
+            if (animalsAtPosition != null) {
+                List<Animal> movingAnimals = new ArrayList<>(animalsAtPosition);
+                for (Animal animal : movingAnimals) {
+                    Vector2d oldPosition = animal.getPosition();
+                    animal.move(animal.useGene(), this, width);
+
+                    Vector2d newPosition = animal.getPosition();
+                    if (!oldPosition.equals(newPosition)) {
+                        updatedAnimals.computeIfAbsent(newPosition, k -> new ArrayList<>()).add(animal);
+                        animalsAtPosition.remove(animal);
+                    }
+                }
+
+                // Usuń pozycję, jeśli jest pusta
+                if (animalsAtPosition.isEmpty()) {
+                    animals.remove(position);
+                }
+            }
+        }
+
+        // Dodaj przeniesione zwierzęta na nowe pozycje
+        for (Map.Entry<Vector2d, List<Animal>> entry : updatedAnimals.entrySet()) {
+            animals.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
         }
     }
 
@@ -134,7 +172,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                                 .thenComparingInt(Animal::getChildrenCount).reversed())
                         .toList();
 
-                // Pobierz zwierzęta o takich samych atrybutach jak najlepszy
+                // Pobieramy zwierzęta o takich samych atrybutach jak najlepszy
                 Animal strongestAnimal = sortedAnimals.getFirst();
                 List<Animal> tiedAnimals = sortedAnimals.stream()
                         .filter(animal -> animal.getEnergy() == strongestAnimal.getEnergy()
@@ -142,13 +180,13 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
                                 && animal.getChildrenCount() == strongestAnimal.getChildrenCount())
                         .toList();
 
-                // Wybierz losowe zwierzę spośród remisujących
+                // Wybieramy losowe zwierzę spośród remisujących
                 Animal selectedAnimal = tiedAnimals.get(new Random().nextInt(tiedAnimals.size()));
                 selectedAnimal.eatPlant(grassPoints.get(position).getPlantValue());
                 grassPoints.remove(position);
             }
         }
-    } //Zwierzę zjada trawe
+    }
 
     public void animalsReproduce(){
         try {
@@ -171,6 +209,17 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }catch(IncorrectPositionException e){
             System.out.println("Blad przy wrzucaniu dziecka na mape");
         }
+    }
+
+    public Animal groupAnimalsToReproduce(Animal mom, Animal dad) {
+        List<Integer> childGenes = ChildGenes(mom, dad);
+        Genomes childGenome=new Genomes(childGenes, minGeneMutation, maxGeneMutation,slightCorrection);
+        mom.changeEnergy(-parentingEnergy);
+        dad.changeEnergy(-parentingEnergy);
+        mom.addChild();
+        dad.addChild();
+        Animal child=new Animal(mom.getPosition(),parentingEnergy,childGenome,mom,dad);
+        return child;
     }
 
 
@@ -201,10 +250,52 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
+    public void decreaseEnergyForAllAnimals(int simulationDay) {
+        for (List<Animal> animalsAtPosition : animals.values()) {
+            for (Animal animal : animalsAtPosition) {
+                animal.dayPasses(simulationDay);
+            }
+        }
+    }
 
+    @Override
+    public boolean canMoveTo(Vector2d position) {
+        return position.follows(minVector) && position.precedes(maxVector);
+    }
 
     public boolean isGrassOnPosition(Vector2d position){
         return (grassPoints.containsKey(position) && !grassPoints.get(position).isEaten());
+    }
+
+    public boolean isOccupied(Vector2d position){
+        if (animals.containsKey(position)){
+            return true;
+        }
+        if(grassPoints.containsKey(position)){
+            return true;
+        }
+        return false;
+    }
+
+    public WorldElement objectAt(Vector2d position) {
+        if (animals.containsKey(position)){
+            return animals.get(position).getFirst();
+        }
+        return grassPoints.get(position);
+    }
+
+    public void addObserver(MapChangeListener observer){
+        observers.add(observer);
+    }
+
+    public void removeObserver(MapChangeListener observer){
+        observers.remove(observer);
+    }
+
+    protected void notifyAllObservers(String message){
+        for(MapChangeListener observer : observers){
+            observer.mapChanged(this);
+        }
     }
 
     public int getGrassCount(){
@@ -260,6 +351,14 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return (float) childCount / livingAnimals.size();
     }
 
+    public int getFreePositionsCount() {
+        Set<Vector2d> takenPositionsCount = new HashSet<>();
+        takenPositionsCount.addAll(animals.keySet());
+        takenPositionsCount.addAll(grassPoints.keySet());
+
+        return width * height - takenPositionsCount.size();
+    }
+
     public int getLivingAnimalsCount(){
         return getAllLivingAnimals().size();
     }
@@ -272,115 +371,28 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return deadAnimals;
     }
 
-    @Override
-    public void placeAnimal(Animal animal) throws IncorrectPositionException {
-        Vector2d position = animal.getPosition();
-        if (canMoveTo(position)) {
-            animals.computeIfAbsent(position, key -> new ArrayList<>()).add(animal);
-        }
-        else throw new IncorrectPositionException(position);
-    }
-
-
-    public void removeDeadAnimals() {
-        List<Vector2d> emptyPositions = new ArrayList<>();
-
-        // Iterujemy przez każdą pozycję na mapie
-        for (Map.Entry<Vector2d, List<Animal>> entry : animals.entrySet()) {
-            Vector2d position = entry.getKey();
-            List<Animal> animalsAtPosition = entry.getValue();
-
-            // Usuń martwe zwierzęta i dodaj je do listy martwych
-            Iterator<Animal> iterator = animalsAtPosition.iterator();
-            while (iterator.hasNext()) {
-                Animal animal = iterator.next();
-                if (animal.getDeathDay() != null) { // Zwierzę jest martwe, jeśli energia <= 0
-                    deadAnimals.add(animal); // Dodaj martwe zwierzę do listy martwych
-                    iterator.remove(); // Usuń martwe zwierzę z pozycji
-                }
-            }
-
-            // Jeśli pozycja jest pusta, oznacz ją do usunięcia
-            if (animalsAtPosition.isEmpty()) {
-                emptyPositions.add(position);
-            }
-        }
-
-        // Usuń puste pozycje z mapy
-        for (Vector2d position : emptyPositions) {
-            animals.remove(position);
-        }
-    }
-
     public List<Animal> getAnimalsAtPos(Vector2d position){
         return animals.get(position);
     }
 
-    public boolean isAnimalAtPosition(Vector2d position){
-        return animals.containsKey(position);
-    }
+    public List<Integer> getMostCommonGenotypes() {
+        List<Animal> animals = new ArrayList<>(this.getAllLivingAnimals());
+        animals.addAll(this.getDeadAnimals());
+        Map<Genomes, Long> genotypesCount = animals.stream()
+                .collect(Collectors.groupingBy(Animal::getGenes, Collectors.counting()));
 
-    public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
-        Map<Vector2d, List<Animal>> updatedAnimals = new HashMap<>();
+        long maxCount = Collections.max(genotypesCount.values());
 
-        for (Vector2d position : new HashSet<>(animals.keySet())) { // Kopiujemy klucze, aby uniknąć modyfikacji w trakcie iteracji
-            List<Animal> animalsAtPosition = animals.get(position);
-
-            if (animalsAtPosition != null) {
-                List<Animal> movingAnimals = new ArrayList<>(animalsAtPosition);
-                for (Animal animal : movingAnimals) {
-                    Vector2d oldPosition = animal.getPosition();
-                    animal.move(animal.useGene(), this, width);
-
-                    Vector2d newPosition = animal.getPosition();
-                    if (!oldPosition.equals(newPosition)) {
-                        updatedAnimals.computeIfAbsent(newPosition, k -> new ArrayList<>()).add(animal);
-                        animalsAtPosition.remove(animal);
-                    }
-                }
-
-                // Usuń pozycję, jeśli jest pusta
-                if (animalsAtPosition.isEmpty()) {
-                    animals.remove(position);
-                }
-            }
-        }
-
-        // Dodaj przeniesione zwierzęta na nowe pozycje
-        for (Map.Entry<Vector2d, List<Animal>> entry : updatedAnimals.entrySet()) {
-            animals.computeIfAbsent(entry.getKey(), k -> new ArrayList<>()).addAll(entry.getValue());
-        }
-    }
-
-
-    @Override
-
-    public boolean canMoveTo(Vector2d position) {
-        return position.follows(minVector) && position.precedes(maxVector);
+        return genotypesCount.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxCount)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .map(Genomes::getGenes)
+                .orElse(Collections.emptyList());
     }
 
     public Boundary getCurrentBounds(){
         return new Boundary(minVector, maxVector);
-    }
-
-    public void addObserver(MapChangeListener observer){
-        observers.add(observer);
-    }
-
-    public void removeObserver(MapChangeListener observer){
-        observers.remove(observer);
-    }
-
-    protected void notifyAllObservers(String message){
-        for(MapChangeListener observer : observers){
-            observer.mapChanged(this);
-        }
-    }
-
-
-    public String toString() {
-        Boundary bounds = getCurrentBounds();
-        return visualizer.draw(bounds.lowerLeft(), bounds.upperRight());
     }
 
     @Override
@@ -388,14 +400,9 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return id;
     }
 
-    public Animal groupAnimalsToReproduce(Animal mom, Animal dad) {
-        List<Integer> childGenes = ChildGenes(mom, dad);
-        Genomes childGenome=new Genomes(childGenes, minGeneMutation, maxGeneMutation,slightCorrection);
-        mom.changeEnergy(-parentingEnergy);
-        dad.changeEnergy(-parentingEnergy);
-        mom.addChild();
-        dad.addChild();
-        Animal child=new Animal(mom.getPosition(),parentingEnergy,childGenome,mom,dad);
-        return child;
+    public String toString() {
+        Boundary bounds = getCurrentBounds();
+        return visualizer.draw(bounds.lowerLeft(), bounds.upperRight());
     }
+
 }
