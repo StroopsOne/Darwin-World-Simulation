@@ -3,7 +3,6 @@ package agh.ics.oop.presenter;
 import agh.ics.oop.*;
 import agh.ics.oop.Statistics.AnimalStatistics;
 import agh.ics.oop.Statistics.SimulationCharts;
-import agh.ics.oop.Statistics.SimulationStatistics;
 import agh.ics.oop.model.Boundary;
 import agh.ics.oop.model.Vector2d;
 import agh.ics.oop.model.mapElements.Animal;
@@ -23,7 +22,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 import java.io.FileWriter;
@@ -205,7 +203,7 @@ public class SimulationPresenter implements MapChangeListener {
         // Pasek energii
         Animal firstAnimal = animals.get(0);
         Rectangle energyBar = new Rectangle(size * 0.8, size * 0.1);
-        energyBar.setFill((Color) setEnergyBarColor(firstAnimal.getEnergy()));
+        energyBar.setFill(setEnergyBarColor(firstAnimal.getEnergy()));
         StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
 
         animalContainer.getChildren().addAll(animalView, energyBar);
@@ -252,14 +250,13 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     private void updateGlobalStats(WorldMap updatedMap) {
-        SimulationStatistics simulationStatistics = new SimulationStatistics((AbstractWorldMap) updatedMap);
-        freeFieldsField.setText(String.valueOf(simulationStatistics.getFreeFieldsCount()));
-        livingAnimalsField.setText(String.valueOf(simulationStatistics.getLivingAnimalsNumber()));
-        totalPlantsField.setText(String.valueOf(simulationStatistics.getCurrentPlantsNumber()));
-        averageEnergyField.setText(String.format("%.2f", simulationStatistics.getAverageEnergy()));
-        averageLifeSpanField.setText(String.format("%.2f", simulationStatistics.getAverageLifeSpan()));
-        averageChildrenCountField.setText(String.format("%.2f", simulationStatistics.getAverageChildrenCount()));
-        mostCommonGenotypesField.setText(simulationStatistics.getMostCommonGenotypes().toString());
+        freeFieldsField.setText(String.valueOf(updatedMap.getFreePositionsCount()));
+        livingAnimalsField.setText(String.valueOf(updatedMap.getAllLivingAnimals().size()));
+        totalPlantsField.setText(String.valueOf(updatedMap.getGrassCount()));
+        averageEnergyField.setText(String.format("%.2f", updatedMap.getAvgLivingAnimalsEnergy()));
+        averageLifeSpanField.setText(String.format("%.2f", updatedMap.getAvgDeadAnimalsLifespan()));
+        averageChildrenCountField.setText(String.format("%.2f", updatedMap.getAvgChildrenCount()));
+        mostCommonGenotypesField.setText(updatedMap.getMostCommonGenotypes().toString());
     }
 
     private void fillAnimalStats(AnimalStatistics animalStatistics) {
@@ -306,7 +303,7 @@ public class SimulationPresenter implements MapChangeListener {
         }
     }
 
-    public Paint setEnergyBarColor(int energy) {
+    public Color setEnergyBarColor(int energy) {
         if (energy == 0) return javafx.scene.paint.Color.rgb(255, 0, 0);
         if (energy < 0.25 * startEnergy) return javafx.scene.paint.Color.rgb(209, 113, 21);
         if (energy < 0.5 * startEnergy) return javafx.scene.paint.Color.rgb(209, 183, 34);
