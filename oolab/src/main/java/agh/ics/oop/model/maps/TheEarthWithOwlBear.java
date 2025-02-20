@@ -7,6 +7,7 @@ import agh.ics.oop.model.mapElements.OwlBear;
 import agh.ics.oop.model.Enums.MapDirection;
 import agh.ics.oop.model.mapElements.WorldElement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -16,6 +17,7 @@ import java.util.Random;
     private final Vector2d upperTerritoryCoordinates;
     private final OwlBear owlBear;
     private int owlBearkillCounter;
+     private final List<Animal> deadAnimals = new ArrayList<>();
 
     public TheEarthWithOwlBear(int height, int width, int mingeneMutation, int maxgeneMutation, int reproductionEnergy, int parentingEnergy, boolean slightCorrection) {
         super(height, width,mingeneMutation,maxgeneMutation,reproductionEnergy,parentingEnergy,slightCorrection);
@@ -68,6 +70,22 @@ import java.util.Random;
         owlBearKillsAnimals(simulationDay);
     }
 
+    //pomocniczo
+
+    @Override
+    public float getAvgDeadAnimalsLifespan() {
+        if (deadAnimals.isEmpty()) {
+            return 0f; // Brak zwierząt, średnia energia to 0
+        }
+
+        int sumLifespan = 0;
+        for (Animal animal : deadAnimals) {
+            sumLifespan += animal.getDeathDay();
+        }
+
+        return (float) sumLifespan / deadAnimals.size();
+    }
+
     public void moveOwlBear(OwlBear owlBear) {
         Random random = new Random();
         int gene = random.nextInt(8);
@@ -88,6 +106,8 @@ import java.util.Random;
             for (Animal animal : animalsAtPosition) {
                 animal.killAnimal(simulationDay);
                 owlBearkillCounter++;
+                //dodanie do listy martwych
+                deadAnimals.add(animal);
             }
             animals.remove(position);
         }
