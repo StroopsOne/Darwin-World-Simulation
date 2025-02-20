@@ -20,7 +20,7 @@ public class SimulationCharts {
 
         // Oś Y (Ilość)
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Count");
+        yAxis.setLabel("Number");
 
         // Tworzenie wykresu
         chart = new LineChart<>(xAxis, yAxis);

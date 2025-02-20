@@ -56,6 +56,11 @@ import java.util.Random;
         return super.objectAt(position);
     }
 
+     @Override
+     public int getFreePositionsCount() {
+         return super.getFreePositionsCount() - (grassPoints.containsKey(owlBear.getPosition()) ? 0 : 1);
+     }
+
     @Override
     public void moveAllAnimals(int simulationDay) throws IncorrectPositionException {
         super.moveAllAnimals(simulationDay);

@@ -30,6 +30,7 @@ public interface WorldMap extends MoveValidator {
     void moveAllAnimals(int simulationDay) throws IncorrectPositionException;
     int getLivingAnimalsCount();
     int getGrassCount();
+    float getAvgLivingAnimalsEnergy();
 
     Boundary getCurrentBounds();
     UUID getId();

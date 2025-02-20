@@ -17,7 +17,7 @@
         <HBox alignment="CENTER" spacing="10">
 
             <!-- Lewo: wykresy -->
-            <VBox fx:id="chartContainer" alignment="CENTER">
+            <VBox fx:id="chartContainer" alignment="TOP_CENTER">
                 <Label text="Ecosystem Statistics" styleClass="large-font" />
                 <Label fx:id="owlBearKillsLabel" text="OwlBear Kills: 0" visible="false" styleClass="large-font"/>
             </VBox>

@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 public class SimulationStatistics {
     private final AbstractWorldMap map;
     
-    public SimulationStatistics(Simulation simulation, AbstractWorldMap map) {
+    public SimulationStatistics(AbstractWorldMap map) {
         this.map = map;
     }
 
     public int getFreeFieldsCount() {
-        return map.getFreeFields();
+        return map.getFreePositionsCount();
     }
 
     public int getAnimalNumber() {

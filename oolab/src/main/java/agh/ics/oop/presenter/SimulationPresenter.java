@@ -154,6 +154,32 @@ public class SimulationPresenter implements MapChangeListener {
         }
     }
 
+    private Node createMapElement(Vector2d pos, int size) {
+        StackPane cellContainer = new StackPane();
+        cellContainer.setPrefSize(size, size);
+
+        Rectangle background = new Rectangle(size, size);
+        background.setFill(CELL_COLOR);
+        cellContainer.getChildren().add(background);
+
+        if (map.isGrassOnPosition(pos)) {
+            cellContainer.getChildren().add(createGrassElement(size));
+        }
+
+        if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
+            cellContainer.getChildren().add(createOwlBearElement(size));
+        }
+
+        List<Animal> animals = map.getAnimalsAtPos(pos);
+        if (animals != null && !animals.isEmpty()) {
+            cellContainer.getChildren().add(createAnimalElement(pos, size));
+        }
+
+
+
+        return cellContainer;
+    }
+
     private Node createOwlBearElement(int size) {
         ImageView owlBearView = new ImageView(owlBearImage);
         owlBearView.setFitWidth(size * 0.9);
@@ -161,39 +187,10 @@ public class SimulationPresenter implements MapChangeListener {
         return owlBearView;
     }
 
-    private Node createMapElement(Vector2d pos, int size) {
-        StackPane cellContainer = new StackPane();
-        cellContainer.setPrefSize(size, size);
-
-        // Dodaj kolor tła (zobacz punkt 2)
-        Rectangle background = new Rectangle(size, size);
-        background.setFill(CELL_COLOR);
-        cellContainer.getChildren().add(background);
-
-        // Sprawdź, czy na danej pozycji jest trawa
-        if (map.isGrassOnPosition(pos)) {
-            cellContainer.getChildren().add(createGrassElement(size));
-        }
-
-        // Sprawdź, czy na danej pozycji jest OwlBear
-        if (map instanceof TheEarthWithOwlBear theEarthWithOwlBear && theEarthWithOwlBear.isOwlBearAtPosition(pos)) {
-            cellContainer.getChildren().add(createOwlBearElement(size));
-        }
-
-        // Sprawdź, czy na danej pozycji są zwierzęta
-        List<Animal> animals = map.getAnimalsAtPos(pos);
-        if (animals != null && !animals.isEmpty()) {
-            cellContainer.getChildren().add(createAnimalElement(pos, size));
-        }
-
-        return cellContainer;
-    }
-
     private Node createAnimalElement(Vector2d pos, int size) {
         StackPane animalContainer = new StackPane();
         List<Animal> animals = map.getAnimalsAtPos(pos);
 
-        // Wybierz odpowiedni obrazek w zależności od liczby zwierząt
         ImageView animalView = new ImageView(
                 animals.size() == 1 ? animalImage :
                         animals.size() == 2 ? doubleAnimalImage :
@@ -203,7 +200,7 @@ public class SimulationPresenter implements MapChangeListener {
         animalView.setFitHeight(size * 0.8);
 
         // Pasek energii
-        Animal firstAnimal = animals.get(0); // Załóżmy, że lista nie jest pusta
+        Animal firstAnimal = animals.get(0);
         Rectangle energyBar = new Rectangle(size * 0.8, size * 0.1);
         energyBar.setFill((Color) setEnergyBarColor(firstAnimal.getEnergy()));
         StackPane.setAlignment(energyBar, javafx.geometry.Pos.BOTTOM_CENTER);
@@ -252,7 +249,7 @@ public class SimulationPresenter implements MapChangeListener {
     }
 
     private void updateGlobalStats(WorldMap updatedMap) {
-        SimulationStatistics simulationStatistics = new SimulationStatistics(simulation, (AbstractWorldMap) updatedMap);
+        SimulationStatistics simulationStatistics = new SimulationStatistics((AbstractWorldMap) updatedMap);
         freeFieldsField.setText(String.valueOf(simulationStatistics.getFreeFieldsCount()));
         livingAnimalsField.setText(String.valueOf(simulationStatistics.getAnimalNumber()));
         totalPlantsField.setText(String.valueOf(simulationStatistics.getPlantsNumber()));
@@ -274,19 +271,11 @@ public class SimulationPresenter implements MapChangeListener {
 
     private void showAnimalStats(Animal animal) {
         if (!showAnimalStats) {
-            selectedAnimalStats = new AnimalStatistics(animal, simulation);
-
-            genomeField.setText(selectedAnimalStats.getGenome().toString());
-            activePartField.setText(String.valueOf(selectedAnimalStats.getActivePart()));
-            energyField.setText(String.valueOf(selectedAnimalStats.getEnergy()));
-            eatenPlantsField.setText(String.valueOf(selectedAnimalStats.getEatenPlants()));
-            childrenCountField.setText(String.valueOf(selectedAnimalStats.getChildrenCount()));
-            ageField.setText(String.valueOf(selectedAnimalStats.getAge()));
-            deathDayField.setText(selectedAnimalStats.getDeathDay() != null ? String.valueOf(selectedAnimalStats.getDeathDay()) : "");
+            selectedAnimalStats = new AnimalStatistics(animal);
 
             // Dodaj wykres energii dla zwierzęcia
             if (!animalEnergyCharts.stream().anyMatch(chart -> chart.getAnimal() == animal)) {
-                animalEnergyCharts.add(new AnimalEnergyChart(animal, currentDay));
+                animalEnergyCharts.add(new AnimalEnergyChart(animal, map, currentDay));
             }
         } else {
             selectedAnimalStats = null;

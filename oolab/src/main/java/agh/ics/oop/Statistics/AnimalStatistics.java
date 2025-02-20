@@ -6,19 +6,11 @@ import java.util.List;
 
 public class AnimalStatistics {
     private final Animal animal;
-    private final Simulation simulation;
 
-    public AnimalStatistics(Animal animal, Simulation simulation) {
+
+    public AnimalStatistics(Animal animal) {
         this.animal = animal;
-        this.simulation = simulation;
-    }
 
-    public List<Integer> getGenome() {
-        return animal.getGenes().getGenes();
-    }
-
-    public int getActivePart() {
-        return animal.getGenePartUsed();        //UWAGA ZWRCA INDEKS A NIE ZAWARTOŚĆ GENU
     }
 
     public int getEnergy() {
@@ -29,16 +21,19 @@ public class AnimalStatistics {
         return animal.getPlantEatenCount();
     }
 
-    public int getChildrenCount() {
-        return animal.getChildrenCount();
-    }
-    //offspring
-
     public int getAge() {
         return animal.getAgeDays();
     }
 
-    public Integer getDeathDay() {
-        return animal.getDeathDay();
+    public int getChildrenCount() {
+        return animal.getChildrenCount();
     }
+
+    public int getActivePart() { return animal.getGenePartUsed(); } //UWAGA ZWRACA INDEKS A NIE ZAWARTOŚĆ GENU
+
+    public List<Integer> getGenome() {
+        return animal.getGenes().getGenes();
+    }
+
+    public Integer getDeathDay() { return animal.getDeathDay(); }
 }

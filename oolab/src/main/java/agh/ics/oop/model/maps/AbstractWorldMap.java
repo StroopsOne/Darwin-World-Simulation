@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static agh.ics.oop.model.properities.Genomes.ChildGenes;
 
 public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
-    private final Map<Vector2d, Grass> grassPoints = new HashMap<>();
+    protected final Map<Vector2d, Grass> grassPoints = new HashMap<>();
     protected final Map<Vector2d, List<Animal>> animals = new ConcurrentHashMap<>();
     private final List<Animal> deadAnimals = new ArrayList<>();
     private final MapVisualizer visualizer = new MapVisualizer(this);
@@ -107,7 +107,7 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         return grassPoints.get(position);
     }
 
-    protected int getFreePositionsCount() {
+    public int getFreePositionsCount() {
         Set<Vector2d> takenPositionsCount = new HashSet<>();
         takenPositionsCount.addAll(animals.keySet());
         takenPositionsCount.addAll(grassPoints.keySet());
@@ -377,9 +377,6 @@ public abstract class AbstractWorldMap implements WorldMap, MoveValidator {
         }
     }
 
-    public int getFreeFields(){
-        return width*height-getAllLivingAnimals().size()-getGrassCount();
-    }
 
     public String toString() {
         Boundary bounds = getCurrentBounds();
