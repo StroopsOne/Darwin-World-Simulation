@@ -13,9 +13,9 @@ SlightCorrection – a special type of mutation that occurs during reproduction.
 
 ##Screenshots
 
-![Simulation Screenshot1](images/screenshot1.png)
+![Simulation menu](images/menu.png)
 
-![Simulation Screenshot2](images/screenshot2.png)
+![Simulation running](images/simulation.png)
 
 
 ## Authors
