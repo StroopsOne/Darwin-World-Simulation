@@ -11,7 +11,7 @@ Owlbear – a special creature that occupies its own territory. If an animal ent
 
 SlightCorrection – a special type of mutation that occurs during reproduction.
 
-##Screenshots
+## Screenshots
 
 ![Simulation menu](images/menu.png)
 
