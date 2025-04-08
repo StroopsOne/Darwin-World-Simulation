@@ -1,8 +1,30 @@
 # Darwin World Simulation
 
-## Opis
-This project is part of OOP course. It is a simple simulation of Darwin Evolution. Animals move around the map, eat grass, reproduce and try to survive. The most important part of simulation is animal's energy. If it gets 0, animal dies. Every animal has genome for example [2,5,6,2,4]. It determines how animal move around the map. Our simulation show charts wchich show interesting depedencies. It is possible to enable Owlbear and .... Owlbear is a special creature that has its own terittory. If animal is on the same position as OwlBear, it dies. ... is a special type of mutation that happens, when animals reproduce.
+## Description
+This project is a simple simulation of Darwinian evolution. Animals move around the map, eat grass, reproduce, and try to survive. The most important aspect of the simulation is the animal's energy — if it drops to 0, the animal dies.
 
-## Współtwórcy
+Each animal has a genome, for example: [2, 5, 6, 2, 4]. It determines how the animal moves across the map. The simulation includes charts that present interesting dependencies and patterns observed during the simulation.
+
+There are also two optional features that can be enabled:
+
+Owlbear – a special creature that occupies its own territory. If an animal enters the same position as the Owlbear, it dies.
+
+SlightCorrection – a special type of mutation that occurs during reproduction.
+
+##Screenshots
+
+![Simulation Screenshot1](images/screenshot1.png)
+
+![Simulation Screenshot2](images/screenshot2.png)
+
+
+## Authors
 - Maciej Trznadel
 - Patryk Blacha
+
+## Technologies
+- Java
+- Gradle
+
+## Additional informations
+This project was developed as part of the Object-Oriented Programming course during the 2nd year of Computer Science studies at AGH University of Krakow.
